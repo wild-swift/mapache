@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://plugins.wild-swift.name/mapache"
+    attributeFormDefault="unqualified"
+    elementFormDefault="qualified"
+    xmlns:local="http://plugins.wild-swift.name/mapache">
+
+    <xs:element name="navigation-config" type="local:RootType" >
+        <xs:key name="actionsKey">
+            <xs:selector xpath="local:actions/local:action|local:actions"/>
+            <xs:field xpath="@name|@backAction"/>
+        </xs:key>
+        <xs:key name="statesNamesKey">
+            <xs:selector xpath="local:state-list/local:state"/>
+            <xs:field xpath="@name"/>
+        </xs:key>
+
+        <xs:keyref name="actionsRefGoTo" refer="local:actionsKey">
+            <xs:selector xpath="local:state-list/local:state/local:do-on"/>
+            <xs:field xpath="@action"/>
+        </xs:keyref>
+        <xs:keyref name="statesNamesRefGoTo" refer="local:statesNamesKey">
+            <xs:selector xpath="local:state-list/local:state/local:do-on"/>
+            <xs:field xpath="@go-to"/>
+        </xs:keyref>
+        <xs:keyref name="statesNamesRefInLayers" refer="local:statesNamesKey">
+            <xs:selector xpath="local:layers/local:layer"/>
+            <xs:field xpath="@start-from"/>
+        </xs:keyref>
+    </xs:element>
+
+
+    <xs:complexType name="RootType">
+        <xs:all>
+            <xs:element name="actions" type="local:ActionsType"/>
+            <xs:element name="state-list" type="local:StatesListType"/>
+            <xs:element name="layers" type="local:LayersType" />
+        </xs:all>
+        <xs:attribute name="package" type="local:Package" use="required"/>
+        <xs:attribute name="appName" type="local:AppName" use="required"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="ActionsType">
+        <xs:sequence>
+            <xs:element name="action" maxOccurs="unbounded" minOccurs="0" type="local:ActionTagType" />
+        </xs:sequence>
+        <xs:attribute name="backAction" type="local:ElementName" use="required"/>
+        <xs:attribute name="package" type="local:RelativePackage"/>
+    </xs:complexType>
+    <xs:complexType name="ActionTagType" mixed="true">
+        <xs:sequence>
+            <xs:element name="arg" minOccurs="0" maxOccurs="unbounded" type="local:ArgumentType" />
+        </xs:sequence>
+        <xs:attribute name="name" type="local:ElementName"/>
+    </xs:complexType>
+    <xs:complexType name="ArgumentType">
+        <xs:attribute name="name" type="local:FieldName" use="required"/>
+        <xs:attribute name="type" type="local:TypeName" use="required"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="StatesListType">
+        <xs:sequence>
+            <xs:element name="state" maxOccurs="unbounded" minOccurs="0" type="local:StateType"/>
+        </xs:sequence>
+        <xs:attribute name="statesPackage" type="local:RelativePackage"/>
+        <xs:attribute name="transitionsPackage" type="local:RelativePackage"/>
+    </xs:complexType>
+    <xs:complexType name="StateType">
+        <xs:sequence>
+            <xs:element name="content" minOccurs="0" maxOccurs="unbounded" type="local:ContentTagType" />
+            <xs:element name="do-on" type="local:DoOnType" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="local:ElementName" />
+        <xs:attribute name="final" type="xs:boolean" />
+    </xs:complexType>
+    <xs:complexType name="ContentTagType">
+        <xs:attribute name="class" type="local:ClassName" use="required" />
+        <xs:attribute name="name" type="local:FieldName"/>
+    </xs:complexType>
+    <xs:complexType name="DoOnType">
+        <xs:attribute name="action" type="xs:string" use="required"/>
+        <xs:attribute name="go-to" type="local:ElementName" use="required" />
+        <xs:attribute name="with" type="local:ClassName" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="LayersType">
+        <xs:sequence>
+            <xs:element name="layer" maxOccurs="unbounded" minOccurs="0" type="local:LayerType" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="LayerType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="content-id" type="local:ResId" use="required" />
+                <xs:attribute name="start-from" type="xs:string" use="required" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+
+
+    <!--    Attributes types -->
+    <xs:simpleType name="Package">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([a-zA-Z_][0-9a-zA-Z_]*\.)*[a-zA-Z_][0-9a-zA-Z_]*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="RelativePackage">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\.?([a-zA-Z_][0-9a-zA-Z_]*\.)*[a-zA-Z_][0-9a-zA-Z_]*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ElementName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Z][0-9a-zA-Z]*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="TypeName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="(([a-zA-Z_][0-9a-zA-Z_]*\.)*[A-Z][0-9a-zA-Z_]*)|string|int|bool|char|byte|long|float|double|short" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ClassName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([a-zA-Z_][0-9a-zA-Z_]*\.)*[A-Z][0-9a-zA-Z_]*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="FieldName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-zA-Z_][0-9a-zA-Z_]*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="AppName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Z][0-9a-zA-Z]*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ResId">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z_][0-9a-z_]*" />
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

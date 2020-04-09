@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="81dp">
+    <TextView
+        android:layout_width="14dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="8dp"
+        android:textSize="26sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="#0f0f0f"
+        android:text="£"/>
+
+    <TextView
+        android:id="@+id/vtcBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="56dp"
+        android:layout_marginLeft="28dp"
+        android:layout_marginRight="56dp"
+        android:textSize="46sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="#0f0f0f"
+        tools:text="1,893.45" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#B4B4B4"
+        android:text="WALLET BALANCE"
+        android:layout_gravity="center_horizontal|bottom"/>
+</merge>

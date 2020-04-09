@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<navigation-config xmlns:ns="http://www.w3.org/2001/XMLSchema-instance" appName="WsTest"
+    package="name.wildswift.testapp.nav"
+    xmlns="http://plugins.wild-swift.name/mapache"
+    ns:schemaLocation="http://plugins.wild-swift.name/mapache mapache.xsd">
+
+    <actions backAction="Back" package=".actions">
+        <action name="Action1" />
+        <action name="Action3" />
+        <action name="Action2">
+            <arg name="label" type="string" />
+            <arg name="count" type="int" />
+        </action>
+    </actions>
+
+    <layers>
+        <layer content-id="content" start-from="State2" />
+        <layer content-id="android_content" start-from="State1" />
+    </layers>
+
+    <state-list statesPackage=".states" transitionsPackage=".transitions">
+        <state name="State1" final="true">
+            <content class="name.wildswift.mapache.NavigationContext" />
+            <do-on action="Action1" go-to="State2" with="Transition1" />
+        </state>
+        <state name="State2">
+            <do-on action="Action2" go-to="State2" with="Transition1" />
+        </state>
+        <state name="State3">
+            <do-on action="Action3" go-to="State2" with="Transition1" />
+        </state>
+    </state-list>
+
+</navigation-config>
