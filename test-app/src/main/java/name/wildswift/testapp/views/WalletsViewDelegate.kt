@@ -3,18 +3,12 @@ package name.wildswift.testapp.views
 import android.graphics.Rect
 import android.util.TypedValue
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.view_wallets.view.*
-import name.wildswift.android.kannotations.Fields
-import name.wildswift.android.kannotations.ListViewField
-import name.wildswift.android.kannotations.ViewField
-import name.wildswift.android.kannotations.ViewWithDelegate
+import name.wildswift.android.kannotations.*
 import name.wildswift.android.kannotations.interfaces.ViewDelegate
 import name.wildswift.testapp.IdRNames
-import name.wildswift.testapp.WalletsList
 
 @ViewWithDelegate(
         parent = LinearLayout::class,
@@ -22,10 +16,14 @@ import name.wildswift.testapp.WalletsList
 )
 @Fields(
         ViewField(name = "total", type = Float::class),
-
-        ViewField(name = "totalSumTitle", childName = IdRNames.vwTotal, type = String::class, childPropertyName = "balance", publicAccess = false)
+        ViewField(name = "totalSumTitle", childName = IdRNames.vwTotal, type = String::class, childPropertyName = "balance", rwType = ReadWriteMode.Private)
 )
-@ListViewField(name = "wallets", childListView = IdRNames.vwList, delegateClass = CryptoCardViewDelegate::class)
+@CollectionViewField(name = "wallets", childName = IdRNames.vwList, byDelegate = CryptoCardViewDelegate::class,
+        elementEvents = [
+            ListEvent(name = "onItemBuyClick", listenerName = "buyClick"),
+            ListEvent(name = "onItemSellClick", listenerName = "sellClick")
+        ]
+)
 class WalletsViewDelegate(view: WalletsView) : ViewDelegate<WalletsView, WalletsViewIntState>(view) {
 
     override fun setupView() {

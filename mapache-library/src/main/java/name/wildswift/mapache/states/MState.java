@@ -2,6 +2,8 @@ package name.wildswift.mapache.states;
 
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+
 import name.wildswift.mapache.NavigationContext;
 import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.osintegration.SystemCalls;
@@ -13,7 +15,7 @@ public interface MState<E extends Event, VS extends ViewSet, DC> {
      * @param rootView
      * @return
      */
-    VS setup(FrameLayout rootView, NavigationContext<E, DC> context);
-    Runnable dataBind(NavigationContext<E, DC> context, VS views);
-    Runnable start(NavigationContext<E, DC> context, SystemCalls caller);
+    VS setup(@NonNull FrameLayout rootView, @NonNull NavigationContext<E, DC> context);
+    @NonNull Runnable dataBind(@NonNull NavigationContext<E, DC> context, VS views);
+    @NonNull Runnable start(@NonNull NavigationContext<E, DC> context, @NonNull SystemCalls caller);
 }

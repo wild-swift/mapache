@@ -66,28 +66,32 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="240dp"
         android:layout_marginBottom="30dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:gravity="center">
         <TextView
             android:id="@+id/vccBuyButton"
-            android:layout_width="153dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="1"
             tools:text="Buy Zitcoin"
             tools:background="#FF7141"
             android:gravity="center"
-            android:letterSpacing="0.28"
+            android:letterSpacing="0.02"
             android:textSize="14sp"
             android:fontFamily="sans-serif-medium"
             android:textColor="#fff"
             />
-        <View android:layout_width="10dp" android:layout_height="0dp"/>
+        <View android:layout_width="8dp" android:layout_height="0dp"/>
         <TextView
             android:id="@+id/vccSellButton"
-            android:layout_width="153dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="1"
             tools:text="Sell Zitcoin"
             tools:textColor="#FF7141"
             android:gravity="center"
-            android:letterSpacing="0.28"
+            android:letterSpacing="0.02"
             android:textSize="14sp"
             android:fontFamily="sans-serif-medium"
             />

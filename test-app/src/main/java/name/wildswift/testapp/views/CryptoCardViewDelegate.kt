@@ -20,17 +20,19 @@ import name.wildswift.testapp.IdRNames
 @Fields(
         ViewField(name = "cryptoCurAmount", type = Float::class),
         ViewField(name = "countryCurAmount", type = Float::class),
-        ViewField(name = "ticker", childName = IdRNames.vccTicker, property = ViewProperty.text),
+        ViewField(name = "ticker", childName = IdRNames.vccTicker, byProperty = ViewProperty.text),
         ViewField(name = "cryptoName", type = String::class),
         ViewField(name = "iconRef", type = Int::class, childName = IdRNames.vccCoinImage, childPropertySetter = "setImageResource"),
         ViewField(name = "coinColor", type = Int::class),
 
-        ViewField(name = "buyButtonName", property = ViewProperty.text, childName = IdRNames.vccBuyButton, publicAccess = false),
-        ViewField(name = "sellButtonName", property = ViewProperty.text, childName = IdRNames.vccSellButton, publicAccess = false),
-        ViewField(name = "topRowColor", type = Int::class, childName = IdRNames.vccTopBorder, childPropertySetter = "setBackgroundColor", publicAccess = false),
-        ViewField(name = "cryptoCurText", property = ViewProperty.text, childName = IdRNames.vccCryptoCurAmount, publicAccess = false),
-        ViewField(name = "countryCurText", property = ViewProperty.text, childName = IdRNames.vccCountryCurAmount, publicAccess = false),
-        ViewField(name = "sellTextColor", property = ViewProperty.textColor, childName = IdRNames.vccSellButton, publicAccess = false)
+        ViewField(name = "buyButtonName", byProperty = ViewProperty.text, childName = IdRNames.vccBuyButton, rwType = ReadWriteMode.Private),
+        ViewField(name = "sellButtonName", byProperty = ViewProperty.text, childName = IdRNames.vccSellButton, rwType = ReadWriteMode.Private),
+        ViewField(name = "topRowColor", type = Int::class, childName = IdRNames.vccTopBorder, childPropertySetter = "setBackgroundColor", rwType = ReadWriteMode.Private),
+        ViewField(name = "cryptoCurText", byProperty = ViewProperty.text, childName = IdRNames.vccCryptoCurAmount, rwType = ReadWriteMode.Private),
+        ViewField(name = "countryCurText", byProperty = ViewProperty.text, childName = IdRNames.vccCountryCurAmount, rwType = ReadWriteMode.Private),
+        ViewField(name = "sellTextColor", byProperty = ViewProperty.textColor, childName = IdRNames.vccSellButton, rwType = ReadWriteMode.Private),
+        ViewField(name = "buyButtonBackground", byProperty = ViewProperty.backgroundDrawable, childName = IdRNames.vccBuyButton, rwType = ReadWriteMode.Private),
+        ViewField(name = "sellButtonBackground", byProperty = ViewProperty.backgroundDrawable, childName = IdRNames.vccSellButton, rwType = ReadWriteMode.Private)
 )
 @Events(
         ViewEvent(name = "buyClick", childName = IdRNames.vccBuyButton, listener = ViewListener.onClick),
@@ -50,23 +52,6 @@ class CryptoCardViewDelegate(view: CryptoCardView) : ViewDelegate<CryptoCardView
         view.elevation = 5f
     }
 
-    override fun onNewInternalState(data: CryptoCardViewIntState) {
-        super.onNewInternalState(data)
-        // TODO need add values
-        view.vccSellButton.background = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, view.resources.displayMetrics)
-            setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, view.resources.displayMetrics).toInt(), data.coinColor)
-        }
-
-        view.vccBuyButton.background = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            colors = intArrayOf(data.coinColor, data.coinColor)
-            cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, view.resources.displayMetrics)
-            setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, view.resources.displayMetrics).toInt(), data.coinColor)
-        }
-    }
-
     override fun validateStateForNewInput(data: CryptoCardViewIntState): CryptoCardViewIntState {
         return data.copy(
                 buyButtonName = "Buy ${data.cryptoName}",
@@ -74,7 +59,18 @@ class CryptoCardViewDelegate(view: CryptoCardView) : ViewDelegate<CryptoCardView
                 topRowColor = data.coinColor,
                 cryptoCurText = String.format("%.7f", data.cryptoCurAmount),
                 countryCurText = String.format("£%.2f", data.countryCurAmount),
-                sellTextColor = data.coinColor
+                sellTextColor = data.coinColor,
+                buyButtonBackground = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    colors = intArrayOf(data.coinColor, data.coinColor)
+                    cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, view.resources.displayMetrics)
+                    setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, view.resources.displayMetrics).toInt(), data.coinColor)
+                },
+                sellButtonBackground = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, view.resources.displayMetrics)
+                    setStroke(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, view.resources.displayMetrics).toInt(), data.coinColor)
+                }
         )
     }
 }
