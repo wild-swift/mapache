@@ -24,8 +24,8 @@ import name.wildswift.mapache.interfaces.ActivityCaller
 import name.wildswift.mapache.interfaces.ActivityEventsCallback
 import name.wildswift.mapache.viewsets.ViewSet
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.generated.TesAppNavigationStateMachine
 import name.wildswift.testapp.generated.TestAppEvent
+import name.wildswift.testapp.generated.TestAppNavigationStateMachine
 import name.wildswift.testapp.generated.TestAppState
 import name.wildswift.testapp.generated.newNavigationStateMachine
 import name.wildswift.testapp.views.CryptoCardViewModel
@@ -63,7 +63,7 @@ class MainActivity : Activity(), ActivityCaller {
 //        )
 //    }
 
-    private val stateMachine: TesAppNavigationStateMachine<DiContext> = newNavigationStateMachine(DiContext(applicationContext))
+    private val stateMachine: TestAppNavigationStateMachine = newNavigationStateMachine(DiContext(applicationContext))
 
     private var callbacks = listOf<ActivityEventsCallback>()
 
