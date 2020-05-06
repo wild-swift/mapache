@@ -63,7 +63,7 @@ class MainActivity : Activity(), ActivityCaller {
 //        )
 //    }
 
-    private val stateMachine: TestAppNavigationStateMachine = newNavigationStateMachine(DiContext(applicationContext))
+    private val stateMachine: TestAppNavigationStateMachine by lazy { newNavigationStateMachine(DiContext(applicationContext)) }
 
     private var callbacks = listOf<ActivityEventsCallback>()
 
