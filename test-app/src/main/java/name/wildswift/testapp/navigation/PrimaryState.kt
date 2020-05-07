@@ -19,8 +19,8 @@ import name.wildswift.testapp.views.WalletsViewModel
 
 class PrimaryState: MState<TestAppEvent, ViewSingle<WalletsView>, DiContext> {
 
-    override fun setup(rootView: FrameLayout, context: NavigationContext<TestAppEvent, DiContext>): ViewSingle<WalletsView> {
-        val walletsView = WalletsView(context.diContext.context)
+    override fun setup(rootView: ViewGroup, context: NavigationContext<TestAppEvent, DiContext>): ViewSingle<WalletsView> {
+        val walletsView = WalletsView(context.diContext!!.context)
         rootView.addView(walletsView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         return ViewSet.from(walletsView)
     }
@@ -62,7 +62,7 @@ class PrimaryState: MState<TestAppEvent, ViewSingle<WalletsView>, DiContext> {
         }
     }
 
-    override fun start(context: NavigationContext<TestAppEvent, DiContext>, caller: SystemCalls): Runnable {
+    override fun start(context: NavigationContext<TestAppEvent, DiContext>): Runnable {
         TODO("Not yet implemented")
     }
 }

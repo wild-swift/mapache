@@ -18,20 +18,11 @@ package name.wildswift.testapp
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import name.wildswift.android.kannotations.interfaces.ObservableListAdapter
-import name.wildswift.mapache.NavigationStateMachine
 import name.wildswift.mapache.interfaces.ActivityCaller
 import name.wildswift.mapache.interfaces.ActivityEventsCallback
-import name.wildswift.mapache.viewsets.ViewSet
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.generated.TestAppEvent
 import name.wildswift.testapp.generated.TestAppNavigationStateMachine
-import name.wildswift.testapp.generated.TestAppState
 import name.wildswift.testapp.generated.newNavigationStateMachine
-import name.wildswift.testapp.views.CryptoCardViewModel
-import name.wildswift.testapp.views.WalletsView
-import name.wildswift.testapp.views.WalletsViewModel
-import java.util.*
 
 class MainActivity : Activity(), ActivityCaller {
 //    override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,12 +60,12 @@ class MainActivity : Activity(), ActivityCaller {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        stateMachine.attachToScene(this, this)
+        stateMachine.attachToActivity(this, this)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stateMachine.detachFromScene()
+        stateMachine.detachFromActivity()
     }
 
     override fun registerEventsCallback(callback: ActivityEventsCallback) {

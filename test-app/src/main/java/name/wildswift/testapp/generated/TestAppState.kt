@@ -1,5 +1,6 @@
 package name.wildswift.testapp.generated
 
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.osintegration.SystemCalls
@@ -15,7 +16,7 @@ sealed class TestAppState<VS: ViewSet, DC>: MState<TestAppEvent, VS, DC>
 object PrimaryStateWrapper: TestAppState<ViewSet, DiContext>() {
     private val wrapped = PrimaryState()
 
-    override fun setup(rootView: FrameLayout, context: NavigationContext<TestAppEvent, DiContext>): ViewSingle<WalletsView> {
+    override fun setup(rootView: ViewGroup, context: NavigationContext<TestAppEvent, DiContext>): ViewSingle<WalletsView> {
         return wrapped.setup(rootView, context)
     }
 
@@ -23,8 +24,8 @@ object PrimaryStateWrapper: TestAppState<ViewSet, DiContext>() {
         return wrapped.dataBind(context, views as ViewSingle<WalletsView>)
     }
 
-    override fun start(context: NavigationContext<TestAppEvent, DiContext>, caller: SystemCalls): Runnable {
-        return wrapped.start(context, caller)
+    override fun start(context: NavigationContext<TestAppEvent, DiContext>): Runnable {
+        return wrapped.start(context)
     }
 
 }
