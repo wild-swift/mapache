@@ -1,4 +1,4 @@
-package name.wildswift.mapache.interfaces;
+package name.wildswift.mapache.contextintegration;
 
 import android.content.Intent;
 

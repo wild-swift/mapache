@@ -18,8 +18,8 @@ package name.wildswift.testapp
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import name.wildswift.mapache.interfaces.ActivityCaller
-import name.wildswift.mapache.interfaces.ActivityEventsCallback
+import name.wildswift.mapache.contextintegration.ActivityCaller
+import name.wildswift.mapache.contextintegration.ActivityEventsCallback
 import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.generated.TestAppNavigationStateMachine
 import name.wildswift.testapp.generated.newNavigationStateMachine
