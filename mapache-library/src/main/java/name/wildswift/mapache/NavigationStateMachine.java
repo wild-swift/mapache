@@ -48,7 +48,28 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         currentState = new StateWrapper<>((MState<E, ViewSet, DC>) initialState, navigationContext, null);
     }
 
-    private void onNewEvent(E event) {
+    public void attachToActivity(Activity activity, ActivityCaller caller) {
+        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
+        callToActivityBridge.attachToActivity(caller);
+        currentRoot = activity.findViewById(android.R.id.content);
+
+        if (currentState != null) {
+            currentState.setRoot(currentRoot);
+        }
+    }
+
+    public void resume() {
+        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
+        if (currentState != null) {
+            currentState.start();
+        }
+    }
+
+    public void pause() {
+        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
+        if (currentState != null) {
+            currentState.stop();
+        }
     }
 
     public void detachFromActivity() {
@@ -58,14 +79,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         callToActivityBridge.detachFromActivity();
     }
 
-    public void attachToActivity(Activity activity, ActivityCaller caller) {
-        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
-        callToActivityBridge.attachToActivity(caller);
-        currentRoot = activity.findViewById(android.R.id.content);
-
-        if (currentState != null) {
-            currentState.setRoot(currentRoot);
-        }
+    private void onNewEvent(E event) {
     }
 
     private class EventerInternal implements Eventer<E> {
