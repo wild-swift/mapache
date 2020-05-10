@@ -2,18 +2,25 @@ package name.wildswift.mapache;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.Looper;
+import android.util.Pair;
 import android.widget.FrameLayout;
 
 import java.util.Map;
 
 import name.wildswift.mapache.contextintegration.CallToActivityBridge;
+import name.wildswift.mapache.debouncers.Cancelable;
+import name.wildswift.mapache.debouncers.CancelableDebouncer;
+import name.wildswift.mapache.debouncers.DebounceCallback;
 import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.events.Eventer;
 import name.wildswift.mapache.events.SystemEventFactory;
 import name.wildswift.mapache.graph.NavigationGraph;
 import name.wildswift.mapache.contextintegration.ActivityCaller;
 import name.wildswift.mapache.contextintegration.ActivityEventsCallback;
+import name.wildswift.mapache.graph.StateTransition;
+import name.wildswift.mapache.graph.TransitionCallback;
 import name.wildswift.mapache.osintegration.PermissionsCallback;
 import name.wildswift.mapache.osintegration.SystemCalls;
 import name.wildswift.mapache.states.MState;
@@ -31,8 +38,14 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     private final CallToActivityBridge callToActivityBridge;
     private final NavigationContext<E, DC> navigationContext;
 
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+
     private StateWrapper<E, ViewSet, DC, MState<E, ViewSet, DC>> currentState;
     private FrameLayout currentRoot;
+
+    private boolean isPaused = false;
+
+    private CancelableDebouncer<Boolean> debouncer = new CancelableDebouncer<>(500);
 
 
     public NavigationStateMachine(S initialState, NavigationGraph<E, DC, S> graph, SystemEventFactory<E> systemEvents, ViewContentMetaSource metaSource, DC diContext) {
@@ -46,6 +59,9 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         this.navigationContext = new NavigationContext<>(diContext, eventerInternal, null, callToActivityBridge.getSystemCaller());
 
         currentState = new StateWrapper<>((MState<E, ViewSet, DC>) initialState, navigationContext, null);
+        currentState.start();
+
+        debouncer.addCallback(new ChangePauseStateListener());
     }
 
     public void attachToActivity(Activity activity, ActivityCaller caller) {
@@ -60,15 +76,19 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
 
     public void resume() {
         if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
-        if (currentState != null) {
-            currentState.start();
+        if (isPaused) {
+            debouncer.onNewValue(false);
+        } else {
+            debouncer.cancel();
         }
     }
 
     public void pause() {
         if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
-        if (currentState != null) {
-            currentState.stop();
+        if (!isPaused) {
+            debouncer.onNewValue(true);
+        } else {
+            debouncer.cancel();
         }
     }
 
@@ -80,12 +100,77 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     }
 
     private void onNewEvent(E event) {
+        Pair<S, StateTransition<E, ViewSet, ViewSet>> _tmpVar = graph.getNextState((S) currentState.getWrapped(), event);
+        S nextState = _tmpVar.first;
+        StateTransition<E, ViewSet, ViewSet> transition = _tmpVar.second;
+
+        currentState.stop();
+        transition.execute(new DefaultTransitionCallback(nextState));
+    }
+
+    private void stopStateMachineExecution() {
+        // TODO need implement this logic
+    }
+
+    private void resumeStateMachineExecution() {
+        // TODO need implement this logic
     }
 
     private class EventerInternal implements Eventer<E> {
         @Override
         public void onNewEvent(E event) {
             NavigationStateMachine.this.onNewEvent(event);
+        }
+    }
+
+    private class ChangePauseStateListener implements DebounceCallback<Boolean> {
+        @Override
+        public void newValue(final Boolean value) {
+            // TODO need set specific executor to debouncer, but there no way to do it now (write AndroidHandlerExecutor, that implements ScheduledExecutorService
+            mainThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if(isPaused == value) return;
+                    isPaused = value;
+                    if (isPaused) {
+                        stopStateMachineExecution();
+                    } else {
+                        resumeStateMachineExecution();
+                    }
+                }
+            });
+        }
+    }
+
+    private class SetNewStateCommand implements Runnable {
+        private final S nextState;
+        private final ViewSet currentSet;
+
+        private SetNewStateCommand(S nextState, ViewSet currentSet) {
+            this.nextState = nextState;
+            this.currentSet = currentSet;
+        }
+
+        @Override
+        public void run() {
+            currentState = new StateWrapper<>((MState<E, ViewSet, DC>) nextState, navigationContext, currentSet);
+            currentState.start();
+            if (currentRoot != null && currentSet == null) {
+                currentState.setRoot(currentRoot);
+            }
+        }
+    }
+
+    private class DefaultTransitionCallback implements TransitionCallback<ViewSet> {
+        private final S nextState;
+
+        private DefaultTransitionCallback(S nextState) {
+            this.nextState = nextState;
+        }
+
+        @Override
+        public void onTransitionEnded(ViewSet currentSet) {
+            mainThreadHandler.post(new SetNewStateCommand(nextState, currentSet));
         }
     }
 }

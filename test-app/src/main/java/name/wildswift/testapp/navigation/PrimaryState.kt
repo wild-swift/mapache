@@ -63,6 +63,6 @@ class PrimaryState: MState<TestAppEvent, ViewSingle<WalletsView>, DiContext> {
     }
 
     override fun start(context: NavigationContext<TestAppEvent, DiContext>): Runnable {
-        TODO("Not yet implemented")
+        return Runnable {  }
     }
 }

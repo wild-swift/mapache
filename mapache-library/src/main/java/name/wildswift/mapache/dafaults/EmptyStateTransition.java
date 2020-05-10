@@ -17,6 +17,6 @@ public class EmptyStateTransition<E extends Event, VS extends ViewSet> extends S
 
     @Override
     public void execute(TransitionCallback callback) {
-
+        callback.onTransitionEnded(viewSet);
     }
 }

@@ -8,19 +8,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class CancalableDebouncer<T> implements Cancelable, Debouncer<T> {
+public class CancelableDebouncer<T> implements Cancelable, Debouncer<T> {
 
     private ScheduledExecutorService internalExecutor;
     private long timeInMills;
     private ScheduledFuture<?> future;
     private List<DebounceCallback<T>> callbacks = new ArrayList<>();
 
-    public CancalableDebouncer(long timeInMills) {
+    public CancelableDebouncer(long timeInMills) {
         internalExecutor = Executors.newSingleThreadScheduledExecutor();
         this.timeInMills = timeInMills;
     }
 
-    public CancalableDebouncer(ScheduledExecutorService executor, long debounceTime) {
+    public CancelableDebouncer(ScheduledExecutorService executor, long debounceTime) {
         this.internalExecutor = executor;
         this.timeInMills = debounceTime;
     }

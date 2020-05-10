@@ -61,7 +61,16 @@ class MainActivity : Activity(), ActivityCaller {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         stateMachine.attachToActivity(this, this)
-        stateMachine.resume();
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stateMachine.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        stateMachine.resume()
     }
 
     override fun onDestroy() {

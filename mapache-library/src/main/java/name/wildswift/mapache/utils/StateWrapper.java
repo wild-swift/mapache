@@ -26,6 +26,9 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, S exten
         this.context = context;
         this.viewSet = viewSet;
         startStopCaller = new SingleTimeInitDeinitCaller(new StartStopCallable());
+        if (viewSet != null) {
+            bindUnbindCaller = new SingleTimeInitDeinitCaller(new BindUnbindCaller());
+        }
     }
 
     public void setRoot(@Nullable ViewGroup root) {
@@ -53,6 +56,9 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, S exten
         if (bindUnbindCaller != null) bindUnbindCaller.deinit();
     }
 
+    public S getWrapped() {
+        return state;
+    }
 
     private class StartStopCallable implements Callable<Runnable> {
         @Override
