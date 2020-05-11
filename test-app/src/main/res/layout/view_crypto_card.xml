@@ -56,12 +56,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="177dp"
+        android:layout_marginBottom="30dp"
         android:fontFamily="sans-serif-medium"
         android:textSize="24sp"
         android:textColor="#7A7A7C"
         tools:text="£729.50" />
 
     <LinearLayout
+        android:id="@+id/vccButtonContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="240dp"

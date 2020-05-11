@@ -1,5 +1,6 @@
 package name.wildswift.testapp.views
 
+import android.graphics.Color
 import android.graphics.Rect
 import android.util.TypedValue
 import android.view.View
@@ -27,6 +28,7 @@ import name.wildswift.testapp.IdRNames
 class WalletsViewDelegate(view: WalletsView) : ViewDelegate<WalletsView, WalletsViewIntState>(view) {
 
     override fun setupView() {
+        view.setBackgroundColor(Color.WHITE)
         view.vwList.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 val position = parent.getChildAdapterPosition(view)

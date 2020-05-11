@@ -37,7 +37,8 @@ class PrimaryState: MState<TestAppEvent, ViewSingle<WalletsView>, DiContext> {
                                         "ZTC",
                                         "Zitcoin",
                                         R.drawable.ic_ztc_icon,
-                                        0xFFFF7141.toInt()
+                                        0xFFFF7141.toInt(),
+                                        true
                                 ),
                                 CryptoCardViewModel(
                                         2.1195632f,
@@ -45,7 +46,8 @@ class PrimaryState: MState<TestAppEvent, ViewSingle<WalletsView>, DiContext> {
                                         "ATH",
                                         "Atherium",
                                         R.drawable.ic_ath_icon,
-                                        0xFF4B70FF.toInt()
+                                        0xFF4B70FF.toInt(),
+                                        false
                                 )
                         )
                 )
