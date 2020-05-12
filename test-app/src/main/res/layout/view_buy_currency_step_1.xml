@@ -18,34 +18,109 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:textColor="#0f0f0f"
-        android:lineSpacingExtra="-1sp"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center_horizontal"
-        tools:text="Payment method"
+        android:text="@string/payment_method"
         android:layout_gravity="center_horizontal"
         />
 
     <FrameLayout
+        android:id="@+id/vbcs1PaymentCredit"
         android:layout_marginTop="21dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        />
+        android:layout_height="0dp"
+        android:outlineProvider="background"
+        android:layout_weight="1">
+        <RelativeLayout
+            android:layout_width="286dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            >
+            <ImageView
+                android:id="@+id/vbcs1PaymentCreditIcon"
+                android:layout_centerVertical="true"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:src="@drawable/ic_credit_card" />
+            <TextView
+                android:id="@+id/vbcs1PaymentCreditTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/vbcs1PaymentCreditIcon"
+                android:layout_marginStart="36dp"
+                android:textSize="25sp"
+                android:textColor="#0f0f0f"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/credit_card"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/vbcs1PaymentCreditIcon"
+                android:layout_below="@+id/vbcs1PaymentCreditTitle"
+                android:layout_marginTop="15dp"
+                android:layout_marginStart="36dp"
+                android:textSize="16sp"
+                android:textColor="#7a7a7c"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/card_ending_in"
+                />
+        </RelativeLayout>
+    </FrameLayout>
 
     <FrameLayout
+        android:id="@+id/vbcs1PaymentBank"
         android:layout_marginTop="21dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        />
+        >
+        <RelativeLayout
+            android:layout_width="286dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            >
+            <ImageView
+                android:id="@+id/vbcs1PaymentBankIcon"
+                android:layout_centerVertical="true"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:src="@drawable/ic_bank" />
+            <TextView
+                android:id="@+id/vbcs1PaymentBankTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/vbcs1PaymentBankIcon"
+                android:layout_marginStart="36dp"
+                android:textSize="25sp"
+                android:textColor="#0f0f0f"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/bank_account"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/vbcs1PaymentBankIcon"
+                android:layout_below="@+id/vbcs1PaymentBankTitle"
+                android:layout_marginTop="15dp"
+                android:layout_marginStart="36dp"
+                android:textSize="16sp"
+                android:textColor="#7a7a7c"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/account_ending_in"
+                />
+        </RelativeLayout>
+    </FrameLayout>
 
     <TextView
         android:id="@+id/vbcs1Proceed"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:layout_marginTop="42dp"
         android:layout_marginBottom="24dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -53,9 +128,9 @@
         android:textColor="#ffffff"
         android:textStyle="bold"
         android:gravity="center"
-        tools:text="Continue with Credit Card"
+        android:text="@string/continue_with_credit_card"
         tools:background="@drawable/bg_buy_button"
-        android:elevation="5dp"
+        android:elevation="2dp"
         android:outlineProvider="background"
         android:outlineAmbientShadowColor="#FF7141"
         />

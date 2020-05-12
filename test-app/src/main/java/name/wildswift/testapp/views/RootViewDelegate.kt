@@ -1,5 +1,6 @@
 package name.wildswift.testapp.views
 
+import android.graphics.Color
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.view_root.view.*
@@ -15,6 +16,7 @@ import name.wildswift.android.kannotations.interfaces.ViewDelegate
 class RootViewDelegate(view: RootView) : ViewDelegate<RootView, RootViewIntState>(view) {
     override fun setupView() {
         view.orientation = LinearLayout.VERTICAL
+        view.setBackgroundColor(Color.WHITE)
     }
 
     @Delegated

@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">TestApp</string>
+    <string name="continue_with_credit_card">Continue with Credit Card</string>
+    <string name="continue_with_bank_account">Continue with Bank Account</string>
+    <string name="card_ending_in">Ending in 1560</string>
+    <string name="credit_card">Credit Card</string>
+    <string name="account_ending_in">Ending in 9473</string>
+    <string name="bank_account">Bank Account</string>
+    <string name="payment_method">Payment method</string>
 </resources>
