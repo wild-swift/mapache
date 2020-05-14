@@ -60,6 +60,10 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, S exten
         return state;
     }
 
+    public VS getCurrentViewSet() {
+        return viewSet;
+    }
+
     private class StartStopCallable implements Callable<Runnable> {
         @Override
         public Runnable call() {

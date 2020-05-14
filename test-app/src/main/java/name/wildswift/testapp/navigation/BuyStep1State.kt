@@ -13,29 +13,26 @@ import name.wildswift.testapp.generated.SellCrypto
 import name.wildswift.testapp.generated.TestAppEvent
 import name.wildswift.testapp.views.*
 
-class BuyStep1State: MState<TestAppEvent, ViewCouple<RootView, BuyCurrencyStep1View>, DiContext> {
+class BuyStep1State(val tiker:String): MState<TestAppEvent, ViewCouple<RootView, BuyCurrencyStep1View>, DiContext> {
 
     override fun setup(rootView: ViewGroup, context: NavigationContext<TestAppEvent, DiContext>): ViewCouple<RootView, BuyCurrencyStep1View> {
-        val appRootView = RootView(context.diContext!!.context)
+        val appRootView = RootView(context.diContext.context)
         rootView.addView(appRootView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        val buyCurrencyStep1View = BuyCurrencyStep1View(context.diContext!!.context)
+        val buyCurrencyStep1View = BuyCurrencyStep1View(context.diContext.context)
         appRootView.getContentView().addView(buyCurrencyStep1View, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         return ViewSet.from(appRootView).union(buyCurrencyStep1View)
     }
 
     override fun dataBind(context: NavigationContext<TestAppEvent, DiContext>, views: ViewCouple<RootView, BuyCurrencyStep1View>): Runnable {
-        val (_, buyCurrencyStep1View) = views
+        val (rootView, buyCurrencyStep1View) = views
+        val meta = context.diContext.curencies.find { it.tiker == tiker }!!
+        rootView.viewModel = RootViewModel("Buy ${meta.name}", true)
         buyCurrencyStep1View.viewModel = BuyCurrencyStep1ViewModel(
-                0.1195656f,
-                729.5f,
-                "ZTC",
-                R.drawable.ic_ztc_icon,
-                0xFFFF7141.toInt(),
-//                2.1195632f,
-//                807.96f,
-//                "ATH",
-//                R.drawable.ic_ath_icon,
-//                0xFF4B70FF.toInt()
+                meta.currencyAmount,
+                meta.currencyRate * meta.currencyAmount,
+                meta.tiker,
+                meta.icon,
+                meta.color,
                 0
         )
         buyCurrencyStep1View.selectCredit = {
@@ -44,7 +41,13 @@ class BuyStep1State: MState<TestAppEvent, ViewCouple<RootView, BuyCurrencyStep1V
         buyCurrencyStep1View.selectBank = {
             buyCurrencyStep1View.viewModel = buyCurrencyStep1View.viewModel.copy(paymentType = 1)
         }
+        rootView.upClick = {
+
+        }
         return Runnable {
+            buyCurrencyStep1View.selectCredit = null
+            buyCurrencyStep1View.selectBank = null
+            rootView.upClick = null
         }
     }
 

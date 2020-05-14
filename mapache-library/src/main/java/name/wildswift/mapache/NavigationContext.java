@@ -9,7 +9,7 @@ import name.wildswift.mapache.osintegration.SystemCalls;
 import name.wildswift.mapache.viewcontent.ViewContentHolder;
 
 public class NavigationContext<E extends Event, DC> {
-    @Nullable
+    @NonNull
     private final DC diContext;
     @NonNull
     private final Eventer<E> eventer;
@@ -18,14 +18,14 @@ public class NavigationContext<E extends Event, DC> {
     @NonNull
     private final SystemCalls systemCalls;
 
-    NavigationContext(@Nullable DC diContext, @NonNull Eventer<E> eventer, @NonNull ViewContentHolder viewsContents, @NonNull SystemCalls systemCalls) {
+    NavigationContext(@NonNull DC diContext, @NonNull Eventer<E> eventer, @NonNull ViewContentHolder viewsContents, @NonNull SystemCalls systemCalls) {
         this.diContext = diContext;
         this.eventer = eventer;
         this.viewsContents = viewsContents;
         this.systemCalls = systemCalls;
     }
 
-    @Nullable
+    @NonNull
     public DC getDiContext() {
         return diContext;
     }

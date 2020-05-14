@@ -10,5 +10,5 @@ import name.wildswift.mapache.viewsets.ViewSet;
 
 public interface NavigationGraph<E extends Event, DC, NS extends MState<E, ? extends ViewSet, DC>> {
     // TODO think about specify view sets
-    Pair<NS, StateTransition<E, ViewSet, ViewSet>>  getNextState(@NonNull NS currentState, @NonNull E e);
+    Pair<NS, StateTransition<E, ViewSet, ViewSet, DC>>  getNextState(@NonNull NS currentState, @NonNull E e);
 }

@@ -100,12 +100,12 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     }
 
     private void onNewEvent(E event) {
-        Pair<S, StateTransition<E, ViewSet, ViewSet>> _tmpVar = graph.getNextState((S) currentState.getWrapped(), event);
+        Pair<S, StateTransition<E, ViewSet, ViewSet, DC>> _tmpVar = graph.getNextState((S) currentState.getWrapped(), event);
         S nextState = _tmpVar.first;
-        StateTransition<E, ViewSet, ViewSet> transition = _tmpVar.second;
+        StateTransition<E, ViewSet, ViewSet, DC> transition = _tmpVar.second;
 
         currentState.stop();
-        transition.execute(new DefaultTransitionCallback(nextState));
+        transition.execute(navigationContext, currentRoot, currentState.getCurrentViewSet(), new DefaultTransitionCallback(nextState));
     }
 
     private void stopStateMachineExecution() {

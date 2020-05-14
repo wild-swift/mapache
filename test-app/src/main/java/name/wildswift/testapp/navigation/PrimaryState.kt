@@ -1,55 +1,48 @@
 package name.wildswift.testapp.navigation
 
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import name.wildswift.android.kannotations.interfaces.ObservableListAdapter
 import name.wildswift.mapache.NavigationContext
-import name.wildswift.mapache.osintegration.SystemCalls
 import name.wildswift.mapache.states.MState
+import name.wildswift.mapache.viewsets.ViewCouple
 import name.wildswift.mapache.viewsets.ViewSet
-import name.wildswift.mapache.viewsets.ViewSingle
 import name.wildswift.testapp.R
 import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.generated.BuyCrypto
 import name.wildswift.testapp.generated.SellCrypto
 import name.wildswift.testapp.generated.TestAppEvent
-import name.wildswift.testapp.views.CryptoCardViewModel
-import name.wildswift.testapp.views.WalletsView
-import name.wildswift.testapp.views.WalletsViewModel
+import name.wildswift.testapp.views.*
 
-class PrimaryState: MState<TestAppEvent, ViewSingle<WalletsView>, DiContext> {
+class PrimaryState: MState<TestAppEvent, ViewCouple<RootView, WalletsView>, DiContext> {
 
-    override fun setup(rootView: ViewGroup, context: NavigationContext<TestAppEvent, DiContext>): ViewSingle<WalletsView> {
-        val walletsView = WalletsView(context.diContext!!.context)
-        rootView.addView(walletsView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        return ViewSet.from(walletsView)
+    override fun setup(rootView: ViewGroup, context: NavigationContext<TestAppEvent, DiContext>): ViewCouple<RootView, WalletsView> {
+        val appRootView = RootView(context.diContext.context)
+        rootView.addView(appRootView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        val walletsView = WalletsView(context.diContext.context)
+        appRootView.getContentView().addView(walletsView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        return ViewSet.from(appRootView).union(walletsView)
     }
 
-    override fun dataBind(context: NavigationContext<TestAppEvent, DiContext>, views: ViewSingle<WalletsView>): Runnable {
-        val (walletsView) = views
+    override fun dataBind(context: NavigationContext<TestAppEvent, DiContext>, views: ViewCouple<RootView, WalletsView>): Runnable {
+        val (root, walletsView) = views
+        root.viewModel = RootViewModel(" ", false)
+        val total = context.diContext.curencies.map { it.currencyAmount * it.currencyRate }.sum()
         walletsView.viewModel = WalletsViewModel(
-                1537.46f,
+                total,
                 ObservableListAdapter(
-                        listOf(
-                                CryptoCardViewModel(
-                                        0.1195656f,
-                                        729.5f,
-                                        "ZTC",
-                                        "Zitcoin",
-                                        R.drawable.ic_ztc_icon,
-                                        0xFFFF7141.toInt(),
-                                        true
-                                ),
-                                CryptoCardViewModel(
-                                        2.1195632f,
-                                        807.96f,
-                                        "ATH",
-                                        "Atherium",
-                                        R.drawable.ic_ath_icon,
-                                        0xFF4B70FF.toInt(),
-                                        false
-                                )
-                        )
+                        context.diContext
+                                .curencies
+                                .map {
+                                    CryptoCardViewModel(
+                                            it.currencyAmount,
+                                            it.currencyAmount * it.currencyRate,
+                                            it.tiker,
+                                            it.name,
+                                            it.icon,
+                                            it.color,
+                                            false
+                                    )
+                                }
                 )
         )
         walletsView.onItemBuyClick = {

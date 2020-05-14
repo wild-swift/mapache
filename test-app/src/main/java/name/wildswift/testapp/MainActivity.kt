@@ -25,35 +25,6 @@ import name.wildswift.testapp.generated.TestAppNavigationStateMachine
 import name.wildswift.testapp.generated.newNavigationStateMachine
 
 class MainActivity : Activity(), ActivityCaller {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_main)
-//        val cardView: WalletsView = findViewById(R.id.cryptoCardView)
-//        cardView.viewModel = WalletsViewModel(
-//                1537.46f,
-//                ObservableListAdapter(
-//                        listOf(
-//                                CryptoCardViewModel(
-//                                        0.1195656f,
-//                                        729.5f,
-//                                        "ZTC",
-//                                        "Zitcoin",
-//                                        R.drawable.ic_ztc_icon,
-//                                        0xFFFF7141.toInt()
-//                                ),
-//                                CryptoCardViewModel(
-//                                        2.1195632f,
-//                                        807.96f,
-//                                        "ATH",
-//                                        "Atherium",
-//                                        R.drawable.ic_ath_icon,
-//                                        0xFF4B70FF.toInt()
-//                                )
-//                        )
-//                )
-//        )
-//    }
-
     private val stateMachine: TestAppNavigationStateMachine by lazy { newNavigationStateMachine(DiContext(applicationContext)) }
 
     private var callbacks = listOf<ActivityEventsCallback>()

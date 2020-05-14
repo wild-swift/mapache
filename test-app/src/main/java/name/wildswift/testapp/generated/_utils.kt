@@ -6,4 +6,4 @@ import name.wildswift.testapp.di.DiContext
 
 typealias TestAppNavigationStateMachine = NavigationStateMachine<TestAppEvent, DiContext, TestAppState<ViewSet, DiContext>>
 
-fun newNavigationStateMachine(diContext: DiContext): TestAppNavigationStateMachine = TestAppNavigationStateMachine(BuyStep1StateWrapper, TestAppNavigationGraph(), TestAppSystemEventFactory(), TestAppMetaSource(), diContext)
+fun newNavigationStateMachine(diContext: DiContext): TestAppNavigationStateMachine = TestAppNavigationStateMachine(PrimaryStateWrapper, TestAppNavigationGraph(), TestAppSystemEventFactory(), TestAppMetaSource(), diContext)
