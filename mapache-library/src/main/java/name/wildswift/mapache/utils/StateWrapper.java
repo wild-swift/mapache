@@ -9,10 +9,11 @@ import java.util.concurrent.Callable;
 
 import name.wildswift.mapache.NavigationContext;
 import name.wildswift.mapache.events.Event;
+import name.wildswift.mapache.events.Eventer;
 import name.wildswift.mapache.states.MState;
 import name.wildswift.mapache.viewsets.ViewSet;
 
-public final class StateWrapper<E extends Event, VS extends ViewSet, DC, S extends MState<E, VS, DC>> {
+public final class StateWrapper<E extends Event, VS extends ViewSet, DC, S extends MState<E, VS, DC>> implements Eventer<E> {
     private final S state;
     private final NavigationContext<E, DC> context;
 
@@ -62,6 +63,11 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, S exten
 
     public VS getCurrentViewSet() {
         return viewSet;
+    }
+
+    @Override
+    public boolean onNewEvent(E event) {
+        return false;
     }
 
     private class StartStopCallable implements Callable<Runnable> {

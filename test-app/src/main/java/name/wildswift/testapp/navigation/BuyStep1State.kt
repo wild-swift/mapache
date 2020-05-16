@@ -9,6 +9,7 @@ import name.wildswift.mapache.viewsets.ViewSet
 import name.wildswift.testapp.R
 import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.generated.BuyCrypto
+import name.wildswift.testapp.generated.ProceedBuy
 import name.wildswift.testapp.generated.SellCrypto
 import name.wildswift.testapp.generated.TestAppEvent
 import name.wildswift.testapp.views.*
@@ -41,12 +42,15 @@ class BuyStep1State(val tiker:String): MState<TestAppEvent, ViewCouple<RootView,
         buyCurrencyStep1View.selectBank = {
             buyCurrencyStep1View.viewModel = buyCurrencyStep1View.viewModel.copy(paymentType = 1)
         }
+        buyCurrencyStep1View.proceed = {
+            context.eventer.onNewEvent(ProceedBuy(tiker, 50f, buyCurrencyStep1View.viewModel.paymentType))
+        }
         rootView.upClick = {
-
         }
         return Runnable {
             buyCurrencyStep1View.selectCredit = null
             buyCurrencyStep1View.selectBank = null
+            buyCurrencyStep1View.proceed = null
             rootView.upClick = null
         }
     }

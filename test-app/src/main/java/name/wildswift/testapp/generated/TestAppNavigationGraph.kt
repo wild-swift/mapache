@@ -20,7 +20,15 @@ class TestAppNavigationGraph: NavigationGraph<TestAppEvent, DiContext, TestAppSt
                     else -> return null
                 }
             }
-            is BuyStep1StateWrapper -> TODO()
+            is BuyStep1StateWrapper -> when(e) {
+                is ProceedBuy -> {
+                    val newState = ReviewBuyStateWrapper(e.tiker, e.amount, e.paymentType)
+                    return Pair(newState as TestAppState<ViewSet, DiContext>, BuyToReviewTransitionWrapper(currentState as BuyStep1StateWrapper, newState) as StateTransition<TestAppEvent, ViewSet, ViewSet, DiContext>)
+                }
+                else -> null
+            }
+
+            is ReviewBuyStateWrapper -> TODO()
         }
     }
 }

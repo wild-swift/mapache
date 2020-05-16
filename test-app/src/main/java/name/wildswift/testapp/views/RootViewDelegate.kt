@@ -5,13 +5,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.view_root.view.*
 import name.wildswift.android.kannotations.*
 import name.wildswift.android.kannotations.interfaces.ViewDelegate
 import name.wildswift.testapp.IdRNames
 
 @ViewWithDelegate(
-        parent = LinearLayout::class
+        parent = DrawerLayout::class
 )
 @Fields(
         ViewField(name = "title", byProperty = ViewProperty.text, childName = IdRNames.vrTitleText),
@@ -23,7 +24,6 @@ import name.wildswift.testapp.IdRNames
 )
 class RootViewDelegate(view: RootView) : ViewDelegate<RootView, RootViewIntState>(view) {
     override fun setupView() {
-        view.orientation = LinearLayout.VERTICAL
         view.setBackgroundColor(Color.WHITE)
     }
 

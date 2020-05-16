@@ -99,13 +99,18 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         callToActivityBridge.detachFromActivity();
     }
 
-    private void onNewEvent(E event) {
+    private boolean onNewEvent(E event) {
+        if (currentState.onNewEvent(event)) return true;
+
         Pair<S, StateTransition<E, ViewSet, ViewSet, DC>> _tmpVar = graph.getNextState((S) currentState.getWrapped(), event);
+        if (_tmpVar == null) return false;
+
         S nextState = _tmpVar.first;
         StateTransition<E, ViewSet, ViewSet, DC> transition = _tmpVar.second;
 
         currentState.stop();
         transition.execute(navigationContext, currentRoot, currentState.getCurrentViewSet(), new DefaultTransitionCallback(nextState));
+        return true;
     }
 
     private void stopStateMachineExecution() {
@@ -118,8 +123,8 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
 
     private class EventerInternal implements Eventer<E> {
         @Override
-        public void onNewEvent(E event) {
-            NavigationStateMachine.this.onNewEvent(event);
+        public boolean onNewEvent(E event) {
+            return NavigationStateMachine.this.onNewEvent(event);
         }
     }
 

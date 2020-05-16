@@ -7,4 +7,8 @@
     <string name="account_ending_in">Ending in 9473</string>
     <string name="bank_account">Bank Account</string>
     <string name="payment_method">Payment method</string>
+    <string name="cryptos_title">Cryptos</string>
+    <string name="wallets_title">Wallets</string>
+    <string name="send_recive_title">Transfer</string>
+    <string name="arrive_text_pattern">Your %s will arrive in 20 mins</string>
 </resources>
