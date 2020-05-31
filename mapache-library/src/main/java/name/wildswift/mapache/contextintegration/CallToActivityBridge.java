@@ -1,5 +1,6 @@
 package name.wildswift.mapache.contextintegration;
 
+import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -98,6 +99,20 @@ public class CallToActivityBridge {
                 });
         }
 
+        @Override
+        public void startActivity(Intent intent) {
+            // TODO implement
+        }
+
+        @Override
+        public void startService(Class<? extends Service> serviceClass) {
+            // TODO implement
+        }
+
+        @Override
+        public void startService(Intent serviceClass) {
+            // TODO implement
+        }
     }
 
     private class RequestPermissionsTask implements Runnable {

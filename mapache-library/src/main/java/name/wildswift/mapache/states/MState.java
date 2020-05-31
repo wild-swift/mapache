@@ -16,7 +16,7 @@ public interface MState<E extends Event, VS extends ViewSet, DC> {
      * @param rootView
      * @return
      */
-    VS setup(@NonNull ViewGroup rootView, @NonNull NavigationContext<E, DC> context);
-    @NonNull Runnable dataBind(@NonNull NavigationContext<E, DC> context, VS views);
+    @NonNull VS setup(@NonNull ViewGroup rootView, @NonNull NavigationContext<E, DC> context);
+    @NonNull Runnable dataBind(@NonNull NavigationContext<E, DC> context, @NonNull VS views);
     @NonNull Runnable start(@NonNull NavigationContext<E, DC> context);
 }

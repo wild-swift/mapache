@@ -1,28 +1,21 @@
 package name.wildswift.mapache;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
 import android.widget.FrameLayout;
 
-import java.util.Map;
-
 import name.wildswift.mapache.contextintegration.CallToActivityBridge;
-import name.wildswift.mapache.debouncers.Cancelable;
 import name.wildswift.mapache.debouncers.CancelableDebouncer;
 import name.wildswift.mapache.debouncers.DebounceCallback;
 import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.events.Eventer;
 import name.wildswift.mapache.events.SystemEventFactory;
-import name.wildswift.mapache.graph.NavigationGraph;
+import name.wildswift.mapache.graph.NavigationGraphOld;
 import name.wildswift.mapache.contextintegration.ActivityCaller;
-import name.wildswift.mapache.contextintegration.ActivityEventsCallback;
 import name.wildswift.mapache.graph.StateTransition;
 import name.wildswift.mapache.graph.TransitionCallback;
-import name.wildswift.mapache.osintegration.PermissionsCallback;
-import name.wildswift.mapache.osintegration.SystemCalls;
 import name.wildswift.mapache.states.MState;
 import name.wildswift.mapache.utils.StateWrapper;
 import name.wildswift.mapache.viewcontent.ViewContentMetaSource;
@@ -30,7 +23,7 @@ import name.wildswift.mapache.viewsets.ViewSet;
 
 public final class NavigationStateMachine<E extends Event, DC, S extends MState<E, ? extends ViewSet, DC>> {
     private final S initialState;
-    private final NavigationGraph<E, DC, S> graph;
+    private final NavigationGraphOld<E, DC, S> graph;
     private final SystemEventFactory<E> systemEvents;
     private final ViewContentMetaSource metaSource;
 
@@ -48,7 +41,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     private CancelableDebouncer<Boolean> debouncer = new CancelableDebouncer<>(500);
 
 
-    public NavigationStateMachine(S initialState, NavigationGraph<E, DC, S> graph, SystemEventFactory<E> systemEvents, ViewContentMetaSource metaSource, DC diContext) {
+    public NavigationStateMachine(S initialState, NavigationGraphOld<E, DC, S> graph, SystemEventFactory<E> systemEvents, ViewContentMetaSource metaSource, DC diContext) {
         this.initialState = initialState;
         this.graph = graph;
         this.systemEvents = systemEvents;
@@ -75,7 +68,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     }
 
     public void resume() {
-        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
+        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("resume should be run on main thread");
         if (isPaused) {
             debouncer.onNewValue(false);
         } else {
@@ -84,7 +77,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     }
 
     public void pause() {
-        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
+        if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("pause should be run on main thread");
         if (!isPaused) {
             debouncer.onNewValue(true);
         } else {
