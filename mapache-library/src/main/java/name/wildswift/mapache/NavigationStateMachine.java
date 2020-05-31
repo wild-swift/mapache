@@ -102,7 +102,11 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         StateTransition<E, ViewSet, ViewSet, DC> transition = _tmpVar.second;
 
         currentState.stop();
-        transition.execute(navigationContext, currentRoot, currentState.getCurrentViewSet(), new DefaultTransitionCallback(nextState));
+        if (currentRoot == null) {
+            mainThreadHandler.post(new SetNewStateCommand(nextState, null));
+        } else {
+            transition.execute(navigationContext, currentRoot, currentState.getCurrentViewSet(), new DefaultTransitionCallback(nextState));
+        }
         return true;
     }
 

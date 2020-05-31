@@ -19,7 +19,7 @@ public class EmptyStateTransition<E extends Event, VS extends ViewSet, DC> exten
     }
 
     @Override
-    public void execute(@NonNull NavigationContext context, @Nullable FrameLayout rootView, @Nullable ViewSet inViews, @NonNull TransitionCallback callback) {
+    public void execute(@NonNull NavigationContext<E, DC> context, @NonNull FrameLayout rootView, @NonNull VS inViews, @NonNull TransitionCallback<VS> callback) {
         callback.onTransitionEnded(inViews);
     }
 

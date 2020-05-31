@@ -19,5 +19,5 @@ public abstract class StateTransition<E extends Event, VS_IN extends ViewSet, VS
         this.to = to;
     }
 
-    public abstract void execute(@NonNull NavigationContext<E, DC> context, @Nullable FrameLayout rootView, @Nullable VS_IN inViews, @NonNull TransitionCallback<VS_OUT> callback);
+    public abstract void execute(@NonNull NavigationContext<E, DC> context, @NonNull FrameLayout rootView, @NonNull VS_IN inViews, @NonNull TransitionCallback<VS_OUT> callback);
 }

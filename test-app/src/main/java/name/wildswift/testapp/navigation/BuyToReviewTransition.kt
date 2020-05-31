@@ -16,14 +16,11 @@ import name.wildswift.testapp.views.WalletsView
 
 class BuyToReviewTransition(from: BuyStep1State, to: ReviewBuyState) :
         StateTransition<TestAppEvent, ViewCouple<RootView, BuyCurrencyStep1View>, ViewCouple<RootView, ReviewBuyView>, DiContext>(from, to) {
-    override fun execute(context: NavigationContext<TestAppEvent, DiContext>, rootView: FrameLayout?, inViews: ViewCouple<RootView, BuyCurrencyStep1View>?, callback: TransitionCallback<ViewCouple<RootView, ReviewBuyView>>) {
-        if (inViews != null) {
-            val (root, _) = inViews;
-            root.getContentView().removeAllViews()
-            val buyCurrencyStep1View = ReviewBuyView(root.context)
-            root.getContentView().addView(buyCurrencyStep1View, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-            callback.onTransitionEnded(ViewSet.from(root, buyCurrencyStep1View))
-        }
-        callback.onTransitionEnded(null)
+    override fun execute(context: NavigationContext<TestAppEvent, DiContext>, rootView: FrameLayout, inViews: ViewCouple<RootView, BuyCurrencyStep1View>, callback: TransitionCallback<ViewCouple<RootView, ReviewBuyView>>) {
+        val (root, _) = inViews;
+        root.getContentView().removeAllViews()
+        val buyCurrencyStep1View = ReviewBuyView(root.context)
+        root.getContentView().addView(buyCurrencyStep1View, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        callback.onTransitionEnded(ViewSet.from(root, buyCurrencyStep1View))
     }
 }
