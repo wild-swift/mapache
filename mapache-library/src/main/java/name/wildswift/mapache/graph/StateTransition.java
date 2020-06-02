@@ -14,6 +14,7 @@ public abstract class StateTransition<E extends Event, VS_IN extends ViewSet, VS
     protected final MState<E, ?, ?> from;
     protected final MState<E, ?, ?> to;
 
+    // TODO why not use VS_IN + WS_OUT
     public StateTransition(MState<E, ?, ?> from, MState<E, ?, ?> to) {
         this.from = from;
         this.to = to;

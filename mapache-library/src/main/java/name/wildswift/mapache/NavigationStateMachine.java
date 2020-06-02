@@ -12,18 +12,20 @@ import name.wildswift.mapache.debouncers.DebounceCallback;
 import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.events.Eventer;
 import name.wildswift.mapache.events.SystemEventFactory;
+import name.wildswift.mapache.graph.Navigatable;
 import name.wildswift.mapache.graph.NavigationGraphOld;
 import name.wildswift.mapache.contextintegration.ActivityCaller;
 import name.wildswift.mapache.graph.StateTransition;
 import name.wildswift.mapache.graph.TransitionCallback;
+import name.wildswift.mapache.graph.TransitionFactory;
 import name.wildswift.mapache.states.MState;
 import name.wildswift.mapache.utils.StateWrapper;
 import name.wildswift.mapache.viewcontent.ViewContentMetaSource;
 import name.wildswift.mapache.viewsets.ViewSet;
 
-public final class NavigationStateMachine<E extends Event, DC, S extends MState<E, ? extends ViewSet, DC>> {
+public final class NavigationStateMachine<E extends Event, DC, S extends MState<E, ?, DC>> {
     private final S initialState;
-    private final NavigationGraphOld<E, DC, S> graph;
+    private final TransitionFactory<E, DC, S> transFactory;
     private final SystemEventFactory<E> systemEvents;
     private final ViewContentMetaSource metaSource;
 
@@ -32,8 +34,9 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     private final NavigationContext<E, DC> navigationContext;
 
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+    private final ViewContentHolderImpl<S> viewsContents;
 
-    private StateWrapper<E, ViewSet, DC, MState<E, ViewSet, DC>> currentState;
+    private StateWrapper<E, ?, DC, S> currentState;
     private FrameLayout currentRoot;
 
     private boolean isPaused = false;
@@ -41,17 +44,19 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     private CancelableDebouncer<Boolean> debouncer = new CancelableDebouncer<>(500);
 
 
-    public NavigationStateMachine(S initialState, NavigationGraphOld<E, DC, S> graph, SystemEventFactory<E> systemEvents, ViewContentMetaSource metaSource, DC diContext) {
+    public NavigationStateMachine(S initialState, TransitionFactory<E, DC, S> transFactory, SystemEventFactory<E> systemEvents, ViewContentMetaSource<S> metaSource, DC diContext) {
         this.initialState = initialState;
-        this.graph = graph;
+        this.transFactory = transFactory;
         this.systemEvents = systemEvents;
         this.metaSource = metaSource;
 
         this.callToActivityBridge = new CallToActivityBridge();
         this.eventerInternal = new EventerInternal();
-        this.navigationContext = new NavigationContext<>(diContext, eventerInternal, null, callToActivityBridge.getSystemCaller());
+        viewsContents = new ViewContentHolderImpl<>(metaSource);
+        this.navigationContext = new NavigationContext<>(diContext, eventerInternal, viewsContents, callToActivityBridge.getSystemCaller());
 
-        currentState = new StateWrapper<>((MState<E, ViewSet, DC>) initialState, navigationContext, null);
+        currentState = new StateWrapper<>(initialState, navigationContext, null);
+        viewsContents.onNewState(initialState);
         currentState.start();
 
         debouncer.addCallback(new ChangePauseStateListener());
@@ -95,11 +100,10 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     private boolean onNewEvent(E event) {
         if (currentState.onNewEvent(event)) return true;
 
-        Pair<S, StateTransition<E, ViewSet, ViewSet, DC>> _tmpVar = graph.getNextState((S) currentState.getWrapped(), event);
-        if (_tmpVar == null) return false;
+        S nextState = ((Navigatable<E, DC, S>) currentState.getWrapped()).getNextState(event);
+        if (nextState == null) return false;
 
-        S nextState = _tmpVar.first;
-        StateTransition<E, ViewSet, ViewSet, DC> transition = _tmpVar.second;
+        StateTransition<E, ViewSet, ViewSet, DC> transition = (StateTransition<E, ViewSet, ViewSet, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);
 
         currentState.stop();
         if (currentRoot == null) {
@@ -155,7 +159,8 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
 
         @Override
         public void run() {
-            currentState = new StateWrapper<>((MState<E, ViewSet, DC>) nextState, navigationContext, currentSet);
+            viewsContents.onNewState(nextState);
+            currentState = new StateWrapper(nextState, navigationContext, currentSet);
             currentState.start();
             if (currentRoot != null && currentSet == null) {
                 currentState.setRoot(currentRoot);
