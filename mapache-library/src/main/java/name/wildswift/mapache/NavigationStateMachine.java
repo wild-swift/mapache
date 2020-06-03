@@ -23,7 +23,7 @@ import name.wildswift.mapache.utils.StateWrapper;
 import name.wildswift.mapache.viewcontent.ViewContentMetaSource;
 import name.wildswift.mapache.viewsets.ViewSet;
 
-public final class NavigationStateMachine<E extends Event, DC, S extends MState<E, ?, DC>> {
+public final class NavigationStateMachine<E extends Event, DC, S extends MState<E, ?, DC> & Navigatable<E, DC, S>> {
     private final S initialState;
     private final TransitionFactory<E, DC, S> transFactory;
     private final SystemEventFactory<E> systemEvents;
@@ -55,7 +55,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         viewsContents = new ViewContentHolderImpl<>(metaSource);
         this.navigationContext = new NavigationContext<>(diContext, eventerInternal, viewsContents, callToActivityBridge.getSystemCaller());
 
-        currentState = new StateWrapper<>(initialState, navigationContext, null);
+        currentState = new StateWrapper(initialState, navigationContext, null);
         viewsContents.onNewState(initialState);
         currentState.start();
 
@@ -100,7 +100,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     private boolean onNewEvent(E event) {
         if (currentState.onNewEvent(event)) return true;
 
-        S nextState = ((Navigatable<E, DC, S>) currentState.getWrapped()).getNextState(event);
+        S nextState = currentState.getWrapped().getNextState(event);
         if (nextState == null) return false;
 
         StateTransition<E, ViewSet, ViewSet, DC> transition = (StateTransition<E, ViewSet, ViewSet, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);

@@ -1,8 +1,11 @@
 package name.wildswift.testapp.generated
 
+import android.util.Pair
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import name.wildswift.mapache.NavigationContext
+import name.wildswift.mapache.graph.Navigatable
+import name.wildswift.mapache.graph.StateTransition
 import name.wildswift.mapache.osintegration.SystemCalls
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewCouple
@@ -17,7 +20,7 @@ import name.wildswift.testapp.views.ReviewBuyView
 import name.wildswift.testapp.views.RootView
 import name.wildswift.testapp.views.WalletsView
 
-sealed class TestAppState<VS: ViewSet, DC>: MState<TestAppEvent, VS, DC>
+sealed class TestAppState<VS: ViewSet, DC>: MState<TestAppEvent, VS, DC>, Navigatable<TestAppEvent, DiContext, TestAppState<ViewSet, DiContext>>
 
 object PrimaryStateWrapper: TestAppState<ViewSet, DiContext>() {
     val wrapped = PrimaryState()
@@ -32,6 +35,13 @@ object PrimaryStateWrapper: TestAppState<ViewSet, DiContext>() {
 
     override fun start(context: NavigationContext<TestAppEvent, DiContext>): Runnable {
         return wrapped.start(context)
+    }
+
+    override fun getNextState(e: TestAppEvent): TestAppState<ViewSet, DiContext>? {
+        return when(e) {
+            is BuyCrypto -> BuyStep1StateWrapper(e.tiker)
+            else -> null
+        }
     }
 }
 
@@ -49,6 +59,13 @@ class BuyStep1StateWrapper(tiker:String): TestAppState<ViewSet, DiContext>() {
     override fun start(context: NavigationContext<TestAppEvent, DiContext>): Runnable {
         return wrapped.start(context)
     }
+
+    override fun getNextState(e: TestAppEvent): TestAppState<ViewSet, DiContext>? {
+        return when(e) {
+            is ProceedBuy -> ReviewBuyStateWrapper(e.tiker, e.amount, e.paymentType)
+            else -> null
+        }
+    }
 }
 
 class ReviewBuyStateWrapper(tiker:String, amount: Float, paymentType: Int): TestAppState<ViewSet, DiContext>() {
@@ -64,5 +81,11 @@ class ReviewBuyStateWrapper(tiker:String, amount: Float, paymentType: Int): Test
 
     override fun start(context: NavigationContext<TestAppEvent, DiContext>): Runnable {
         return wrapped.start(context)
+    }
+
+    override fun getNextState(e: TestAppEvent): TestAppState<ViewSet, DiContext>? {
+        return when(e) {
+            else -> null
+        }
     }
 }
