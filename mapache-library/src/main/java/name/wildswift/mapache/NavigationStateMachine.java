@@ -26,7 +26,6 @@ import name.wildswift.mapache.viewsets.ViewSet;
 public final class NavigationStateMachine<E extends Event, DC, S extends MState<E, ?, DC> & Navigatable<E, DC, S>> {
     private final S initialState;
     private final TransitionFactory<E, DC, S> transFactory;
-    private final SystemEventFactory<E> systemEvents;
     private final ViewContentMetaSource metaSource;
 
     private final EventerInternal eventerInternal;
@@ -44,10 +43,9 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     private CancelableDebouncer<Boolean> debouncer = new CancelableDebouncer<>(500);
 
 
-    public NavigationStateMachine(S initialState, TransitionFactory<E, DC, S> transFactory, SystemEventFactory<E> systemEvents, ViewContentMetaSource<S> metaSource, DC diContext) {
+    public NavigationStateMachine(S initialState, TransitionFactory<E, DC, S> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
         this.initialState = initialState;
         this.transFactory = transFactory;
-        this.systemEvents = systemEvents;
         this.metaSource = metaSource;
 
         this.callToActivityBridge = new CallToActivityBridge();
@@ -98,6 +96,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     }
 
     private boolean onNewEvent(E event) {
+        // TODO Add thread managment
         if (currentState.onNewEvent(event)) return true;
 
         S nextState = currentState.getWrapped().getNextState(event);
@@ -109,7 +108,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         if (currentRoot == null) {
             mainThreadHandler.post(new SetNewStateCommand(nextState, null));
         } else {
-            transition.execute(navigationContext, currentRoot, currentState.getCurrentViewSet(), new DefaultTransitionCallback(nextState));
+            mainThreadHandler.post(new HandleStartTransition(transition, nextState));
         }
         return true;
     }
@@ -178,6 +177,21 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         @Override
         public void onTransitionEnded(ViewSet currentSet) {
             mainThreadHandler.post(new SetNewStateCommand(nextState, currentSet));
+        }
+    }
+
+    private class HandleStartTransition implements Runnable {
+        private final StateTransition<E, ViewSet, ViewSet, DC> transition;
+        private final S nextState;
+
+        public HandleStartTransition(StateTransition<E, ViewSet, ViewSet, DC> transition, S nextState) {
+            this.transition = transition;
+            this.nextState = nextState;
+        }
+
+        @Override
+        public void run() {
+            transition.execute(navigationContext, currentRoot, currentState.getCurrentViewSet(), new DefaultTransitionCallback(nextState));
         }
     }
 }

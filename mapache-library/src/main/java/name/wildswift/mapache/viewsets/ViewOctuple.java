@@ -88,4 +88,9 @@ public class ViewOctuple<V1 extends View, V2 extends View, V3 extends View, V4 e
     public V8 component8() {
         return view8;
     }
+
+    @Override
+    public <V extends View> ViewSet union(V v) {
+        throw new IllegalArgumentException("max view set reached");
+    }
 }

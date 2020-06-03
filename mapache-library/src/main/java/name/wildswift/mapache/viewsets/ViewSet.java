@@ -3,6 +3,11 @@ package name.wildswift.mapache.viewsets;
 import android.view.View;
 
 public abstract class ViewSet {
+    public abstract <V extends View> ViewSet union(V v);
+
+    public static ViewVoid from() {
+        return new ViewVoid();
+    }
 
     public static <V1 extends View> ViewSingle<V1> from(V1 v1) {
         return new ViewSingle<>(v1);
