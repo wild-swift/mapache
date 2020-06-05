@@ -1,5 +1,6 @@
 package name.wildswift.mapache.generator.grdsl
 
+import groovy.lang.Closure
 import groovy.lang.GroovyObject
 import groovy.lang.MetaClass
 import name.wildswift.mapache.generator.dslmodel.Action

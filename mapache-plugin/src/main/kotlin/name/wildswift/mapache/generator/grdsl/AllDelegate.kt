@@ -1,20 +1,24 @@
 package name.wildswift.mapache.generator.grdsl
 
 import groovy.lang.Closure
+import groovy.lang.GroovyObject
+import groovy.lang.MetaClass
 import name.wildswift.mapache.generator.dslmodel.Action
 import name.wildswift.mapache.generator.dslmodel.Movement
 import name.wildswift.mapache.generator.dslmodel.State
 import name.wildswift.mapache.generator.dslmodel.StateSubGraph
+import org.codehaus.groovy.runtime.InvokerHelper
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 
-class StateDelegate(private val state: State): GraphBaseDelegate() {
+class AllDelegate() : GroovyObject {
+    private var movements: List<Movement>? = null
+        private set
+
     var movementRules: List<Triple<String, String, String>> = listOf()
 
-    private var sceneViewClass = ""
-    private var sceneViewIndex = -1
-
-    override fun invokeMethod(name: String, args: Array<Any>): Any? {
+    override fun invokeMethod(name: String, inArgs: Any?): Any? {
+        val args = inArgs as? Array<Any> ?: return null
         if (name == "when") {
             return MovementRuleBuilder((args[0] as Class<*>).name) {
                 movementRules += it
@@ -26,34 +30,32 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
                 movementRules += it
             }.go(args[0] as Class<*>)
         }
-
-        if (name.equals("rootview", true)) {
-            if (sceneViewIndex >= 0) throw IllegalArgumentException("Multiple definition of rootview in $name")
-            val (sceneViewIndex, sceneViewClass) = (args[0] as Map<Int, Class<*>>).entries.single()
-            if (sceneViewIndex < 0) throw ArrayIndexOutOfBoundsException()
-            this.sceneViewIndex = sceneViewIndex
-            this.sceneViewClass = sceneViewClass.name
-            return null
-        }
-
-        return super.invokeMethod(name, args)
+        println("invokeMethod ${name} : ${args.toList()}")
+        return null
     }
 
-    override fun buildStateGraph(): StateSubGraph? {
-        return initialRaw?.let { (initialState, _) ->
-            StateSubGraph(
-                    sceneViewClass = sceneViewClass,
-                    sceneViewIndex = sceneViewIndex,
-                    initialState = initialState,
-                    hasBackStack = hasBackStack
-            )
-        }
+    override fun setProperty(propertyName: String, newValue: Any?) {
+        println("setProperty $propertyName = $newValue")
+
     }
 
-    override fun name(): String = state.name
+    override fun getProperty(propertyName: String): Any? {
+        println("getProperty ${propertyName}")
+        return null
+    }
+
+    private var metaClass: MetaClass = InvokerHelper.getMetaClass(javaClass)
+
+    override fun setMetaClass(metaClass: MetaClass) {
+        this.metaClass = metaClass
+    }
+
+    override fun getMetaClass(): MetaClass {
+        return metaClass
+    }
 
     fun doFinal(actions: List<Action>, states: List<State>, parentName: String) {
-        state.movements = movementRules.filter { it.first.isNotBlank() }.map { (actionName, targetStateName, transitionName) ->
+        movements = movementRules.filter { it.first.isNotBlank() }.map { (actionName, targetStateName, transitionName) ->
             val targetState = states.find { it.name == targetStateName } ?: throw IllegalArgumentException("State $targetStateName not found in $parentName")
             val action = actions.find { it.name == actionName } ?: throw IllegalArgumentException("Action $actionName not found")
             if (targetState.parameters == null) {
@@ -65,10 +67,6 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
 
             Movement(action, targetState, transitionName)
         }
-
-        doFinal(actions)
-
-        state.child = buildStateGraph()
     }
 
 }

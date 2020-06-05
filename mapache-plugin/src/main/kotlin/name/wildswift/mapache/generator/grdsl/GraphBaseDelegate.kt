@@ -18,6 +18,7 @@ abstract class GraphBaseDelegate : GroovyObject {
     protected var initialRaw: Pair<State, Closure<*>>? = null
         private set
     private var elementsRaw = listOf<Pair<State, Closure<*>>>()
+    private var allClosure: Closure<*>? = null
 
 
     override fun invokeMethod(name: String, inArgs: Any?): Any? {
@@ -26,6 +27,10 @@ abstract class GraphBaseDelegate : GroovyObject {
     }
 
     protected open fun invokeMethod(name: String, args: Array<Any>): Any? {
+        if (name == "all") {
+            allClosure = args[0] as Closure<*>
+            return null
+        }
 
         if (name == "$") {
             elementsRaw += args.let { State(name = (it[0] as Class<*>).name) to it[1] as Closure<*> }
@@ -79,6 +84,13 @@ abstract class GraphBaseDelegate : GroovyObject {
     abstract fun name(): String
 
     fun doFinal(actions: List<Action>) {
+        val additionalMovments = allClosure?.let { allClosure ->
+            val allDelegate = AllDelegate()
+            allClosure.delegate = allDelegate
+            allClosure.resolveStrategy = Closure.DELEGATE_FIRST
+            allClosure.call()
+            allDelegate.movementRules
+        }
         if (elementsRaw.map { (state, _) -> state.name }.let { it.size != it.toSet().size }) throw IllegalArgumentException("Names not unique for ${name()}")
         val states = elementsRaw.map { (state, _) -> state}
         elementsRaw.forEach { (state, closure) ->
@@ -86,6 +98,9 @@ abstract class GraphBaseDelegate : GroovyObject {
             closure.delegate = stateDelegate
             closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure.call()
+            if (additionalMovments != null) {
+                stateDelegate.movementRules += additionalMovments
+            }
             stateDelegate.doFinal(actions, states, this.name())
         }
     }

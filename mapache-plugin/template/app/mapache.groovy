@@ -1,55 +1,93 @@
-import name.wildswift.mapache.generator.dslmodel.Movement
+import name.wildswift.mapache.dafaults.EmptyStateTransition
+import name.wildswift.sunrisealarm.changelocation.states.NoActionsState
+import name.wildswift.sunrisealarm.changelocation.states.SearchByNameState
+import name.wildswift.sunrisealarm.changelocation.states.SelectByNameState
 import name.wildswift.sunrisealarm.model.Alarm
 import name.wildswift.sunrisealarm.navigation.events.DoAfter
 import name.wildswift.sunrisealarm.navigation.states.AboutScreenState
 import name.wildswift.sunrisealarm.navigation.states.ClassicDetailsScreenState
 import name.wildswift.sunrisealarm.navigation.states.InitialState
 import name.wildswift.sunrisealarm.navigation.states.RequestLocationPermissionsDialogState
+import name.wildswift.sunrisealarm.navigation.states.RequestLocationPermissionsState
+import name.wildswift.sunrisealarm.navigation.states.SelectLocationScreenState
 import name.wildswift.sunrisealarm.navigation.states.SetupScreenState
-import android.view.FrameLayout
+import name.wildswift.sunrisealarm.navigation.transitions.AboutToPrimaryTransition
+import name.wildswift.sunrisealarm.navigation.transitions.PrimaryToAboutTransition
+import name.wildswift.sunrisealarm.navigation.transitions.PrimaryToRequestLocationDialogTransition
+import name.wildswift.sunrisealarm.navigation.transitions.RequestLocationDialogToPrimaryTransition
+import name.wildswift.sunrisealarm.navigation.transitions.SplashToPrimaryTransition
+import name.wildswift.sunrisealarm.services.location.LocationInfo
+import name.wildswift.sunrisealarm.ui.location.ViewGeoPointData
 
-basePackageName "name.wildswift.sunrisealarm.navigation"
+
+basePackageName "name.wildswift.sunrisealarm.generated"
 statesPackageName ".gen"
 
 actions {
-    packageName = ".events"
-
-    StartApp()
-    OpenAlarmDetails(Alarm)
     AppLoaded()
+    OpenAlarmDetails(Alarm)
     AboutDeveloper()
     OpenRequestLocationPermissionDialog(DoAfter)
     RequestLocationPermission(DoAfter)
     SelectLocation(DoAfter)
+    // location select screen
+    MapClicked(LocationInfo)
+    AutoSearchEnable()
+    AutoSearchDisable()
+    SearchText(String)
+    LocationFinded(List)
+    LocationSelected()
+
 }
 
 layer {
-    hasBackStack = true
-
     from(InitialState) {
-        when StartApp go SetupScreenState with Movement
+        when AppLoaded go SetupScreenState with SplashToPrimaryTransition
     }
-
     $(SetupScreenState) {
+        singleBackStack true
 
-        when OpenAlarmDetails go ClassicDetailsScreenState with Movement
-        when OpenRequestLocationPermissionDialog go RequestLocationPermissionsDialogState with Movement
-        when AboutDeveloper go AboutScreenState with Movement
-
-        hasBackStack false
-        rootview 0: FrameLayout
-
-        from(ClassicDetailsScreenState) {
-
-        }
+        when OpenAlarmDetails go ClassicDetailsScreenState with EmptyStateTransition
+        when OpenRequestLocationPermissionDialog go RequestLocationPermissionsDialogState with PrimaryToRequestLocationDialogTransition
+        when AboutDeveloper go AboutScreenState with PrimaryToAboutTransition
     }
     $(ClassicDetailsScreenState) {
 
     }
-    $(RequestLocationPermissionsDialogState) {
 
-    }
     $(AboutScreenState) {
+        go SetupScreenState with AboutToPrimaryTransition
+    }
 
+    $(RequestLocationPermissionsDialogState) {
+        when RequestLocationPermission go RequestLocationPermissionsState with RequestLocationDialogToPrimaryTransition
+        go SetupScreenState with RequestLocationDialogToPrimaryTransition
+    }
+
+    $(RequestLocationPermissionsState) {
+        when SelectLocation go SelectLocationScreenState with EmptyStateTransition
+        go SetupScreenState with EmptyStateTransition
+    }
+
+    $(SelectLocationScreenState) {
+        hasBackStack true
+
+        rootView 1: LocationSelectMapView
+
+        all {
+            when SearchText go SearchByNameState with EmptyStateTransition
+        }
+
+        from(NoActionsState) {
+
+        }
+
+        $(SearchByNameState) {
+            when LocationFinded go SelectByNameState with EmptyStateTransition
+        }
+
+        $(SelectByNameState) {
+            when LocationSelected go NoActionsState with EmptyStateTransition
+        }
     }
 }

@@ -29,7 +29,7 @@ class Test {
 
             val stateMachine = mapacheGroovyDslDelegate.stateMachine
 
-            println(stateMachine)
+//            println(stateMachine)
 
             val queue: Queue<State> = LinkedList()
 
