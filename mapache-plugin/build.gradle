@@ -52,14 +52,16 @@ artifacts {
 dependencies {
     implementation gradleApi()
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 //    implementation 'org.codehaus.groovy:groovy-all:3.0.2'
-    implementation 'com.squareup:javapoet:1.12.1'
+    api 'com.squareup:javapoet:1.12.1'
 
-    implementation "com.android.tools.build:gradle:3.5.3"
+    implementation "com.android.tools.build:gradle:3.6.3"
+    implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
     testImplementation 'junit:junit:4.12'
     testImplementation gradleTestKit()
+    testImplementation "com.android.tools.build:gradle:3.6.3"
 }
 
 publishing {
@@ -77,7 +79,7 @@ publishing {
                 def dependenciesNode = asNode().appendNode('dependencies')
 
                 // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
-                configurations.implementation.allDependencies.each {
+                configurations.api.allDependencies.each {
                     // Ensure dependencies such as fileTree are not included in the pom.
                     if (it.name != 'unspecified') {
                         def dependencyNode = dependenciesNode.appendNode('dependency')

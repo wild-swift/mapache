@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator.dslmodel
+package name.wildswift.mapache.generator.generatemodel
 
 data class Movement(
         /**

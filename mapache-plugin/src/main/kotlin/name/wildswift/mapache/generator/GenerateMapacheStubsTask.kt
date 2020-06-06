@@ -19,9 +19,12 @@ open class GenerateMapacheStubsTask : DefaultTask() {
 
     @TaskAction
     fun generateStubs() {
+        println(Class.forName("org.jetbrains.kotlin.compilerRunner.GradleCompilerRunner").methods.map { it.name }.filter { !it.startsWith("access\$") })
+
         val outputFile = outputs.files.files.firstOrNull() ?: return
+        val inputFile = inputs.files.files.filter { it.exists() }.firstOrNull() ?: return
         if (DEBUG) {
-            println(inputs.files.singleFile)
+            println(inputFile)
         }
 
         val xmlContents = DocumentBuilderFactory
@@ -30,7 +33,7 @@ open class GenerateMapacheStubsTask : DefaultTask() {
                     isNamespaceAware = true
                 }
                 .newDocumentBuilder()
-                .parse(inputs.files.singleFile)
+                .parse(inputFile)
 
         val nsPrefix = resolveNamespace(xmlContents)
 

@@ -1,15 +1,12 @@
 package name.wildswift.mapache.generator.grdsl
 
-import groovy.lang.Closure
 import groovy.lang.GroovyObject
 import groovy.lang.MetaClass
-import name.wildswift.mapache.generator.dslmodel.Action
-import name.wildswift.mapache.generator.dslmodel.Movement
-import name.wildswift.mapache.generator.dslmodel.State
-import name.wildswift.mapache.generator.dslmodel.StateSubGraph
+import name.wildswift.mapache.generator.generatemodel.Action
+import name.wildswift.mapache.generator.generatemodel.Movement
+import name.wildswift.mapache.generator.generatemodel.State
 import org.codehaus.groovy.runtime.InvokerHelper
 import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 
 class AllDelegate() : GroovyObject {
     private var movements: List<Movement>? = null

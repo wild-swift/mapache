@@ -3,17 +3,16 @@ package name.wildswift.mapache.generator.grdsl
 import groovy.lang.Closure
 import groovy.lang.GroovyObject
 import groovy.lang.MetaClass
-import name.wildswift.mapache.generator.dslmodel.Action
-import name.wildswift.mapache.generator.dslmodel.State
-import name.wildswift.mapache.generator.dslmodel.StateGraphBase
-import name.wildswift.mapache.generator.dslmodel.StateMachineLayer
+import name.wildswift.mapache.generator.generatemodel.Action
+import name.wildswift.mapache.generator.generatemodel.State
+import name.wildswift.mapache.generator.generatemodel.StateGraphBase
 import org.codehaus.groovy.runtime.InvokerHelper
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 
+@Suppress("SuspiciousCollectionReassignment")
 abstract class GraphBaseDelegate : GroovyObject {
-    protected var hasBackStack = true
-        private set
+    var hasBackStack = true
 
     protected var initialRaw: Pair<State, Closure<*>>? = null
         private set
@@ -22,51 +21,39 @@ abstract class GraphBaseDelegate : GroovyObject {
 
 
     override fun invokeMethod(name: String, inArgs: Any?): Any? {
-        val args = inArgs as? Array<Any> ?: return null
+        val args = inArgs as? Array<Any?> ?: return null
         return invokeMethod(name, args)
     }
 
-    protected open fun invokeMethod(name: String, args: Array<Any>): Any? {
-        if (name == "all") {
-            allClosure = args[0] as Closure<*>
-            return null
-        }
+    protected open fun invokeMethod(name: String, args: Array<Any?>): Any? {
+        throw IllegalArgumentException("Unknown command $name with parameters [${args.joinToString { if (it != null) it::class.simpleName.orEmpty() else "null" }}] in ${name()}")
+    }
 
-        if (name == "$") {
-            elementsRaw += args.let { State(name = (it[0] as Class<*>).name) to it[1] as Closure<*> }
-            return null
-        }
-        if (name == "from") {
-            if (initialRaw != null) throw IllegalStateException()
-            initialRaw = args.let { State(name = (it[0] as Class<*>).name, parameters = listOf()) to it[1] as Closure<*> }
-            elementsRaw += initialRaw!!
-            return null
-        }
+    fun all(closure: Closure<*>) {
+        allClosure = closure
+    }
 
-        if (name == "hasBackStack") {
-            hasBackStack = args[0] as Boolean
-            return null
-        }
+    fun `$`(stateClass: Class<*>, initializer: Closure<*>) {
+        elementsRaw += State(name = stateClass.name) to initializer
+    }
 
-        println("invokeMethod ${name} : ${args.toList()}")
-        return null
+    fun from(stateClass: Class<*>, initializer: Closure<*>) {
+        if (initialRaw != null) throw IllegalStateException()
+        initialRaw = (State(name = stateClass.name) to initializer).also {
+            elementsRaw += it
+        }
+    }
+
+    fun hasBackStack(value: Boolean) {
+        hasBackStack = value
     }
 
     override fun setProperty(propertyName: String, newValue: Any?) {
-        if (propertyName == "hasBackStack") {
-            hasBackStack = newValue as Boolean
-            return
-        }
-        println("setProperty $propertyName = $newValue")
-
+        throw IllegalArgumentException("Unknown command $propertyName with parameters [${if (newValue != null) newValue::class.simpleName else "null"}] in ${name()}")
     }
 
     override fun getProperty(propertyName: String): Any? {
-        if (propertyName == "hasBackStack") {
-            return hasBackStack
-        }
-        println("getProperty ${propertyName}")
-        return null
+        throw IllegalArgumentException("Unknown command $propertyName with parameters [] in ${name()}")
     }
 
     private var metaClass: MetaClass = InvokerHelper.getMetaClass(javaClass)

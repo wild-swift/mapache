@@ -11,10 +11,13 @@ import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDepen
 class MapachePlugin: Plugin<Project> {
 
     companion object {
-        private const val DEBUG = false
+        private const val DEBUG = true
     }
 
     override fun apply(project: Project) {
+        if (DEBUG) {
+            println("apply")
+        }
         project.dependencies.add("implementation", DefaultExternalModuleDependency("name.wildswift.android", "mapache-library", "1.0"))
 
         project.extensions.findByType(AppExtension::class.java)?.applicationVariants?.all {
@@ -32,6 +35,9 @@ class MapachePlugin: Plugin<Project> {
     }
 
     private fun processVariant(project: Project, variant: BaseVariant) {
+        if (DEBUG) {
+            println("processVariant")
+        }
         val pack = variant.applicationId
 
         variant.outputs.all { output ->
@@ -47,7 +53,9 @@ class MapachePlugin: Plugin<Project> {
             val task = project.tasks
                     .create("generateMapache${output.name.capitalize()}", GenerateMapacheStubsTask::class.java)
                     .apply {
-                        inputs.file(project.projectDir.resolve("mapache.xml"))
+                        val xmlFile = project.projectDir.resolve("mapache.xml")
+                        val groovyFile = project.projectDir.resolve("mapache.groovy")
+                        inputs.files(groovyFile, xmlFile)
                         outputs.dir(outputDir)
                         dependsOn(processResources.get())
                     }

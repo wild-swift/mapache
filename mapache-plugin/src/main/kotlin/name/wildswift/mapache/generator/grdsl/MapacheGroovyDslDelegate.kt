@@ -1,9 +1,9 @@
 package name.wildswift.mapache.generator.grdsl
 
 import groovy.lang.Closure
-import name.wildswift.mapache.generator.dslmodel.Action
-import name.wildswift.mapache.generator.dslmodel.StateMachine
-import name.wildswift.mapache.generator.dslmodel.StateMachineLayer
+import name.wildswift.mapache.generator.generatemodel.Action
+import name.wildswift.mapache.generator.generatemodel.StateMachine
+import name.wildswift.mapache.generator.generatemodel.StateMachineLayer
 import java.lang.IllegalArgumentException
 
 class MapacheGroovyDslDelegate {

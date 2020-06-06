@@ -1,43 +1,43 @@
 package name.wildswift.mapache.generator.grdsl
 
-import groovy.lang.Closure
-import name.wildswift.mapache.generator.dslmodel.Action
-import name.wildswift.mapache.generator.dslmodel.Movement
-import name.wildswift.mapache.generator.dslmodel.State
-import name.wildswift.mapache.generator.dslmodel.StateSubGraph
+import name.wildswift.mapache.generator.generatemodel.Action
+import name.wildswift.mapache.generator.generatemodel.Movement
+import name.wildswift.mapache.generator.generatemodel.State
+import name.wildswift.mapache.generator.generatemodel.StateSubGraph
 import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 
 class StateDelegate(private val state: State): GraphBaseDelegate() {
     var movementRules: List<Triple<String, String, String>> = listOf()
 
     private var sceneViewClass = ""
     private var sceneViewIndex = -1
+    var singleInBackStack = false
 
-    override fun invokeMethod(name: String, args: Array<Any>): Any? {
-        if (name == "when") {
-            return MovementRuleBuilder((args[0] as Class<*>).name) {
-                movementRules += it
-            }
+    fun `when`(actionClass: Class<*>): MovementRuleBuilder {
+        return MovementRuleBuilder(actionClass.name) {
+            movementRules += it
         }
-
-        if (name == "go") {
-            return MovementRuleBuilder("") {
-                movementRules += it
-            }.go(args[0] as Class<*>)
-        }
-
-        if (name.equals("rootview", true)) {
-            if (sceneViewIndex >= 0) throw IllegalArgumentException("Multiple definition of rootview in $name")
-            val (sceneViewIndex, sceneViewClass) = (args[0] as Map<Int, Class<*>>).entries.single()
-            if (sceneViewIndex < 0) throw ArrayIndexOutOfBoundsException()
-            this.sceneViewIndex = sceneViewIndex
-            this.sceneViewClass = sceneViewClass.name
-            return null
-        }
-
-        return super.invokeMethod(name, args)
     }
+
+    fun go(targetStateClass: Class<*>): MovementRuleBuilder {
+        return MovementRuleBuilder("") {
+            movementRules += it
+        }.go(targetStateClass)
+    }
+
+    fun rootView(definition: Map<Int, Class<*>>) {
+        val entries = definition.entries.takeIf { it.size == 1 } ?: throw IllegalArgumentException("Incorrect definition of rootView in ${name()}")
+        if (sceneViewIndex >= 0) throw IllegalArgumentException("Multiple definition of rootView in ${name()}")
+        val (sceneViewIndex, sceneViewClass) = entries.single()
+        if (sceneViewIndex < 0) throw ArrayIndexOutOfBoundsException()
+        this.sceneViewIndex = sceneViewIndex
+        this.sceneViewClass = sceneViewClass.name
+    }
+
+    fun singleInBackStack(value: Boolean) {
+        singleInBackStack = value
+    }
+
 
     override fun buildStateGraph(): StateSubGraph? {
         return initialRaw?.let { (initialState, _) ->

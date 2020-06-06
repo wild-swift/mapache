@@ -1,10 +1,9 @@
 package name.wildswift.mapache.generator.grdsl
 
-import groovy.lang.Closure
 import groovy.lang.GroovyObject
 import groovy.lang.MetaClass
-import name.wildswift.mapache.generator.dslmodel.Action
-import name.wildswift.mapache.generator.dslmodel.Parameter
+import name.wildswift.mapache.generator.generatemodel.Action
+import name.wildswift.mapache.generator.generatemodel.Parameter
 import org.codehaus.groovy.runtime.InvokerHelper
 
 class ActionsDelegate : GroovyObject {

@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator.dslmodel
+package name.wildswift.mapache.generator.generatemodel
 
 abstract class StateGraphBase {
     /**

@@ -17,10 +17,9 @@ import name.wildswift.sunrisealarm.navigation.transitions.PrimaryToRequestLocati
 import name.wildswift.sunrisealarm.navigation.transitions.RequestLocationDialogToPrimaryTransition
 import name.wildswift.sunrisealarm.navigation.transitions.SplashToPrimaryTransition
 import name.wildswift.sunrisealarm.services.location.LocationInfo
-import name.wildswift.sunrisealarm.ui.location.ViewGeoPointData
 
 
-basePackageName "name.wildswift.sunrisealarm.generated"
+basePackageName "name.wildswift.testapp.generated"
 statesPackageName ".gen"
 
 actions {
@@ -45,7 +44,7 @@ layer {
         when AppLoaded go SetupScreenState with SplashToPrimaryTransition
     }
     $(SetupScreenState) {
-        singleBackStack true
+        singleInBackStack true
 
         when OpenAlarmDetails go ClassicDetailsScreenState with EmptyStateTransition
         when OpenRequestLocationPermissionDialog go RequestLocationPermissionsDialogState with PrimaryToRequestLocationDialogTransition

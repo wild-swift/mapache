@@ -53,12 +53,12 @@ class PluginTest {
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
-                .withArguments("build", "--stacktrace")
+                .withArguments("assembleDebug", "--stacktrace")
                 .forwardStdOutput(OutputStreamWriter(System.out))
                 .forwardStdError(OutputStreamWriter(System.err))
                 .build()
 
-        assertEquals(SUCCESS, result.task(":app:build")?.outcome)
+        assertEquals(SUCCESS, result.task(":app:assembleDebug")?.outcome)
 
 //        val attrRNames = appFolder.resolve("build/generated/source/resNames/release/name/wildswift/testapp/AttrRNames.java").readLines().joinToString("\n")
 //        assertEquals("""
