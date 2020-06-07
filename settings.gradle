@@ -1,2 +1,2 @@
-include ':mapache-library', ':mapache-plugin'
+include ':mapache-library', ':mapache-plugin', ':mapache-annotation-processor'
 include ':test-app'
