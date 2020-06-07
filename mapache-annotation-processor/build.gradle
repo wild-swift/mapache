@@ -27,12 +27,13 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.squareup:javapoet:1.12.1'
+    implementation 'org.codehaus.groovy:groovy-all:3.0.2'
 
     implementation project(':mapache-library')
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'

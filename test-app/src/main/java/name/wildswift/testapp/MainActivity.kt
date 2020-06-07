@@ -18,6 +18,7 @@ package name.wildswift.testapp
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import name.wildswift.mapache.config.GenerateNavigation
 import name.wildswift.mapache.contextintegration.ActivityCaller
 import name.wildswift.mapache.contextintegration.ActivityEventsCallback
 import name.wildswift.testapp.di.DiContext

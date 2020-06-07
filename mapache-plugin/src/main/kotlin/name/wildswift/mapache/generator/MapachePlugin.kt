@@ -50,16 +50,16 @@ class MapachePlugin: Plugin<Project> {
                 println("pack = $pack, project.rootDir = ${project.projectDir}, outputDir = $outputDir")
             }
 
-            val task = project.tasks
-                    .create("generateMapache${output.name.capitalize()}", GenerateMapacheStubsTask::class.java)
-                    .apply {
-                        val xmlFile = project.projectDir.resolve("mapache.xml")
-                        val groovyFile = project.projectDir.resolve("mapache.groovy")
-                        inputs.files(groovyFile, xmlFile)
-                        outputs.dir(outputDir)
-                        dependsOn(processResources.get())
-                    }
-            variant.registerJavaGeneratingTask(task, outputDir)
+//            val task = project.tasks
+//                    .create("generateMapache${output.name.capitalize()}", GenerateMapacheStubsTask::class.java)
+//                    .apply {
+//                        val xmlFile = project.projectDir.resolve("mapache.xml")
+//                        val groovyFile = project.projectDir.resolve("mapache.groovy")
+//                        inputs.files(groovyFile, xmlFile)
+//                        outputs.dir(outputDir)
+//                        dependsOn(processResources.get())
+//                    }
+//            variant.registerJavaGeneratingTask(task, outputDir)
         }
     }
 

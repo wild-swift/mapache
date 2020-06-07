@@ -34,6 +34,13 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        // for annotationProcessor
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                includeCompileClasspath false
+//                arguments "mapache.configs.location": project.projectDir.path
+//            }
+//        }
     }
 
     buildTypes {
@@ -47,13 +54,15 @@ android {
 kapt {
     arguments {
         arg("application.id", "name.wildswift.testapp")
+        arg("mapache.configs.location", project.projectDir.path)
     }
 }
 
 dependencies {
     kapt "name.wildswift.android:android-annotation-processor:0.8.2"
-    implementation "name.wildswift.android:android-annotations:0.8.0"
+    annotationProcessor project(":mapache-annotation-processor")
 
+    implementation "name.wildswift.android:android-annotations:0.8.0"
     implementation project(":mapache-library")
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation 'com.google.android.material:material:1.1.0'

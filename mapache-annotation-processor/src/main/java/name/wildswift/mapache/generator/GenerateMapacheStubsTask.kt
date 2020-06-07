@@ -1,13 +1,10 @@
 package name.wildswift.mapache.generator
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.TaskAction
 import org.w3c.dom.Document
 import java.lang.IllegalArgumentException
-import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
 
-open class GenerateMapacheStubsTask : DefaultTask() {
+open class GenerateMapacheStubsTask {
     companion object {
         private const val DEBUG = true
         private const val XML_NAMESPACE_URI = "http://plugins.wild-swift.name/mapache"
@@ -17,14 +14,9 @@ open class GenerateMapacheStubsTask : DefaultTask() {
         private val appNameRegexp = "[A-Z][0-9a-zA-Z]*".toRegex()
     }
 
-    @TaskAction
-    fun generateStubs() {
-        println(Class.forName("org.jetbrains.kotlin.compilerRunner.GradleCompilerRunner").methods.map { it.name }.filter { !it.startsWith("access\$") })
-
-        val outputFile = outputs.files.files.firstOrNull() ?: return
-        val inputFile = inputs.files.files.filter { it.exists() }.firstOrNull() ?: return
+    fun generateSourcess(fileName: String) {
         if (DEBUG) {
-            println(inputFile)
+            println(fileName)
         }
 
         val xmlContents = DocumentBuilderFactory
@@ -33,7 +25,7 @@ open class GenerateMapacheStubsTask : DefaultTask() {
                     isNamespaceAware = true
                 }
                 .newDocumentBuilder()
-                .parse(inputFile)
+                .parse(fileName)
 
         val nsPrefix = resolveNamespace(xmlContents)
 
