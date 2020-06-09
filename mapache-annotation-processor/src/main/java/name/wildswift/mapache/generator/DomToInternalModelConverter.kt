@@ -75,7 +75,7 @@ object DomToInternalModelConverter {
                     )
                 }
                 .let {
-                    StateMachine(it, "", "", "")
+                    StateMachine(it, listOf(), "", "", "")
                 }
 
         if (DEBUG) {

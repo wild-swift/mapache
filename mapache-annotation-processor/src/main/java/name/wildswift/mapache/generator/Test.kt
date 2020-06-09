@@ -20,7 +20,7 @@ class Test {
             cc.scriptBaseClass = DelegatingScript::class.java.name
 
             val sh = GroovyShell(emptyClassesClassLoader, Binding(), cc)
-            val script = sh.parse(File("D:\\Projects\\Android\\Mapache\\mapache-plugin\\template\\app\\mapache1.groovy")) as DelegatingScript
+            val script = sh.parse(File("D:\\Projects\\Android\\Mapache\\test-app\\mapache.groovy")) as DelegatingScript
 
             val mapacheGroovyDslDelegate = MapacheGroovyDslDelegate()
             script.delegate = mapacheGroovyDslDelegate

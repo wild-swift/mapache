@@ -5,6 +5,7 @@ import groovy.lang.MetaClass
 import name.wildswift.mapache.generator.generatemodel.Action
 import name.wildswift.mapache.generator.generatemodel.Parameter
 import org.codehaus.groovy.runtime.InvokerHelper
+import java.lang.IllegalStateException
 
 class ActionsDelegate : GroovyObject {
     var packageName: String = ".events"
@@ -22,8 +23,14 @@ class ActionsDelegate : GroovyObject {
 
         actions += Action(
                 name,
-                args.map { it as Class<*> }
-                        .mapIndexed { i, pr -> Parameter("p${i + 1}", pr.name) }
+                args.mapIndexed { i, pr ->
+                    if (pr is Class<*>)
+                        Parameter("p${i + 1}", pr.name)
+                    else if (pr is Map<*, *>)
+                        Parameter(pr.entries.first().key as String, (pr.entries.first().value as Class<*>).name)
+                    else
+                        throw IllegalStateException("Unable to parse action $name defenition")
+                }
         )
 
         return null

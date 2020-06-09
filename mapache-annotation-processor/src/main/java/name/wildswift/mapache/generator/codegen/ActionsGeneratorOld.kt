@@ -1,12 +1,15 @@
-package name.wildswift.mapache.generator
+package name.wildswift.mapache.generator.codegen
 
 import com.squareup.javapoet.*
+import name.wildswift.mapache.generator.find
+import name.wildswift.mapache.generator.resolveType
+import name.wildswift.mapache.generator.singletone
 import org.w3c.dom.Node
 import java.io.File
 import javax.lang.model.element.Modifier
 
 
-class ActionsGenerator(
+class ActionsGeneratorOld(
         private val nsPrefix: String?,
         private val prefix: String,
         private val packageName: String,

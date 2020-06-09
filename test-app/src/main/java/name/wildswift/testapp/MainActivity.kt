@@ -25,6 +25,7 @@ import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.generated.TestAppNavigationStateMachine
 import name.wildswift.testapp.generated.newNavigationStateMachine
 
+@GenerateNavigation("TestApp")
 class MainActivity : Activity(), ActivityCaller {
     private val stateMachine: TestAppNavigationStateMachine by lazy { newNavigationStateMachine(DiContext(applicationContext)) }
 

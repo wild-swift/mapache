@@ -60,7 +60,7 @@ kapt {
 
 dependencies {
     kapt "name.wildswift.android:android-annotation-processor:0.8.2"
-    annotationProcessor project(":mapache-annotation-processor")
+    kapt project(":mapache-annotation-processor")
 
     implementation "name.wildswift.android:android-annotations:0.8.0"
     implementation project(":mapache-library")

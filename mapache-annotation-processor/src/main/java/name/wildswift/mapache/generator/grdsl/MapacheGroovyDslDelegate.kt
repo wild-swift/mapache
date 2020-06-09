@@ -12,6 +12,7 @@ class MapacheGroovyDslDelegate {
 
     val stateMachine by lazy { StateMachine(
             layers,
+            actions,
             basePackageName ?: throw IllegalArgumentException("Missing property basePackageName"),
             (if (actionsPackageName.startsWith(".")) basePackageName?.let { it + actionsPackageName } else actionsPackageName) ?: throw IllegalArgumentException("Missing property basePackageName"),
             (if (statesPackageName.startsWith(".")) basePackageName?.let { it + statesPackageName } else statesPackageName) ?: throw IllegalArgumentException("Missing property basePackageName")

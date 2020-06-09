@@ -2,20 +2,21 @@ package name.wildswift.mapache.generator
 
 import name.wildswift.mapache.config.ConfigType
 import name.wildswift.mapache.config.GenerateNavigation
+import name.wildswift.mapache.generator.codegen.ActionsGenerator
 import name.wildswift.mapache.generator.parsers.ModelParser
 import java.io.File
+import java.lang.IllegalStateException
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.QualifiedNameable
 import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
-import javax.tools.StandardLocation
 
 @SupportedAnnotationTypes("name.wildswift.mapache.config.GenerateNavigation")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedOptions("mapache.configs.location")
-class StatesMachineGenerator: AbstractProcessor() {
+class StatesMachineGenerator : AbstractProcessor() {
 
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
@@ -45,13 +46,30 @@ class StatesMachineGenerator: AbstractProcessor() {
         return true
     }
 
-    private fun generateStateMachine(value: String, configName: String, type: ConfigType) {
+    private fun generateStateMachine(prefix: String, configName: String, type: ConfigType) {
         val parser = ModelParser.getInstance(type)
-        val options = processingEnv.options.entries.joinToString { (name, value) -> "$name = $value" }
-//        val file = File(".").toURI()
-        val file = processingEnv.filer.getResource(StandardLocation.SOURCE_PATH, "", "test.txt").toUri();
-        throw IllegalArgumentException("$file")
+        val configsLocation = processingEnv.options["mapache.configs.location"]?.takeIf { it.isNotEmpty() }
+                ?: let {
+                    processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Argument 'mapache.configs.location' is not set")
+                    throw IllegalArgumentException("Argument 'mapache.configs.location' is not set")
+                }
+        val configFile = File(configsLocation)
+                .resolve(configName + when (type) {
+                    ConfigType.GROOVY -> ".groovy"
+                    ConfigType.XML -> ".xml"
+                })
+                .let {
+                    if (it.exists())
+                        it
+                    else {
+                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Config not found: ${it.path}")
+                        throw IllegalArgumentException("Config not found: ${it.path}")
+                    }
+                }
 
+        val model = parser.getModel(configFile)
+
+        ActionsGenerator(prefix, model.eventsPackage, processingEnv).generateAll(model.actions)
         // parser.getModel(file)
 
     }
