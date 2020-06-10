@@ -21,13 +21,16 @@ class ActionsDelegate : GroovyObject {
             return null
         }
 
+        var index = 0
         actions += Action(
                 name,
-                args.mapIndexed { i, pr ->
+                args.flatMap { pr ->
                     if (pr is Class<*>)
-                        Parameter("p${i + 1}", pr.name)
+                        listOf(Parameter("p${index++}", pr.name))
                     else if (pr is Map<*, *>)
-                        Parameter(pr.entries.first().key as String, (pr.entries.first().value as Class<*>).name)
+                        pr.entries.map {
+                            Parameter(it.key as String, (it.value as Class<*>).name)
+                        }
                     else
                         throw IllegalStateException("Unable to parse action $name defenition")
                 }
