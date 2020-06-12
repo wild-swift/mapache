@@ -3,9 +3,9 @@ package name.wildswift.mapache.generator
 import name.wildswift.mapache.config.ConfigType
 import name.wildswift.mapache.config.GenerateNavigation
 import name.wildswift.mapache.generator.codegen.ActionsGenerator
+import name.wildswift.mapache.generator.codegen.StatesWrapperGenerator
 import name.wildswift.mapache.generator.parsers.ModelParser
 import java.io.File
-import java.lang.IllegalStateException
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.ElementKind
@@ -69,7 +69,11 @@ class StatesMachineGenerator : AbstractProcessor() {
 
         val model = parser.getModel(configFile)
 
-        ActionsGenerator(prefix, model.eventsPackage, processingEnv).generateAll(model.actions)
+        val (baseEventsTypeName, actionNames) = ActionsGenerator(prefix, model.eventsPackage, processingEnv, model.actions).let {
+            it.generateAll()
+            it.baseTypeName to it.actionNames
+        }
+        StatesWrapperGenerator(prefix, model.statesPackage, processingEnv, model.diClass.toType(), baseEventsTypeName, model.states()).generateAll()
         // parser.getModel(file)
 
     }

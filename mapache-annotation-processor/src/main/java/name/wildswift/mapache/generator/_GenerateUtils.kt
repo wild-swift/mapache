@@ -1,7 +1,15 @@
 package name.wildswift.mapache.generator
 
 import com.squareup.javapoet.*
+import name.wildswift.mapache.graph.Navigatable
+import name.wildswift.mapache.states.MState
+import name.wildswift.mapache.viewsets.ViewSet
 import javax.lang.model.element.Modifier
+
+val genericWildcard = WildcardTypeName.subtypeOf(Object::class.java)
+val mStateTypeName = ClassName.get(MState::class.java)
+val viewSetTypeName = ClassName.get(ViewSet::class.java)
+val navigatableTypeName = ClassName.get(Navigatable::class.java)
 
 fun resolveType(typeToString: String): TypeName = when {
     typeToString.indexOf(".") >= 0 -> {

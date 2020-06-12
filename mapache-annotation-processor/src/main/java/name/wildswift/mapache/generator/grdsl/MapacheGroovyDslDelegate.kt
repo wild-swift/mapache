@@ -15,12 +15,14 @@ class MapacheGroovyDslDelegate {
             actions,
             basePackageName ?: throw IllegalArgumentException("Missing property basePackageName"),
             (if (actionsPackageName.startsWith(".")) basePackageName?.let { it + actionsPackageName } else actionsPackageName) ?: throw IllegalArgumentException("Missing property basePackageName"),
-            (if (statesPackageName.startsWith(".")) basePackageName?.let { it + statesPackageName } else statesPackageName) ?: throw IllegalArgumentException("Missing property basePackageName")
+            (if (statesPackageName.startsWith(".")) basePackageName?.let { it + statesPackageName } else statesPackageName) ?: throw IllegalArgumentException("Missing property basePackageName"),
+            dependencySource.name
     ) }
 
-    private var basePackageName: String? = null
-    private var statesPackageName = ".generated"
     private var actionsPackageName = ".events"
+    var basePackageName: String? = null
+    var statesPackageName = ".generated"
+    var dependencySource: Class<*> = Object::class.java
 
     fun actions(invoker: Closure<Unit>) {
         val actionsDelegate = ActionsDelegate()
@@ -45,12 +47,16 @@ class MapacheGroovyDslDelegate {
 //        println(layerDelegate.buildStateGraph())
     }
 
-    private fun basePackageName(value: String) {
+    fun basePackageName(value: String) {
         basePackageName = value
     }
 
-    private fun statesPackageName(value: String) {
+    fun statesPackageName(value: String) {
         statesPackageName = value
+    }
+
+    fun dependencySource(value: Class<*>) {
+        dependencySource = value
     }
 }
 

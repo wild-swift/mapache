@@ -75,7 +75,7 @@ object DomToInternalModelConverter {
                     )
                 }
                 .let {
-                    StateMachine(it, listOf(), "", "", "")
+                    StateMachine(it, listOf(), "", "", "", Object::class.java.name)
                 }
 
         if (DEBUG) {
