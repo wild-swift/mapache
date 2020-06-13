@@ -15,7 +15,7 @@ import javax.tools.Diagnostic
 
 @SupportedAnnotationTypes("name.wildswift.mapache.config.GenerateNavigation")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
-@SupportedOptions("mapache.configs.location")
+@SupportedOptions("mapache.configs.location", "application.id")
 class StatesMachineGenerator : AbstractProcessor() {
 
 
@@ -53,6 +53,11 @@ class StatesMachineGenerator : AbstractProcessor() {
                     processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Argument 'mapache.configs.location' is not set")
                     throw IllegalArgumentException("Argument 'mapache.configs.location' is not set")
                 }
+        val modulePackageName = processingEnv.options["application.id"]?.takeIf { it.isNotEmpty() }
+                ?: let {
+                    processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Argument 'application.id' is not set")
+                    throw IllegalArgumentException("Argument 'application.id' is not set")
+                }
         val configFile = File(configsLocation)
                 .resolve(configName + when (type) {
                     ConfigType.GROOVY -> ".groovy"
@@ -73,7 +78,7 @@ class StatesMachineGenerator : AbstractProcessor() {
             it.generateAll()
             it.baseTypeName to it.actionNames
         }
-        StatesWrapperGenerator(prefix, model.statesPackage, processingEnv, model.diClass.toType(), baseEventsTypeName, model.states()).generateAll()
+        StatesWrapperGenerator(prefix, model.statesPackage, processingEnv, modulePackageName, model.diClass.toType(), baseEventsTypeName, actionNames, model.states()).generateAll()
         // parser.getModel(file)
 
     }
