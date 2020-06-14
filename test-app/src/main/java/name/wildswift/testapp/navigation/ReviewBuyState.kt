@@ -1,16 +1,13 @@
 package name.wildswift.testapp.navigation
 
 import android.view.ViewGroup
-import name.wildswift.android.kannotations.interfaces.ObservableListAdapter
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewCouple
 import name.wildswift.mapache.viewsets.ViewSet
 import name.wildswift.testapp.R
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.generated.BuyCrypto
-import name.wildswift.testapp.generated.SellCrypto
-import name.wildswift.testapp.generated.TestAppEvent
+import name.wildswift.testapp.generated.events.TestAppEvent
 import name.wildswift.testapp.views.*
 
 class ReviewBuyState(val tiker:String, val amount: Float, val paymentType: Int): MState<TestAppEvent, ViewCouple<RootView, ReviewBuyView>, DiContext> {

@@ -8,7 +8,7 @@ import name.wildswift.mapache.graph.TransitionCallback
 import name.wildswift.mapache.viewsets.ViewCouple
 import name.wildswift.mapache.viewsets.ViewSet
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.generated.TestAppEvent
+import name.wildswift.testapp.generated.events.TestAppEvent
 import name.wildswift.testapp.views.BuyCurrencyStep1View
 import name.wildswift.testapp.views.RootView
 import name.wildswift.testapp.views.WalletsView

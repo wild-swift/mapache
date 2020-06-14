@@ -1,17 +1,13 @@
 package name.wildswift.testapp.navigation
 
 import android.view.ViewGroup
-import name.wildswift.android.kannotations.interfaces.ObservableListAdapter
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewCouple
 import name.wildswift.mapache.viewsets.ViewSet
-import name.wildswift.testapp.R
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.generated.BuyCrypto
-import name.wildswift.testapp.generated.ProceedBuy
-import name.wildswift.testapp.generated.SellCrypto
-import name.wildswift.testapp.generated.TestAppEvent
+import name.wildswift.testapp.generated.events.ProceedBuy
+import name.wildswift.testapp.generated.events.TestAppEvent
 import name.wildswift.testapp.views.*
 
 class BuyStep1State(val tiker:String): MState<TestAppEvent, ViewCouple<RootView, BuyCurrencyStep1View>, DiContext> {
@@ -43,7 +39,7 @@ class BuyStep1State(val tiker:String): MState<TestAppEvent, ViewCouple<RootView,
             buyCurrencyStep1View.viewModel = buyCurrencyStep1View.viewModel.copy(paymentType = 1)
         }
         buyCurrencyStep1View.proceed = {
-            context.eventer.onNewEvent(ProceedBuy(tiker, 50f, buyCurrencyStep1View.viewModel.paymentType))
+            context.eventer.onNewEvent(ProceedBuy.newInstance(tiker, 50f, buyCurrencyStep1View.viewModel.paymentType))
         }
         rootView.upClick = {
         }

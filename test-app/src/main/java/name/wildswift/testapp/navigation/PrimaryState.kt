@@ -8,9 +8,9 @@ import name.wildswift.mapache.viewsets.ViewCouple
 import name.wildswift.mapache.viewsets.ViewSet
 import name.wildswift.testapp.R
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.generated.BuyCrypto
-import name.wildswift.testapp.generated.SellCrypto
-import name.wildswift.testapp.generated.TestAppEvent
+import name.wildswift.testapp.generated.events.BuyCrypto
+import name.wildswift.testapp.generated.events.SellCrypto
+import name.wildswift.testapp.generated.events.TestAppEvent
 import name.wildswift.testapp.views.*
 
 class PrimaryState: MState<TestAppEvent, ViewCouple<RootView, WalletsView>, DiContext> {
@@ -46,10 +46,10 @@ class PrimaryState: MState<TestAppEvent, ViewCouple<RootView, WalletsView>, DiCo
                 )
         )
         walletsView.onItemBuyClick = {
-            context.eventer.onNewEvent(BuyCrypto(it.ticker))
+            context.eventer.onNewEvent(BuyCrypto.newInstance(it.ticker))
         }
         walletsView.onItemSellClick = {
-            context.eventer.onNewEvent(SellCrypto(it.ticker))
+            context.eventer.onNewEvent(SellCrypto.newInstance(it.ticker))
         }
         return Runnable {
             walletsView.onItemBuyClick = null

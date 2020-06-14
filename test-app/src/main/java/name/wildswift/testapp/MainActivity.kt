@@ -22,33 +22,33 @@ import name.wildswift.mapache.config.GenerateNavigation
 import name.wildswift.mapache.contextintegration.ActivityCaller
 import name.wildswift.mapache.contextintegration.ActivityEventsCallback
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.generated.TestAppNavigationStateMachine
-import name.wildswift.testapp.generated.newNavigationStateMachine
+//import name.wildswift.testapp.generated.TestAppNavigationStateMachine
+//import name.wildswift.testapp.generated.newNavigationStateMachine
 
 @GenerateNavigation("TestApp")
 class MainActivity : Activity(), ActivityCaller {
-    private val stateMachine: TestAppNavigationStateMachine by lazy { newNavigationStateMachine(DiContext(applicationContext)) }
+//    private val stateMachine: TestAppNavigationStateMachine by lazy { newNavigationStateMachine(DiContext(applicationContext)) }
 
     private var callbacks = listOf<ActivityEventsCallback>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        stateMachine.attachToActivity(this, this)
+//        stateMachine.attachToActivity(this, this)
     }
 
     override fun onPause() {
         super.onPause()
-        stateMachine.pause()
+//        stateMachine.pause()
     }
 
     override fun onResume() {
         super.onResume()
-        stateMachine.resume()
+//        stateMachine.resume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stateMachine.detachFromActivity()
+//        stateMachine.detachFromActivity()
     }
 
     override fun registerEventsCallback(callback: ActivityEventsCallback) {
