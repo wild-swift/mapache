@@ -110,7 +110,7 @@ class StatesWrapperGenerator(
                             .addParameter(ParameterSpec.builder(actionBaseType, "e").addAnnotation(NonNull::class.java).build())
                             .returns(baseTypeName)
                             .apply {
-                                state.movements?.forEach { (action, endState, _) ->
+                                state.movements.forEach { (action, endState, _) ->
                                     val parametersSting = endState.parameters.orEmpty().joinToString { "((\$1T)e).get${it.name.capitalize()}()" }
                                     addStatement("if (e instanceof \$1T) return \$2T.${createInstanceMethodName}($parametersSting)", actionTypes[action], statesNames[endState])
                                 }

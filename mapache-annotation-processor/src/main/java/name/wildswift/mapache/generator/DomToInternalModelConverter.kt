@@ -98,7 +98,6 @@ object DomToInternalModelConverter {
         val stateObj = State(
                 name = name,
                 parameters = listOf(),
-                movements = listOf(),
                 child = null
         )
         states.add(stateObj)

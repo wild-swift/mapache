@@ -11,11 +11,12 @@ data class State(
          */
         var parameters: List<Parameter>? = null,
         /**
-         * List of acceptable actions with rules
-         */
-        var movements: List<Movement>? = null,
-        /**
          * Child state machine
          */
         var child: StateSubGraph? = null
-)
+) {
+        /**
+         * List of acceptable actions with rules
+         */
+        var movements: List<Movement> = listOf()
+}

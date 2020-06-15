@@ -39,7 +39,7 @@ abstract class GraphBaseDelegate : GroovyObject {
 
     fun from(stateClass: Class<*>, initializer: Closure<*>) {
         if (initialRaw != null) throw IllegalStateException()
-        initialRaw = (State(name = stateClass.name) to initializer).also {
+        initialRaw = (State(name = stateClass.name, parameters = listOf()) to initializer).also {
             elementsRaw += it
         }
     }
@@ -71,15 +71,16 @@ abstract class GraphBaseDelegate : GroovyObject {
     abstract fun name(): String
 
     fun doFinal(actions: List<Action>) {
+        if (elementsRaw.map { (state, _) -> state.name }.let { it.size != it.toSet().size }) throw IllegalArgumentException("Names not unique for ${name()}")
+        val states = elementsRaw.map { (state, _) -> state}
         val additionalMovments = allClosure?.let { allClosure ->
             val allDelegate = AllDelegate()
             allClosure.delegate = allDelegate
             allClosure.resolveStrategy = Closure.DELEGATE_FIRST
             allClosure.call()
+            allDelegate.doFinal(actions, states, this.name())
             allDelegate.movementRules
         }
-        if (elementsRaw.map { (state, _) -> state.name }.let { it.size != it.toSet().size }) throw IllegalArgumentException("Names not unique for ${name()}")
-        val states = elementsRaw.map { (state, _) -> state}
         elementsRaw.forEach { (state, closure) ->
             val stateDelegate = StateDelegate(state)
             closure.delegate = stateDelegate
