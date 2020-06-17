@@ -5,6 +5,8 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.graph.Navigatable
+import name.wildswift.mapache.graph.StateTransition
+import name.wildswift.mapache.graph.TransitionCallback
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewSet
 
@@ -35,6 +37,8 @@ fun String.toType(): TypeName {
 
 val genericWildcard = WildcardTypeName.subtypeOf(Object::class.java)
 val mStateTypeName = ClassName.get(MState::class.java)
+val stateTransitionTypeName = ClassName.get(StateTransition::class.java)
+val stateTransitionCallbackTypeName = ClassName.get(TransitionCallback::class.java)
 val viewSetTypeName = ClassName.get(ViewSet::class.java)
 val navigatableTypeName = ClassName.get(Navigatable::class.java)
 val navigationContextTypeName = ClassName.get(NavigationContext::class.java)

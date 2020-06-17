@@ -1,9 +1,11 @@
 package name.wildswift.mapache.generator
 
+import com.squareup.javapoet.ClassName
 import name.wildswift.mapache.config.ConfigType
 import name.wildswift.mapache.config.GenerateNavigation
 import name.wildswift.mapache.generator.codegen.ActionsGenerator
 import name.wildswift.mapache.generator.codegen.StatesWrapperGenerator
+import name.wildswift.mapache.generator.codegen.TransitionsWrapperGenerator
 import name.wildswift.mapache.generator.parsers.ModelParser
 import java.io.File
 import javax.annotation.processing.*
@@ -74,11 +76,15 @@ class StatesMachineGenerator : AbstractProcessor() {
 
         val model = parser.getModel(configFile)
 
-        val (baseEventsTypeName, actionNames) = ActionsGenerator(prefix, model.eventsPackage, processingEnv, model.actions).let {
+        val (baseEventsTypeName, eventNames) = ActionsGenerator(prefix, model.eventsPackage, processingEnv, model.actions).let {
             it.generateAll()
             it.baseTypeName to it.actionNames
         }
-        StatesWrapperGenerator(prefix, model.statesPackage, processingEnv, modulePackageName, model.diClass.toType(), baseEventsTypeName, actionNames, model.states()).generateAll()
+        val (baseStateWrappersTypeName, stateWrappersNames) = StatesWrapperGenerator(prefix, model.statesPackage, processingEnv, modulePackageName, model.diClass.toType(), baseEventsTypeName, eventNames, model.states()).let {
+            it.generateAll()
+            it.baseTypeName to it.statesNames
+        }
+        TransitionsWrapperGenerator(prefix, model.statesPackage, processingEnv, baseEventsTypeName, baseStateWrappersTypeName, model.diClass.toType()).generateAll()
         // parser.getModel(file)
 
     }

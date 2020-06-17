@@ -4,6 +4,8 @@ import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import com.squareup.javapoet.*
 import name.wildswift.mapache.generator.*
+import name.wildswift.mapache.generator.codegen.GenerationConstants.createInstanceMethodName
+import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
 import name.wildswift.mapache.generator.generatemodel.Action
 import name.wildswift.mapache.generator.generatemodel.State
 import javax.annotation.processing.ProcessingEnvironment
@@ -16,8 +18,8 @@ class StatesWrapperGenerator(
         private val processingEnv: ProcessingEnvironment,
         modulePackageName: String,
         private val dependencySource: TypeName,
-        private val actionBaseType: TypeName,
-        private val actionTypes: Map<Action,TypeName>,
+        private val actionBaseType: ClassName,
+        private val actionTypes: Map<Action, ClassName>,
         private val states: List<State>
 ) {
 
@@ -32,7 +34,7 @@ class StatesWrapperGenerator(
     @SuppressWarnings("DefaultLocale")
     fun generateAll() {
         val wrappedTypeVarible = TypeVariableName.get("MS", ParameterizedTypeName.get(mStateTypeName, actionBaseType, genericWildcard, dependencySource))
-        val getWrappedMethod = MethodSpec.methodBuilder("getWrapped")
+        val getWrappedMethod = MethodSpec.methodBuilder(getWrappedMethodName)
                 .addAnnotation(NonNull::class.java)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                 .returns(wrappedTypeVarible)
@@ -86,7 +88,7 @@ class StatesWrapperGenerator(
                         return wrappedObj;
                       }
                      */
-                    .addMethod(MethodSpec.methodBuilder(getWrappedMethod.name)
+                    .addMethod(MethodSpec.methodBuilder(getWrappedMethodName)
                             .addModifiers(Modifier.PUBLIC)
                             .addAnnotation(Override::class.java)
                             .addAnnotation(NonNull::class.java)
@@ -176,7 +178,7 @@ class StatesWrapperGenerator(
                 val instanceField = FieldSpec.builder(currentStateWrapperName, "instance", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL).initializer("new \$T()", currentStateWrapperName).build()
                 stateWrapperTypeSpecBuilder
                         .addField(instanceField)
-                        .addMethod(MethodSpec.methodBuilder("newInstance")
+                        .addMethod(MethodSpec.methodBuilder(createInstanceMethodName)
                                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                 .returns(currentStateWrapperName)
                                 .addStatement("return \$N", instanceField)
@@ -189,7 +191,7 @@ class StatesWrapperGenerator(
                         )
             } else {
                 stateWrapperTypeSpecBuilder
-                        .addMethod(MethodSpec.methodBuilder("newInstance")
+                        .addMethod(MethodSpec.methodBuilder(createInstanceMethodName)
                                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                 .addParameters(
                                         parameterList.map {
@@ -222,8 +224,4 @@ class StatesWrapperGenerator(
         }
     }
 
-    companion object {
-        @JvmStatic
-        private val createInstanceMethodName = "newInstance"
-    }
 }

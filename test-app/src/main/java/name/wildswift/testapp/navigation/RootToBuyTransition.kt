@@ -15,7 +15,7 @@ import name.wildswift.testapp.views.WalletsView
 
 class RootToBuyTransition(from: PrimaryState, to: BuyStep1State) :
         StateTransition<TestAppEvent, ViewCouple<RootView, WalletsView>, ViewCouple<RootView, BuyCurrencyStep1View>, DiContext>(from, to) {
-    override fun execute(context: NavigationContext<TestAppEvent, DiContext>, rootView: FrameLayout, inViews: ViewCouple<RootView, WalletsView>, callback: TransitionCallback<ViewCouple<RootView, BuyCurrencyStep1View>>) {
+    override fun execute(context: NavigationContext<TestAppEvent, DiContext>, rootView: ViewGroup, inViews: ViewCouple<RootView, WalletsView>, callback: TransitionCallback<ViewCouple<RootView, BuyCurrencyStep1View>>) {
         val (root, _) = inViews;
         root.getContentView().removeAllViews()
         val buyCurrencyStep1View = BuyCurrencyStep1View(root.context)

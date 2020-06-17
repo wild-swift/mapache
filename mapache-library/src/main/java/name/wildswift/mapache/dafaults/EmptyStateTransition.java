@@ -1,5 +1,6 @@
 package name.wildswift.mapache.dafaults;
 
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -19,7 +20,7 @@ public class EmptyStateTransition<E extends Event, VS extends ViewSet, DC> exten
     }
 
     @Override
-    public void execute(@NonNull NavigationContext<E, DC> context, @NonNull FrameLayout rootView, @NonNull VS inViews, @NonNull TransitionCallback<VS> callback) {
+    public void execute(@NonNull NavigationContext<E, DC> context, @NonNull ViewGroup rootView, @NonNull VS inViews, @NonNull TransitionCallback<VS> callback) {
         callback.onTransitionEnded(inViews);
     }
 
