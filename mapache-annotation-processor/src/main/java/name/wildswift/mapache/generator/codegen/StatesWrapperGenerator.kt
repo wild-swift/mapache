@@ -24,7 +24,8 @@ class StatesWrapperGenerator(
 ) {
 
     val baseTypeName = ClassName.get(packageName, "${prefix}MState")
-    val statesNames = states.map { state -> state to ClassName.get(packageName, "${state.name.split(".").last()}Wrapper") }.toMap()
+    val stateWrappersNames = states.map { state -> state to ClassName.get(packageName, "${state.name.split(".").last()}Wrapper") }.toMap()
+    val stateNames = states.map { state -> state to ClassName.bestGuess(state.name) }.toMap()
 
 
     private val moduleBuildConfig = ClassName.get(modulePackageName, "BuildConfig")
@@ -59,20 +60,11 @@ class StatesWrapperGenerator(
 
         states.forEach { state ->
 
-            val typeElement = processingEnv.elementUtils.getTypeElement(state.name)
-            val thisStateViewSetType = typeElement.interfaces
-                    ?.mapNotNull { TypeName.get(it) as? ParameterizedTypeName }
-                    ?.firstOrNull { (it as? ParameterizedTypeName)?.rawType == mStateTypeName }
-                    .let {
-                        it ?: error("Class ${state.name} not implements ${mStateTypeName.canonicalName()}")
-                    }
-                    .typeArguments
-                    .apply { check(size == 3) }
-                    .get(1)
+            val thisStateViewSetType = processingEnv.elementUtils.getTypeElement(state.name).extractViewSetType()
 
+            val currentStateWrapperName = stateWrappersNames[state] ?: error("Internal error")
+            val currentStateName = stateNames[state] ?: error("Internal error")
 
-            val currentStateWrapperName = statesNames[state] ?: error("Internal error")
-            val currentStateName = ClassName.bestGuess(state.name)
             val wrappedField = FieldSpec.builder(currentStateName, "wrappedObj").addModifiers(Modifier.PRIVATE, Modifier.FINAL).build()
             val parameterList = state.parameters.orEmpty()
 
@@ -114,7 +106,7 @@ class StatesWrapperGenerator(
                             .apply {
                                 state.movements.forEach { (action, endState, _) ->
                                     val parametersSting = endState.parameters.orEmpty().joinToString { "((\$1T)e).get${it.name.capitalize()}()" }
-                                    addStatement("if (e instanceof \$1T) return \$2T.${createInstanceMethodName}($parametersSting)", actionTypes[action], statesNames[endState])
+                                    addStatement("if (e instanceof \$1T) return \$2T.${createInstanceMethodName}($parametersSting)", actionTypes[action], stateWrappersNames[endState])
                                 }
                                 addStatement("if (\$1T.DEBUG) throw new \$2T(\"Unable to process event \" + e.getClass().getSimpleName())", moduleBuildConfig, ClassName.get(IllegalStateException::class.java))
                                 addStatement("return null")

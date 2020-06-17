@@ -5,6 +5,8 @@ import com.squareup.javapoet.*
 import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
 import name.wildswift.mapache.generator.codegen.GenerationConstants.initWrappedMethodName
+import name.wildswift.mapache.generator.generatemodel.State
+import name.wildswift.mapache.generator.generatemodel.TransitionDesc
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
@@ -15,8 +17,10 @@ class TransitionsWrapperGenerator(
         private val processingEnv: ProcessingEnvironment,
         private val baseActionsType: ClassName,
         private val baseStatesType: ClassName,
-        private val dependencySourceType: TypeName
-
+        private val dependencySourceType: TypeName,
+        private val transitions: List<TransitionDesc>,
+        private val stateNames: Map<State, ClassName>,
+        private val stateWrappersNames: Map<State, ClassName>
 ) {
 
     val baseTypeName = ClassName.get(packageName, "${prefix}StateTransition")
@@ -72,11 +76,6 @@ class TransitionsWrapperGenerator(
                 .addType(internalCallbakWrapper)
                 .build()
 
-/*
-    public void execute(@NonNull NavigationContext<AlarmClockEvent, ServicesRepository> context, @Nullable FrameLayout rootView, @Nullable ViewSet inViews, @NonNull final TransitionCallback<ViewSet> callback) {
-        wrapped.execute(context, rootView, (VS_IN) inViews, new TransitionCallbackWrapper(callback));
-    }
- */
         processingEnv.filer.createSourceFile(baseTypeName.canonicalName())
                 .openWriter()
                 .use { fileWriter ->
@@ -84,6 +83,46 @@ class TransitionsWrapperGenerator(
                             .build()
                             .writeTo(fileWriter)
                 }
+
+        transitions.forEach { transitionDesc ->
+            if (emptyTransitionTypeName.canonicalName() == transitionDesc.implClass) return@forEach
+
+            val fromName = transitionDesc.beginState.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+            val toName = transitionDesc.endState.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+            val transitionWrapperTypeName = ClassName.get(packageName, "${fromName}To${toName}TransitionWrapper")
+
+            val fromViewSetType = processingEnv.elementUtils.getTypeElement(transitionDesc.beginState.name).extractViewSetType()
+            val toViewSetType = processingEnv.elementUtils.getTypeElement(transitionDesc.endState.name).extractViewSetType()
+
+            val transitionImplClassName = transitionDesc.implClass.toType()
+
+
+            val transitionWrapperTypeSpecBuilder = TypeSpec.classBuilder(transitionWrapperTypeName)
+                    .superclass(ParameterizedTypeName.get(baseTypeName,
+                            fromViewSetType, stateNames[transitionDesc.beginState], stateWrappersNames[transitionDesc.beginState],
+                            toViewSetType, stateNames[transitionDesc.endState], stateWrappersNames[transitionDesc.endState]
+                    ))
+                    .addMethod(MethodSpec.constructorBuilder()
+                            .addParameter(ParameterSpec.builder(stateWrappersNames[transitionDesc.beginState], "from").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(stateWrappersNames[transitionDesc.endState], "to").addAnnotation(NonNull::class.java).build())
+                            .addStatement("super(from, to)")
+                            .build()
+                    )
+                    .addMethod(MethodSpec.methodBuilder("buildWrapped")
+                            .addParameter(ParameterSpec.builder(stateNames[transitionDesc.beginState], "from").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(stateNames[transitionDesc.endState], "to").addAnnotation(NonNull::class.java).build())
+                            .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, fromViewSetType, toViewSetType, dependencySourceType))
+                            .addStatement("return new \$T(from, to)", transitionImplClassName)
+                            .build())
+
+            processingEnv.filer.createSourceFile(transitionWrapperTypeName.canonicalName())
+                    .openWriter()
+                    .use { fileWriter ->
+                        JavaFile.builder(packageName, transitionWrapperTypeSpecBuilder.build())
+                                .build()
+                                .writeTo(fileWriter)
+                    }
+        }
 
     }
 

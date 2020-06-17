@@ -5,6 +5,6 @@ import java.io.File
 
 class XmlParser: ModelParser {
     override fun getModel(file: File): StateMachine {
-        return StateMachine(listOf(), listOf(), "",  "", "", Object::class.java.name)
+        return StateMachine(listOf(), listOf(), "",  "", "", "", Object::class.java.name)
     }
 }

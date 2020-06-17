@@ -6,6 +6,7 @@ data class StateMachine(
         val basePackageName: String,
         val eventsPackage: String,
         val statesPackage: String,
+        val transitionsPackage: String,
         val diClass: String
 ) {
     fun states(): List<State> {
@@ -20,8 +21,8 @@ data class StateMachine(
         if (states.contains(initialState)) return
         states.add(initialState)
         initialState.movements
-                ?.map { it.endState }
-                ?.forEach {
+                .map { it.endState }
+                .forEach {
                     addStates(it, states)
                 }
         initialState.child
@@ -29,5 +30,17 @@ data class StateMachine(
                 ?.also {
                     addStates(it, states)
                 }
+    }
+
+    fun transitions(): List<TransitionDesc> {
+        return states().flatMap { state ->
+            state.movements.map { movement ->
+                TransitionDesc(
+                        beginState = state,
+                        endState = movement.endState,
+                        implClass = movement.implClass
+                )
+            }
+        }
     }
 }

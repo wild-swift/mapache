@@ -1,14 +1,17 @@
 package name.wildswift.mapache.generator
 
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import name.wildswift.mapache.NavigationContext
+import name.wildswift.mapache.dafaults.EmptyStateTransition
 import name.wildswift.mapache.graph.Navigatable
 import name.wildswift.mapache.graph.StateTransition
 import name.wildswift.mapache.graph.TransitionCallback
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewSet
+import javax.lang.model.element.TypeElement
 
 fun String.toType(): TypeName {
     if (equals("void")) return TypeName.VOID
@@ -39,6 +42,7 @@ val genericWildcard = WildcardTypeName.subtypeOf(Object::class.java)
 val mStateTypeName = ClassName.get(MState::class.java)
 val stateTransitionTypeName = ClassName.get(StateTransition::class.java)
 val stateTransitionCallbackTypeName = ClassName.get(TransitionCallback::class.java)
+val emptyTransitionTypeName = ClassName.get(EmptyStateTransition::class.java)
 val viewSetTypeName = ClassName.get(ViewSet::class.java)
 val navigatableTypeName = ClassName.get(Navigatable::class.java)
 val navigationContextTypeName = ClassName.get(NavigationContext::class.java)
@@ -57,3 +61,14 @@ val dataSetObserverClass = ClassName.get("android.database", "DataSetObserver")
 val recyclerAdapterClass = ClassName.get("androidx.recyclerview.widget", "RecyclerView", "Adapter")
 val recyclerHolderClass = ClassName.get("androidx.recyclerview.widget", "RecyclerView", "ViewHolder")
 val recyclerDataObserverClass = ClassName.get("androidx.recyclerview.widget", "RecyclerView", "AdapterDataObserver")
+
+fun TypeElement.extractViewSetType(): TypeName = interfaces
+        ?.mapNotNull { TypeName.get(it) as? ParameterizedTypeName }
+        ?.firstOrNull { (it as? ParameterizedTypeName)?.rawType == mStateTypeName }
+        .let {
+            it ?: error("Class ${qualifiedName} not implements ${mStateTypeName.canonicalName()}")
+        }
+        .typeArguments
+        .apply { check(size == 3) }
+        .get(1)
+        ?: error("Internal error")
