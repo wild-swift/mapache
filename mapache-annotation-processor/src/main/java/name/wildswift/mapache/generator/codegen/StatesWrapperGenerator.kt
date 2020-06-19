@@ -34,7 +34,8 @@ class StatesWrapperGenerator(
 
     @SuppressWarnings("DefaultLocale")
     fun generateAll() {
-        val wrappedTypeVarible = TypeVariableName.get("MS", ParameterizedTypeName.get(mStateTypeName, actionBaseType, genericWildcard, dependencySource))
+        val rootTypeVariable = TypeVariableName.get("VR", viewClass)
+        val wrappedTypeVarible = TypeVariableName.get("MS", ParameterizedTypeName.get(mStateTypeName, actionBaseType, genericWildcard, rootTypeVariable, dependencySource))
         val getWrappedMethod = MethodSpec.methodBuilder(getWrappedMethodName)
                 .addAnnotation(NonNull::class.java)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
@@ -44,9 +45,10 @@ class StatesWrapperGenerator(
         val baseClassTypeSpec = TypeSpec
                 .classBuilder(baseTypeName)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addTypeVariable(rootTypeVariable)
                 .addTypeVariable(wrappedTypeVarible)
-                .addSuperinterface(ParameterizedTypeName.get(mStateTypeName, actionBaseType, viewSetTypeName, dependencySource))
-                .addSuperinterface(ParameterizedTypeName.get(navigatableTypeName, actionBaseType, dependencySource, ParameterizedTypeName.get(baseTypeName, genericWildcard)))
+                .addSuperinterface(ParameterizedTypeName.get(mStateTypeName, actionBaseType, viewSetTypeName, rootTypeVariable, dependencySource))
+                .addSuperinterface(ParameterizedTypeName.get(navigatableTypeName, actionBaseType, dependencySource, ParameterizedTypeName.get(baseTypeName, rootTypeVariable, genericWildcard)))
                 .addMethod(getWrappedMethod)
                 .build()
 
@@ -60,6 +62,8 @@ class StatesWrapperGenerator(
 
         states.forEach { state ->
 
+            val stateRootViewType = viewGroupClass
+
             val thisStateViewSetType = processingEnv.elementUtils.getTypeElement(state.name).extractViewSetType()
 
             val currentStateWrapperName = stateWrappersNames[state] ?: error("Internal error")
@@ -71,7 +75,7 @@ class StatesWrapperGenerator(
             val stateWrapperTypeSpecBuilder = TypeSpec
                     .classBuilder(currentStateWrapperName)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .superclass(ParameterizedTypeName.get(baseTypeName, currentStateName))
+                    .superclass(ParameterizedTypeName.get(baseTypeName, stateRootViewType, currentStateName))
                     .addField(wrappedField)
                     /*
                       @Override

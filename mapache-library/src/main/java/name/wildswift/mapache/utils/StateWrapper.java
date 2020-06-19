@@ -1,5 +1,6 @@
 package name.wildswift.mapache.utils;
 
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,7 @@ import name.wildswift.mapache.events.Eventer;
 import name.wildswift.mapache.states.MState;
 import name.wildswift.mapache.viewsets.ViewSet;
 
-public final class StateWrapper<E extends Event, VS extends ViewSet, DC, S extends MState<E, VS, DC>> implements Eventer<E> {
+public final class StateWrapper<E extends Event, VS extends ViewSet, DC, VR extends View, S extends MState<E, VS, VR, DC>> implements Eventer<E> {
     private final S state;
     private final NavigationContext<E, DC> context;
 
@@ -32,7 +33,7 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, S exten
         }
     }
 
-    public void setRoot(@Nullable ViewGroup root) {
+    public void setRoot(@Nullable VR root) {
         if (root != null) {
             if (viewSet == null) {
                 viewSet = state.setup(root, context);

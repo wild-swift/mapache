@@ -29,25 +29,28 @@ class TransitionsWrapperGenerator(
     private val navigationContextParameter = ParameterSpec.builder(navigationContextType, "context").addAnnotation(NonNull::class.java).build()
 
     fun generateAll() {
+        val rootViewType = TypeVariableName.get("VR", viewClass)
+
         val inViewSetType = TypeVariableName.get("VS_IN", viewSetTypeName)
-        val inStateType = TypeVariableName.get("S_IN", ParameterizedTypeName.get(mStateTypeName, baseActionsType, inViewSetType, dependencySourceType))
-        val inStateWrapperType = TypeVariableName.get("SS", ParameterizedTypeName.get(baseStatesType, inStateType))
+        val inStateType = TypeVariableName.get("S_IN", ParameterizedTypeName.get(mStateTypeName, baseActionsType, inViewSetType, rootViewType, dependencySourceType))
+        val inStateWrapperType = TypeVariableName.get("SS", ParameterizedTypeName.get(baseStatesType, rootViewType, inStateType))
 
         val outViewSetType = TypeVariableName.get("VS_OUT", viewSetTypeName)
-        val outStateType = TypeVariableName.get("S_OUT", ParameterizedTypeName.get(mStateTypeName, baseActionsType, outViewSetType, dependencySourceType))
-        val outStateWrapperType = TypeVariableName.get("TS", ParameterizedTypeName.get(baseStatesType, outStateType))
+        val outStateType = TypeVariableName.get("S_OUT", ParameterizedTypeName.get(mStateTypeName, baseActionsType, outViewSetType, rootViewType, dependencySourceType))
+        val outStateWrapperType = TypeVariableName.get("TS", ParameterizedTypeName.get(baseStatesType, rootViewType, outStateType))
 
-        val wrappedObjectType = ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, inViewSetType, outViewSetType, dependencySourceType)
+        val wrappedObjectType = ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, inViewSetType, outViewSetType, rootViewType, dependencySourceType)
         val wrappedField = FieldSpec.builder(wrappedObjectType, "wrappedObj", Modifier.PRIVATE, Modifier.FINAL)
                 .build()
         val internalCallbakWrapper = buildCallbackWrapperType(outViewSetType)
 
         val baseClassTypeSpec = TypeSpec
                 .classBuilder(baseTypeName)
+                .addTypeVariable(rootViewType)
                 .addTypeVariables(listOf(inViewSetType, inStateType, inStateWrapperType))
                 .addTypeVariables(listOf(outViewSetType, outStateType, outStateWrapperType))
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                .superclass(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, dependencySourceType))
+                .superclass(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, rootViewType, dependencySourceType))
                 .addField(wrappedField)
                 .addMethod(MethodSpec.constructorBuilder()
                         .addParameter(ParameterSpec.builder(inStateWrapperType, "from").addAnnotation(NonNull::class.java).build())
@@ -68,7 +71,7 @@ class TransitionsWrapperGenerator(
                         .addAnnotation(AnnotationSpec.builder(SuppressWarnings::class.java).addMember("value", "\"unchecked\"").build())
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(navigationContextParameter)
-                        .addParameter(ParameterSpec.builder(viewGroupClass, "rootView").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(rootViewType, "rootView").addAnnotation(NonNull::class.java).build())
                         .addParameter(ParameterSpec.builder(viewSetTypeName, "inViews").addAnnotation(NonNull::class.java).build())
                         .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(stateTransitionCallbackTypeName, viewSetTypeName), "callback").addAnnotation(NonNull::class.java).build())
                         .addStatement("\$N.execute(\$N, rootView, (\$T) inViews, new \$N(callback))", wrappedField, navigationContextParameter, inViewSetType, internalCallbakWrapper)
@@ -87,6 +90,8 @@ class TransitionsWrapperGenerator(
         transitions.forEach { transitionDesc ->
             if (emptyTransitionTypeName.canonicalName() == transitionDesc.implClass) return@forEach
 
+            val stateTransitionRootViewType = viewGroupClass
+
             val fromName = transitionDesc.beginState.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
             val toName = transitionDesc.endState.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
             val transitionWrapperTypeName = ClassName.get(packageName, "${fromName}To${toName}TransitionWrapper")
@@ -98,7 +103,7 @@ class TransitionsWrapperGenerator(
 
 
             val transitionWrapperTypeSpecBuilder = TypeSpec.classBuilder(transitionWrapperTypeName)
-                    .superclass(ParameterizedTypeName.get(baseTypeName,
+                    .superclass(ParameterizedTypeName.get(baseTypeName, stateTransitionRootViewType,
                             fromViewSetType, stateNames[transitionDesc.beginState], stateWrappersNames[transitionDesc.beginState],
                             toViewSetType, stateNames[transitionDesc.endState], stateWrappersNames[transitionDesc.endState]
                     ))
@@ -111,7 +116,7 @@ class TransitionsWrapperGenerator(
                     .addMethod(MethodSpec.methodBuilder("buildWrapped")
                             .addParameter(ParameterSpec.builder(stateNames[transitionDesc.beginState], "from").addAnnotation(NonNull::class.java).build())
                             .addParameter(ParameterSpec.builder(stateNames[transitionDesc.endState], "to").addAnnotation(NonNull::class.java).build())
-                            .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, fromViewSetType, toViewSetType, dependencySourceType))
+                            .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, fromViewSetType, toViewSetType, stateTransitionRootViewType, dependencySourceType))
                             .addStatement("return new \$T(from, to)", transitionImplClassName)
                             .build())
 

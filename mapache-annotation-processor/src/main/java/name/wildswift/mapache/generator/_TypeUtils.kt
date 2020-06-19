@@ -69,6 +69,6 @@ fun TypeElement.extractViewSetType(): TypeName = interfaces
             it ?: error("Class ${qualifiedName} not implements ${mStateTypeName.canonicalName()}")
         }
         .typeArguments
-        .apply { check(size == 3) }
+        .apply { check(size == 4) }
         .get(1)
         ?: error("Internal error")

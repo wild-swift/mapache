@@ -3,17 +3,14 @@ package name.wildswift.mapache;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Pair;
-import android.widget.FrameLayout;
+import android.view.View;
 
 import name.wildswift.mapache.contextintegration.CallToActivityBridge;
 import name.wildswift.mapache.debouncers.CancelableDebouncer;
 import name.wildswift.mapache.debouncers.DebounceCallback;
 import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.events.Eventer;
-import name.wildswift.mapache.events.SystemEventFactory;
 import name.wildswift.mapache.graph.Navigatable;
-import name.wildswift.mapache.graph.NavigationGraphOld;
 import name.wildswift.mapache.contextintegration.ActivityCaller;
 import name.wildswift.mapache.graph.StateTransition;
 import name.wildswift.mapache.graph.TransitionCallback;
@@ -23,9 +20,9 @@ import name.wildswift.mapache.utils.StateWrapper;
 import name.wildswift.mapache.viewcontent.ViewContentMetaSource;
 import name.wildswift.mapache.viewsets.ViewSet;
 
-public final class NavigationStateMachine<E extends Event, DC, S extends MState<E, ?, DC> & Navigatable<E, DC, S>> {
+public final class NavigationStateMachine<E extends Event, VR extends View, DC, S extends MState<E, ?, VR, DC> & Navigatable<E, DC, S>> {
     private final S initialState;
-    private final TransitionFactory<E, DC, S> transFactory;
+    private final TransitionFactory<E, DC, VR, S> transFactory;
     private final ViewContentMetaSource metaSource;
 
     private final EventerInternal eventerInternal;
@@ -35,15 +32,15 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     private final ViewContentHolderImpl<S> viewsContents;
 
-    private StateWrapper<E, ?, DC, S> currentState;
-    private FrameLayout currentRoot;
+    private StateWrapper<E, ?, DC, VR, S> currentState;
+    private VR currentRoot;
 
     private boolean isPaused = false;
 
     private CancelableDebouncer<Boolean> debouncer = new CancelableDebouncer<>(500);
 
 
-    public NavigationStateMachine(S initialState, TransitionFactory<E, DC, S> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
+    public NavigationStateMachine(S initialState, TransitionFactory<E, DC, VR, S> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
         this.initialState = initialState;
         this.transFactory = transFactory;
         this.metaSource = metaSource;
@@ -102,7 +99,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
         S nextState = currentState.getWrapped().getNextState(event);
         if (nextState == null) return false;
 
-        StateTransition<E, ViewSet, ViewSet, DC> transition = (StateTransition<E, ViewSet, ViewSet, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);
+        StateTransition<E, ViewSet, ViewSet, VR, DC> transition = (StateTransition<E, ViewSet, ViewSet, VR, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);
 
         currentState.stop();
         if (currentRoot == null) {
@@ -181,10 +178,10 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
     }
 
     private class HandleStartTransition implements Runnable {
-        private final StateTransition<E, ViewSet, ViewSet, DC> transition;
+        private final StateTransition<E, ViewSet, ViewSet, VR, DC> transition;
         private final S nextState;
 
-        public HandleStartTransition(StateTransition<E, ViewSet, ViewSet, DC> transition, S nextState) {
+        public HandleStartTransition(StateTransition<E, ViewSet, ViewSet, VR, DC> transition, S nextState) {
             this.transition = transition;
             this.nextState = nextState;
         }
