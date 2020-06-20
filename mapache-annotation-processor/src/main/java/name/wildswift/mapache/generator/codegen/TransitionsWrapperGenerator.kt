@@ -5,8 +5,8 @@ import com.squareup.javapoet.*
 import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
 import name.wildswift.mapache.generator.codegen.GenerationConstants.initWrappedMethodName
-import name.wildswift.mapache.generator.generatemodel.State
-import name.wildswift.mapache.generator.generatemodel.TransitionDesc
+import name.wildswift.mapache.generator.parsers.groovydsl.State
+import name.wildswift.mapache.generator.parsers.groovydsl.TransitionDesc
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
@@ -19,8 +19,8 @@ class TransitionsWrapperGenerator(
         private val baseStatesType: ClassName,
         private val dependencySourceType: TypeName,
         private val transitions: List<TransitionDesc>,
-        private val stateNames: Map<State, ClassName>,
-        private val stateWrappersNames: Map<State, ClassName>
+        private val stateNames: Map<String, ClassName>,
+        private val stateWrappersNames: Map<String, ClassName>
 ) {
 
     val baseTypeName = ClassName.get(packageName, "${prefix}StateTransition")
@@ -104,18 +104,18 @@ class TransitionsWrapperGenerator(
 
             val transitionWrapperTypeSpecBuilder = TypeSpec.classBuilder(transitionWrapperTypeName)
                     .superclass(ParameterizedTypeName.get(baseTypeName, stateTransitionRootViewType,
-                            fromViewSetType, stateNames[transitionDesc.beginState], stateWrappersNames[transitionDesc.beginState],
-                            toViewSetType, stateNames[transitionDesc.endState], stateWrappersNames[transitionDesc.endState]
+                            fromViewSetType, stateNames[transitionDesc.beginState.name], stateWrappersNames[transitionDesc.beginState.name],
+                            toViewSetType, stateNames[transitionDesc.endState.name], stateWrappersNames[transitionDesc.endState.name]
                     ))
                     .addMethod(MethodSpec.constructorBuilder()
-                            .addParameter(ParameterSpec.builder(stateWrappersNames[transitionDesc.beginState], "from").addAnnotation(NonNull::class.java).build())
-                            .addParameter(ParameterSpec.builder(stateWrappersNames[transitionDesc.endState], "to").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(stateWrappersNames[transitionDesc.beginState.name], "from").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(stateWrappersNames[transitionDesc.endState.name], "to").addAnnotation(NonNull::class.java).build())
                             .addStatement("super(from, to)")
                             .build()
                     )
                     .addMethod(MethodSpec.methodBuilder("buildWrapped")
-                            .addParameter(ParameterSpec.builder(stateNames[transitionDesc.beginState], "from").addAnnotation(NonNull::class.java).build())
-                            .addParameter(ParameterSpec.builder(stateNames[transitionDesc.endState], "to").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(stateNames[transitionDesc.beginState.name], "from").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(stateNames[transitionDesc.endState.name], "to").addAnnotation(NonNull::class.java).build())
                             .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, fromViewSetType, toViewSetType, stateTransitionRootViewType, dependencySourceType))
                             .addStatement("return new \$T(from, to)", transitionImplClassName)
                             .build())

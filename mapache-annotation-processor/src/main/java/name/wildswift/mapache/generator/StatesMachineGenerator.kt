@@ -1,10 +1,14 @@
 package name.wildswift.mapache.generator
 
+import com.squareup.javapoet.ClassName
 import name.wildswift.mapache.config.ConfigType
 import name.wildswift.mapache.config.GenerateNavigation
 import name.wildswift.mapache.generator.codegen.ActionsGenerator
 import name.wildswift.mapache.generator.codegen.StatesWrapperGenerator
 import name.wildswift.mapache.generator.codegen.TransitionsWrapperGenerator
+import name.wildswift.mapache.generator.generatemodel.EventDefinition
+import name.wildswift.mapache.generator.generatemodel.GenerateModel
+import name.wildswift.mapache.generator.generatemodel.ParameterDefinition
 import name.wildswift.mapache.generator.parsers.ModelParser
 import java.io.File
 import javax.annotation.processing.*
@@ -75,15 +79,25 @@ class StatesMachineGenerator : AbstractProcessor() {
 
         val model = parser.getModel(configFile)
 
-        val (baseEventsTypeName, eventNames) = ActionsGenerator(prefix, model.eventsPackage, processingEnv, model.actions).let {
-            it.generateAll()
-            it.baseTypeName to it.actionNames
+        val generationModel = model.let { parseModel ->
+            val events = model.actions.map { EventDefinition(it.name, ClassName.get(parseModel.eventsPackage, it.name), it.params.map { ParameterDefinition(it.name, it.type.toType()) }) }
+            GenerateModel(
+                    eventsBasePackage = parseModel.eventsPackage,
+                    baseEventClass = ClassName.get(parseModel.eventsPackage, "${prefix}Event"),
+                    events = events,
+                    baseStateWrappersClass = ClassName.get(parseModel.statesPackage, "${prefix}MState"),
+                    states = parseModel.states(parseModel.statesPackage, events)
+            )
         }
-        val (baseStateWrappersTypeName, stateNames, stateWrappersNames) = StatesWrapperGenerator(prefix, model.statesPackage, processingEnv, modulePackageName, model.diClass.toType(), baseEventsTypeName, eventNames, model.states()).let {
+
+
+        ActionsGenerator(generationModel.eventsBasePackage, generationModel.baseEventClass, generationModel.events, processingEnv).generateAll()
+
+        val stateNames = StatesWrapperGenerator(model.statesPackage, generationModel.baseStateWrappersClass, generationModel.baseEventClass, processingEnv, ClassName.get(modulePackageName, "BuildConfig"), model.diClass.toType(), generationModel.states).let {
             it.generateAll()
-            Triple(it.baseTypeName, it.stateNames, it.stateWrappersNames)
+            it.stateNames
         }
-        TransitionsWrapperGenerator(prefix, model.transitionsPackage, processingEnv, baseEventsTypeName, baseStateWrappersTypeName, model.diClass.toType(), model.transitions(), stateNames, stateWrappersNames).generateAll()
+        TransitionsWrapperGenerator(prefix, model.transitionsPackage, processingEnv, generationModel.baseEventClass, generationModel.baseStateWrappersClass, model.diClass.toType(), model.transitions(), stateNames, generationModel.states.map { it.name to it.wrapperClassName }.toMap()).generateAll()
         // parser.getModel(file)
 
     }

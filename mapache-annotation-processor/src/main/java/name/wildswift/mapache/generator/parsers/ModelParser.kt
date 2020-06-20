@@ -1,7 +1,8 @@
 package name.wildswift.mapache.generator.parsers
 
 import name.wildswift.mapache.config.ConfigType
-import name.wildswift.mapache.generator.generatemodel.StateMachine
+import name.wildswift.mapache.generator.parsers.groovydsl.StateMachine
+import name.wildswift.mapache.generator.parsers.groovydsl.GroovyDslParser
 import java.io.File
 
 interface ModelParser {

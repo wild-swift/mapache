@@ -1,4 +1,7 @@
-package name.wildswift.mapache.generator.generatemodel
+package name.wildswift.mapache.generator.parsers.groovydsl
+
+import name.wildswift.mapache.generator.parsers.groovydsl.State
+import name.wildswift.mapache.generator.parsers.groovydsl.StateGraphBase
 
 data class StateMachineLayer(
         /**

@@ -1,6 +1,8 @@
 package name.wildswift.mapache.generator.generatemodel
 
-data class Parameter(
+import com.squareup.javapoet.TypeName
+
+data class ParameterDefinition(
         /**
          * Parameter name
          */
@@ -8,5 +10,5 @@ data class Parameter(
         /**
          * class name
          */
-        val type: String
+        val type: TypeName
 )

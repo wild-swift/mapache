@@ -1,24 +1,30 @@
 package name.wildswift.mapache.generator.grdsl
 
 import groovy.lang.Closure
-import name.wildswift.mapache.generator.generatemodel.Action
-import name.wildswift.mapache.generator.generatemodel.StateMachine
-import name.wildswift.mapache.generator.generatemodel.StateMachineLayer
+import name.wildswift.mapache.generator.parsers.groovydsl.Action
+import name.wildswift.mapache.generator.parsers.groovydsl.StateMachine
+import name.wildswift.mapache.generator.parsers.groovydsl.StateMachineLayer
 import java.lang.IllegalArgumentException
 
 class MapacheGroovyDslDelegate {
     private var actions = listOf<Action>()
     private var layers = listOf<StateMachineLayer>()
 
-    val stateMachine by lazy { StateMachine(
-            layers,
-            actions,
-            basePackageName ?: throw IllegalArgumentException("Missing property basePackageName"),
-            (if (actionsPackageName.startsWith(".")) basePackageName?.let { it + actionsPackageName } else actionsPackageName) ?: throw IllegalArgumentException("Missing property basePackageName"),
-            (if (statesPackageName.startsWith(".")) basePackageName?.let { it + statesPackageName } else statesPackageName) ?: throw IllegalArgumentException("Missing property basePackageName"),
-            (if (transitionsPackageName.startsWith(".")) basePackageName?.let { it + transitionsPackageName } else transitionsPackageName) ?: throw IllegalArgumentException("Missing property basePackageName"),
-            dependencySource.name
-    ) }
+    val stateMachine by lazy {
+        StateMachine(
+                layers,
+                actions,
+                basePackageName
+                        ?: throw IllegalArgumentException("Missing property basePackageName"),
+                (if (actionsPackageName.startsWith(".")) basePackageName?.let { it + actionsPackageName } else actionsPackageName)
+                        ?: throw IllegalArgumentException("Missing property basePackageName"),
+                (if (statesPackageName.startsWith(".")) basePackageName?.let { it + statesPackageName } else statesPackageName)
+                        ?: throw IllegalArgumentException("Missing property basePackageName"),
+                (if (transitionsPackageName.startsWith(".")) basePackageName?.let { it + transitionsPackageName } else transitionsPackageName)
+                        ?: throw IllegalArgumentException("Missing property basePackageName"),
+                dependencySource.name
+        )
+    }
 
     private var actionsPackageName = ".events"
     var basePackageName: String? = null

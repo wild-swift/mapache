@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator.generatemodel
+package name.wildswift.mapache.generator.parsers.groovydsl
 
 data class State(
         /**

@@ -2,8 +2,8 @@ package name.wildswift.mapache.generator.grdsl
 
 import groovy.lang.GroovyObject
 import groovy.lang.MetaClass
-import name.wildswift.mapache.generator.generatemodel.Action
-import name.wildswift.mapache.generator.generatemodel.Parameter
+import name.wildswift.mapache.generator.parsers.groovydsl.Action
+import name.wildswift.mapache.generator.parsers.groovydsl.Parameter
 import org.codehaus.groovy.runtime.InvokerHelper
 import java.lang.IllegalStateException
 

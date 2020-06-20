@@ -1,11 +1,11 @@
-package name.wildswift.mapache.generator.parsers
+package name.wildswift.mapache.generator.parsers.groovydsl
 
 import groovy.lang.Binding
 import groovy.lang.GroovyShell
 import groovy.util.DelegatingScript
 import name.wildswift.mapache.generator.EmptyClassesClassLoader
-import name.wildswift.mapache.generator.generatemodel.StateMachine
 import name.wildswift.mapache.generator.grdsl.MapacheGroovyDslDelegate
+import name.wildswift.mapache.generator.parsers.ModelParser
 import org.codehaus.groovy.control.CompilerConfiguration
 import java.io.File
 

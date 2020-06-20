@@ -1,8 +1,8 @@
 package name.wildswift.mapache.generator
 
-import name.wildswift.mapache.generator.generatemodel.Action
-import name.wildswift.mapache.generator.generatemodel.StateMachine
-import name.wildswift.mapache.generator.generatemodel.StateMachineLayer
+import name.wildswift.mapache.generator.parsers.groovydsl.Action
+import name.wildswift.mapache.generator.parsers.groovydsl.StateMachine
+import name.wildswift.mapache.generator.parsers.groovydsl.StateMachineLayer
 
 object InternalModelUpdater {
 

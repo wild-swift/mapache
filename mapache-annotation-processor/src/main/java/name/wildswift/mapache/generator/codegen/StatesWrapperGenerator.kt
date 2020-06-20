@@ -6,29 +6,26 @@ import com.squareup.javapoet.*
 import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.codegen.GenerationConstants.createInstanceMethodName
 import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
-import name.wildswift.mapache.generator.generatemodel.Action
-import name.wildswift.mapache.generator.generatemodel.State
+import name.wildswift.mapache.generator.generatemodel.StateDefinition
+import name.wildswift.mapache.generator.parsers.groovydsl.Action
+import name.wildswift.mapache.generator.parsers.groovydsl.State
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
 
 class StatesWrapperGenerator(
-        private val prefix: String,
         private val packageName: String,
-        private val processingEnv: ProcessingEnvironment,
-        modulePackageName: String,
-        private val dependencySource: TypeName,
+        private val baseTypeName: ClassName,
         private val actionBaseType: ClassName,
-        private val actionTypes: Map<Action, ClassName>,
-        private val states: List<State>
+        private val processingEnv: ProcessingEnvironment,
+        private val moduleBuildConfig: ClassName,
+        private val dependencySource: TypeName,
+        private val states: List<StateDefinition>
 ) {
 
-    val baseTypeName = ClassName.get(packageName, "${prefix}MState")
-    val stateWrappersNames = states.map { state -> state to ClassName.get(packageName, "${state.name.split(".").last()}Wrapper") }.toMap()
-    val stateNames = states.map { state -> state to ClassName.bestGuess(state.name) }.toMap()
+    val stateNames = states.map { state -> state.name to ClassName.bestGuess(state.name) }.toMap()
 
 
-    private val moduleBuildConfig = ClassName.get(modulePackageName, "BuildConfig")
     private val navigationContextType = ParameterizedTypeName.get(navigationContextTypeName, actionBaseType, dependencySource)
     private val navigationContextParameter = ParameterSpec.builder(navigationContextType, "context").addAnnotation(NonNull::class.java).build()
 
@@ -64,10 +61,11 @@ class StatesWrapperGenerator(
 
             val stateRootViewType = viewGroupClass
 
+            println(state.name)
             val thisStateViewSetType = processingEnv.elementUtils.getTypeElement(state.name).extractViewSetType()
 
-            val currentStateWrapperName = stateWrappersNames[state] ?: error("Internal error")
-            val currentStateName = stateNames[state] ?: error("Internal error")
+            val currentStateWrapperName = state.wrapperClassName
+            val currentStateName = stateNames[state.name] ?: error("Internal error")
 
             val wrappedField = FieldSpec.builder(currentStateName, "wrappedObj").addModifiers(Modifier.PRIVATE, Modifier.FINAL).build()
             val parameterList = state.parameters.orEmpty()
@@ -108,9 +106,9 @@ class StatesWrapperGenerator(
                             .addParameter(ParameterSpec.builder(actionBaseType, "e").addAnnotation(NonNull::class.java).build())
                             .returns(baseTypeName)
                             .apply {
-                                state.movements.forEach { (action, endState, _) ->
-                                    val parametersSting = endState.parameters.orEmpty().joinToString { "((\$1T)e).get${it.name.capitalize()}()" }
-                                    addStatement("if (e instanceof \$1T) return \$2T.${createInstanceMethodName}($parametersSting)", actionTypes[action], stateWrappersNames[endState])
+                                state.moveDefenition.forEach { moveDefenition ->
+                                    val parametersSting = moveDefenition.moveParameters.joinToString { "((\$1T)e).get${it.name.capitalize()}()" }
+                                    addStatement("if (e instanceof \$1T) return \$2T.${createInstanceMethodName}($parametersSting)", moveDefenition.actionType, moveDefenition.targetStateWrapperClass)
                                 }
                                 addStatement("if (\$1T.DEBUG) throw new \$2T(\"Unable to process event \" + e.getClass().getSimpleName())", moduleBuildConfig, ClassName.get(IllegalStateException::class.java))
                                 addStatement("return null")
@@ -191,7 +189,7 @@ class StatesWrapperGenerator(
                                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                 .addParameters(
                                         parameterList.map {
-                                            ParameterSpec.builder(it.type.toType(), it.name).build()
+                                            ParameterSpec.builder(it.type, it.name).build()
                                         }
                                 )
                                 .returns(currentStateWrapperName)
@@ -202,7 +200,7 @@ class StatesWrapperGenerator(
                                 .addModifiers(Modifier.PRIVATE)
                                 .addParameters(
                                         parameterList.map {
-                                            ParameterSpec.builder(it.type.toType(), it.name).build()
+                                            ParameterSpec.builder(it.type, it.name).build()
                                         }
                                 )
                                 .addStatement("\$N = new \$T(${parameterList.joinToString { it.name }})", wrappedField, currentStateName)

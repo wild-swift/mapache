@@ -1,6 +1,6 @@
 package name.wildswift.mapache.generator.grdsl
 
-import name.wildswift.mapache.generator.generatemodel.StateMachineLayer
+import name.wildswift.mapache.generator.parsers.groovydsl.StateMachineLayer
 import java.lang.IllegalArgumentException
 
 class LayerDelegate : GraphBaseDelegate() {
