@@ -1,7 +1,7 @@
-package name.wildswift.mapache.generator.parsers.groovy
+package name.wildswift.mapache.generator.parsers.groovy.model
 
-import name.wildswift.mapache.generator.parsers.groovy.State
-import name.wildswift.mapache.generator.parsers.groovy.StateGraphBase
+import name.wildswift.mapache.generator.parsers.groovy.model.State
+import name.wildswift.mapache.generator.parsers.groovy.model.StateGraphBase
 
 data class StateMachineLayer(
         /**

@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator.parsers.groovy
+package name.wildswift.mapache.generator.parsers.groovy.model
 
 data class Parameter(
         /**

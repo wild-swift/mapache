@@ -2,8 +2,8 @@ package name.wildswift.mapache.generator.parsers
 
 import name.wildswift.mapache.config.ConfigType
 import name.wildswift.mapache.generator.generatemodel.GenerateModel
-import name.wildswift.mapache.generator.parsers.groovy.StateMachine
 import name.wildswift.mapache.generator.parsers.groovy.GroovyDslParser
+import name.wildswift.mapache.generator.parsers.xml.XmlParser
 import java.io.File
 import javax.annotation.processing.ProcessingEnvironment
 

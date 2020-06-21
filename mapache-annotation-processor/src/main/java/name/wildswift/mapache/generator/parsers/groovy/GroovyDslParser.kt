@@ -5,11 +5,12 @@ import groovy.lang.Binding
 import groovy.lang.GroovyShell
 import groovy.util.DelegatingScript
 import name.wildswift.mapache.generator.EmptyClassesClassLoader
-import name.wildswift.mapache.generator.generatemodel.EventDefinition
-import name.wildswift.mapache.generator.generatemodel.GenerateModel
-import name.wildswift.mapache.generator.generatemodel.ParameterDefinition
-import name.wildswift.mapache.generator.grdsl.MapacheGroovyDslDelegate
+import name.wildswift.mapache.generator.extractViewSetType
+import name.wildswift.mapache.generator.generatemodel.*
+import name.wildswift.mapache.generator.parsers.groovy.dsldelegates.MapacheGroovyDslDelegate
 import name.wildswift.mapache.generator.parsers.ModelParser
+import name.wildswift.mapache.generator.parsers.groovy.model.State
+import name.wildswift.mapache.generator.parsers.groovy.model.StateMachineLayer
 import name.wildswift.mapache.generator.toType
 import org.codehaus.groovy.control.CompilerConfiguration
 import java.io.File
@@ -39,16 +40,88 @@ class GroovyDslParser: ModelParser {
 
                     statesBasePackage = parseModel.statesPackage,
                     baseStateWrappersClass = ClassName.get(parseModel.statesPackage, "${prefix}MState"),
-                    states = parseModel.states(parseModel.statesPackage, events),
+                    states = states(parseModel.layers, parseModel.statesPackage, events),
                     dependencySource = parseModel.diClass.toType(),
                     buildConfigClass = ClassName.get(modulePackageName, "BuildConfig"),
 
                     transitionsBasePackage = parseModel.transitionsPackage,
                     baseTransitionClass = ClassName.get(parseModel.transitionsPackage, "${prefix}StateTransition"),
-                    transitions = parseModel.transitions(parseModel.statesPackage, processingEnv)
+                    transitions = transitions(parseModel.layers, parseModel.statesPackage, processingEnv)
             )
         }
+    }
+
+    fun states(layers: List<StateMachineLayer>, packageName: String, events: List<EventDefinition>): List<StateDefinition> {
+        val states = layers.flatMap {
+            val states = mutableListOf<State>()
+            addStates(it.initialState, states)
+            states.toList()
+        }
+        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.split(".").last()}Wrapper") }.toMap()
+        return states.map {
+            StateDefinition(
+                    name = it.name,
+                    stateClassName = ClassName.bestGuess(it.name),
+                    wrapperClassName = wrapperClassMapping[it.name] ?: error("Internal error"),
+                    parameters = it.parameters.orEmpty().map { ParameterDefinition(it.name, it.type.toType()) },
+                    moveDefenition = it.movements.map { movment ->
+                        StateMoveDefinition(
+                                actionType = events.filter { it.name == movment.action.name }.first().typeName,
+                                moveParameters = movment.endState.parameters.orEmpty().map { ParameterDefinition(it.name, it.type.toType()) },
+                                targetStateWrapperClass = wrapperClassMapping[movment.endState.name]
+                                        ?: error("Internal error")
+                        )
+                    }
+            )
+        }
+    }
+
+    private fun addStates(initialState: State, states: MutableList<State>) {
+        if (states.contains(initialState)) return
+        states.add(initialState)
+        initialState.movements
+                .map { it.endState }
+                .forEach {
+                    addStates(it, states)
+                }
+        initialState.child
+                ?.initialState
+                ?.also {
+                    addStates(it, states)
+                }
+    }
+
+    fun transitions(layers: List<StateMachineLayer>, packageName: String, processingEnv: ProcessingEnvironment): List<TransitionDefinition> {
+        val states = layers
+                .flatMap {
+                    val states = mutableListOf<State>()
+                    addStates(it.initialState, states)
+                    states.toList()
+                }
+        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.split(".").last()}Wrapper") }.toMap()
+        val classMapping = states.map { it.name to ClassName.bestGuess(it.name) }.toMap()
+        return states
+                .flatMap { state ->
+                    state.movements.map { movement ->
+                        val fromName = state.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+                        val toName = movement.endState.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+
+                        val fromViewSetType = processingEnv.elementUtils.getTypeElement(state.name).extractViewSetType()
+                        val toViewSetType = processingEnv.elementUtils.getTypeElement(movement.endState.name).extractViewSetType()
 
 
+                        TransitionDefinition(
+                                name = movement.implClass,
+                                typeName = ClassName.bestGuess(movement.implClass),
+                                wrapperTypeName = ClassName.get(packageName, "${fromName}To${toName}TransitionWrapper"),
+                                beginViewSetClass = fromViewSetType,
+                                beginStateClass = classMapping[state.name]  ?: error("Internal error"),
+                                beginStateWrapperClass = wrapperClassMapping[state.name]  ?: error("Internal error"),
+                                endViewSetClass = toViewSetType,
+                                endStateClass = classMapping[movement.endState.name]  ?: error("Internal error"),
+                                endStateWrapperClass = wrapperClassMapping[movement.endState.name]  ?: error("Internal error")
+                        )
+                    }
+                }
     }
 }

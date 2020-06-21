@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator.grdsl
+package name.wildswift.mapache.generator.parsers.groovy.dsldelegates
 
 class MovementRuleBuilder(private val actionName: String, private val callback: (Triple<String, String, String>) -> Unit) {
     private var targetStateName: String = ""

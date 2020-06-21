@@ -1,10 +1,10 @@
-package name.wildswift.mapache.generator.grdsl
+package name.wildswift.mapache.generator.parsers.groovy.dsldelegates
 
 import groovy.lang.GroovyObject
 import groovy.lang.MetaClass
-import name.wildswift.mapache.generator.parsers.groovy.Action
-import name.wildswift.mapache.generator.parsers.groovy.Movement
-import name.wildswift.mapache.generator.parsers.groovy.State
+import name.wildswift.mapache.generator.parsers.groovy.model.Action
+import name.wildswift.mapache.generator.parsers.groovy.model.Movement
+import name.wildswift.mapache.generator.parsers.groovy.model.State
 import org.codehaus.groovy.runtime.InvokerHelper
 import java.lang.IllegalArgumentException
 

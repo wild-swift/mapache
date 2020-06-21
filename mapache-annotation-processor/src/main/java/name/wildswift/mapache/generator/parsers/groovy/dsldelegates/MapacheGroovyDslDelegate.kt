@@ -1,9 +1,9 @@
-package name.wildswift.mapache.generator.grdsl
+package name.wildswift.mapache.generator.parsers.groovy.dsldelegates
 
 import groovy.lang.Closure
-import name.wildswift.mapache.generator.parsers.groovy.Action
-import name.wildswift.mapache.generator.parsers.groovy.StateMachine
-import name.wildswift.mapache.generator.parsers.groovy.StateMachineLayer
+import name.wildswift.mapache.generator.parsers.groovy.model.Action
+import name.wildswift.mapache.generator.parsers.groovy.model.StateMachine
+import name.wildswift.mapache.generator.parsers.groovy.model.StateMachineLayer
 import java.lang.IllegalArgumentException
 
 class MapacheGroovyDslDelegate {
@@ -39,8 +39,6 @@ class MapacheGroovyDslDelegate {
         invoker.call()
         actions = actionsDelegate.actions
         actionsPackageName = actionsDelegate.packageName
-        println("$actionsPackageName: $actions")
-
     }
 
     fun layer(invoker: Closure<Unit>) {

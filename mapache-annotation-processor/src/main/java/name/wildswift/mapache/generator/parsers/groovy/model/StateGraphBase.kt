@@ -1,6 +1,6 @@
-package name.wildswift.mapache.generator.parsers.groovy
+package name.wildswift.mapache.generator.parsers.groovy.model
 
-import name.wildswift.mapache.generator.parsers.groovy.State
+import name.wildswift.mapache.generator.parsers.groovy.model.State
 
 abstract class StateGraphBase {
     /**
