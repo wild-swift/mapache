@@ -1,14 +1,10 @@
 package name.wildswift.mapache.generator
 
-import com.squareup.javapoet.ClassName
 import name.wildswift.mapache.config.ConfigType
 import name.wildswift.mapache.config.GenerateNavigation
 import name.wildswift.mapache.generator.codegen.ActionsGenerator
 import name.wildswift.mapache.generator.codegen.StatesWrapperGenerator
 import name.wildswift.mapache.generator.codegen.TransitionsWrapperGenerator
-import name.wildswift.mapache.generator.generatemodel.EventDefinition
-import name.wildswift.mapache.generator.generatemodel.GenerateModel
-import name.wildswift.mapache.generator.generatemodel.ParameterDefinition
 import name.wildswift.mapache.generator.parsers.ModelParser
 import java.io.File
 import javax.annotation.processing.*

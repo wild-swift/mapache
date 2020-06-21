@@ -7,8 +7,8 @@ import groovy.util.DelegatingScript
 import name.wildswift.mapache.generator.EmptyClassesClassLoader
 import name.wildswift.mapache.generator.extractViewSetType
 import name.wildswift.mapache.generator.generatemodel.*
-import name.wildswift.mapache.generator.parsers.groovy.dsldelegates.MapacheGroovyDslDelegate
 import name.wildswift.mapache.generator.parsers.ModelParser
+import name.wildswift.mapache.generator.parsers.groovy.dsldelegates.MapacheGroovyDslDelegate
 import name.wildswift.mapache.generator.parsers.groovy.model.State
 import name.wildswift.mapache.generator.parsers.groovy.model.StateMachineLayer
 import name.wildswift.mapache.generator.toType

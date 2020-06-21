@@ -1,7 +1,5 @@
 package name.wildswift.mapache.generator.parsers.groovy.model
 
-import name.wildswift.mapache.generator.parsers.groovy.model.State
-
 abstract class StateGraphBase {
     /**
      * Link to start state

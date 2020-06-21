@@ -5,7 +5,6 @@ import groovy.lang.MetaClass
 import name.wildswift.mapache.generator.parsers.groovy.model.Action
 import name.wildswift.mapache.generator.parsers.groovy.model.Parameter
 import org.codehaus.groovy.runtime.InvokerHelper
-import java.lang.IllegalStateException
 
 class ActionsDelegate : GroovyObject {
     var packageName: String = ".events"

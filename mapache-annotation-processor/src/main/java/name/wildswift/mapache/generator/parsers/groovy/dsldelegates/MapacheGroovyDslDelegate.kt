@@ -4,7 +4,6 @@ import groovy.lang.Closure
 import name.wildswift.mapache.generator.parsers.groovy.model.Action
 import name.wildswift.mapache.generator.parsers.groovy.model.StateMachine
 import name.wildswift.mapache.generator.parsers.groovy.model.StateMachineLayer
-import java.lang.IllegalArgumentException
 
 class MapacheGroovyDslDelegate {
     private var actions = listOf<Action>()

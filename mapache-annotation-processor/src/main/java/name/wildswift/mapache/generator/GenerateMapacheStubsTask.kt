@@ -1,7 +1,6 @@
 package name.wildswift.mapache.generator
 
 import org.w3c.dom.Document
-import java.lang.IllegalArgumentException
 import javax.xml.parsers.DocumentBuilderFactory
 
 open class GenerateMapacheStubsTask {

@@ -1,9 +1,5 @@
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.navigation.BuyStep1State
-import name.wildswift.testapp.navigation.BuyToReviewTransition
-import name.wildswift.testapp.navigation.PrimaryState
-import name.wildswift.testapp.navigation.ReviewBuyState
-import name.wildswift.testapp.navigation.RootToBuyTransition
+import name.wildswift.testapp.navigation.*
 
 basePackageName "name.wildswift.testapp.generated"
 statesPackageName ".gen"

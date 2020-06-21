@@ -1,11 +1,6 @@
 package name.wildswift.mapache.generator
 
-import name.wildswift.mapache.generator.parsers.groovy.model.Action
-import name.wildswift.mapache.generator.parsers.groovy.model.Parameter
-import name.wildswift.mapache.generator.parsers.groovy.model.State
-import name.wildswift.mapache.generator.parsers.groovy.model.StateMachine
-import name.wildswift.mapache.generator.parsers.groovy.model.StateMachineLayer
-import name.wildswift.mapache.generator.parsers.groovy.model.Movement
+import name.wildswift.mapache.generator.parsers.groovy.model.*
 import org.w3c.dom.Node
 
 object DomToInternalModelConverter {

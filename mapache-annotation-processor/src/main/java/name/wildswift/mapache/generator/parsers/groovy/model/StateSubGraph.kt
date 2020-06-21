@@ -1,8 +1,5 @@
 package name.wildswift.mapache.generator.parsers.groovy.model
 
-import name.wildswift.mapache.generator.parsers.groovy.model.State
-import name.wildswift.mapache.generator.parsers.groovy.model.StateGraphBase
-
 data class StateSubGraph(
         /**
          * Scene root view class

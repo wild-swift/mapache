@@ -6,7 +6,6 @@ import name.wildswift.mapache.generator.parsers.groovy.model.Action
 import name.wildswift.mapache.generator.parsers.groovy.model.Movement
 import name.wildswift.mapache.generator.parsers.groovy.model.State
 import org.codehaus.groovy.runtime.InvokerHelper
-import java.lang.IllegalArgumentException
 
 class AllDelegate() : GroovyObject {
     private var movements: List<Movement>? = null

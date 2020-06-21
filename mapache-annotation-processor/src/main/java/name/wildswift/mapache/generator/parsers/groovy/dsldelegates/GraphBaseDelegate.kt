@@ -7,8 +7,6 @@ import name.wildswift.mapache.generator.parsers.groovy.model.Action
 import name.wildswift.mapache.generator.parsers.groovy.model.State
 import name.wildswift.mapache.generator.parsers.groovy.model.StateGraphBase
 import org.codehaus.groovy.runtime.InvokerHelper
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 
 @Suppress("SuspiciousCollectionReassignment")
 abstract class GraphBaseDelegate : GroovyObject {
