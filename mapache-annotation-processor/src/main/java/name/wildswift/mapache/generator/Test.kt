@@ -4,7 +4,7 @@ import groovy.lang.Binding
 import groovy.lang.GroovyShell
 import groovy.util.DelegatingScript
 import name.wildswift.mapache.generator.grdsl.MapacheGroovyDslDelegate
-import name.wildswift.mapache.generator.parsers.groovydsl.State
+import name.wildswift.mapache.generator.parsers.groovy.State
 import org.codehaus.groovy.control.CompilerConfiguration
 import java.io.File
 import java.util.*

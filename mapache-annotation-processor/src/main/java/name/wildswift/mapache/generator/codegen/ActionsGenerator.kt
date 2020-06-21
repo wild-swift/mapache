@@ -4,26 +4,24 @@ import com.squareup.javapoet.*
 import name.wildswift.mapache.events.Event
 import name.wildswift.mapache.generator.addDataClassFields
 import name.wildswift.mapache.generator.generatemodel.EventDefinition
-import name.wildswift.mapache.generator.generatemodel.GenerateModel
-import javax.annotation.processing.ProcessingEnvironment
+import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 
 
 class ActionsGenerator(
         private val packageName: String,
-        val baseEventClass: ClassName,
-        val events: List<EventDefinition>,
-        private val processingEnv: ProcessingEnvironment
+        private val baseEventClass: ClassName,
+        private val events: List<EventDefinition>,
+        private val filer: Filer
 ) {
     fun generateAll() {
-
         val baseInterfaceTypeSpec = TypeSpec
                 .interfaceBuilder(baseEventClass)
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(ClassName.get(Event::class.java))
                 .build()
 
-        processingEnv.filer.createSourceFile(baseEventClass.canonicalName())
+        filer.createSourceFile(baseEventClass.canonicalName())
                 .openWriter()
                 .use { fileWriter ->
                     JavaFile.builder(packageName, baseInterfaceTypeSpec)
@@ -54,7 +52,7 @@ class ActionsGenerator(
                         .addDataClassFields(action.params, action.typeName)
             }
 
-            processingEnv.filer.createSourceFile(action.typeName.canonicalName())
+            filer.createSourceFile(action.typeName.canonicalName())
                     .openWriter()
                     .use { fileWriter ->
                         JavaFile.builder(packageName, actionTypeSpecBuilder.build())

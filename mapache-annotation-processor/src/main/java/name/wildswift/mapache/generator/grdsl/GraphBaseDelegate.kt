@@ -3,9 +3,9 @@ package name.wildswift.mapache.generator.grdsl
 import groovy.lang.Closure
 import groovy.lang.GroovyObject
 import groovy.lang.MetaClass
-import name.wildswift.mapache.generator.parsers.groovydsl.Action
-import name.wildswift.mapache.generator.parsers.groovydsl.State
-import name.wildswift.mapache.generator.parsers.groovydsl.StateGraphBase
+import name.wildswift.mapache.generator.parsers.groovy.Action
+import name.wildswift.mapache.generator.parsers.groovy.State
+import name.wildswift.mapache.generator.parsers.groovy.StateGraphBase
 import org.codehaus.groovy.runtime.InvokerHelper
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException

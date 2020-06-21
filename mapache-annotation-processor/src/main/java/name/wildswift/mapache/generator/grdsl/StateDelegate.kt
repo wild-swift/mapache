@@ -1,9 +1,9 @@
 package name.wildswift.mapache.generator.grdsl
 
-import name.wildswift.mapache.generator.parsers.groovydsl.Action
-import name.wildswift.mapache.generator.parsers.groovydsl.Movement
-import name.wildswift.mapache.generator.parsers.groovydsl.State
-import name.wildswift.mapache.generator.parsers.groovydsl.StateSubGraph
+import name.wildswift.mapache.generator.parsers.groovy.Action
+import name.wildswift.mapache.generator.parsers.groovy.Movement
+import name.wildswift.mapache.generator.parsers.groovy.State
+import name.wildswift.mapache.generator.parsers.groovy.StateSubGraph
 import java.lang.IllegalArgumentException
 
 class StateDelegate(private val state: State): GraphBaseDelegate() {

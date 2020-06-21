@@ -1,11 +1,10 @@
-package name.wildswift.mapache.generator.parsers.groovydsl
+package name.wildswift.mapache.generator.parsers.groovy
 
 import com.squareup.javapoet.ClassName
-import name.wildswift.mapache.generator.generatemodel.EventDefinition
-import name.wildswift.mapache.generator.generatemodel.ParameterDefinition
-import name.wildswift.mapache.generator.generatemodel.StateDefinition
-import name.wildswift.mapache.generator.generatemodel.StateMoveDefinition
+import name.wildswift.mapache.generator.extractViewSetType
+import name.wildswift.mapache.generator.generatemodel.*
 import name.wildswift.mapache.generator.toType
+import javax.annotation.processing.ProcessingEnvironment
 
 data class StateMachine(
         val layers: List<StateMachineLayer>,
@@ -26,6 +25,7 @@ data class StateMachine(
         return states.map {
             StateDefinition(
                     name = it.name,
+                    stateClassName = ClassName.bestGuess(it.name),
                     wrapperClassName = wrapperClassMapping[it.name] ?: error("Internal error"),
                     parameters = it.parameters.orEmpty().map { ParameterDefinition(it.name, it.type.toType()) },
                     moveDefenition = it.movements.map { movment ->
@@ -55,19 +55,35 @@ data class StateMachine(
                 }
     }
 
-    fun transitions(): List<TransitionDesc> {
-        return layers
+    fun transitions(packageName: String, processingEnv: ProcessingEnvironment): List<TransitionDefinition> {
+        val states = layers
                 .flatMap {
                     val states = mutableListOf<State>()
                     addStates(it.initialState, states)
                     states.toList()
                 }
+        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.split(".").last()}Wrapper") }.toMap()
+        val classMapping = states.map { it.name to ClassName.bestGuess(it.name) }.toMap()
+        return states
                 .flatMap { state ->
                     state.movements.map { movement ->
-                        TransitionDesc(
-                                beginState = state,
-                                endState = movement.endState,
-                                implClass = movement.implClass
+                        val fromName = state.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+                        val toName = movement.endState.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+
+                        val fromViewSetType = processingEnv.elementUtils.getTypeElement(state.name).extractViewSetType()
+                        val toViewSetType = processingEnv.elementUtils.getTypeElement(movement.endState.name).extractViewSetType()
+
+
+                        TransitionDefinition(
+                                name = movement.implClass,
+                                typeName = ClassName.bestGuess(movement.implClass),
+                                wrapperTypeName = ClassName.get(packageName, "${fromName}To${toName}TransitionWrapper"),
+                                beginViewSetClass = fromViewSetType,
+                                beginStateClass = classMapping[state.name]  ?: error("Internal error"),
+                                beginStateWrapperClass = wrapperClassMapping[state.name]  ?: error("Internal error"),
+                                endViewSetClass = toViewSetType,
+                                endStateClass = classMapping[movement.endState.name]  ?: error("Internal error"),
+                                endStateWrapperClass = wrapperClassMapping[movement.endState.name]  ?: error("Internal error")
                         )
                     }
                 }

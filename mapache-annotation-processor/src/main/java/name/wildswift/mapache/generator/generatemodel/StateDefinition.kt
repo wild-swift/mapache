@@ -1,6 +1,7 @@
 package name.wildswift.mapache.generator.generatemodel
 
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 
 data class StateDefinition(
         /**
@@ -9,6 +10,8 @@ data class StateDefinition(
          */
         val name: String,
 
+        val stateClassName: ClassName,
+
         val wrapperClassName: ClassName,
         /**
          * List of constructor parameters
@@ -16,4 +19,6 @@ data class StateDefinition(
         val parameters: List<ParameterDefinition>,
 
         val moveDefenition: List<StateMoveDefinition>
-)
+) {
+
+}

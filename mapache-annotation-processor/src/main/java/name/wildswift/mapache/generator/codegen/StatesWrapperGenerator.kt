@@ -7,8 +7,6 @@ import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.codegen.GenerationConstants.createInstanceMethodName
 import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
 import name.wildswift.mapache.generator.generatemodel.StateDefinition
-import name.wildswift.mapache.generator.parsers.groovydsl.Action
-import name.wildswift.mapache.generator.parsers.groovydsl.State
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
@@ -17,10 +15,10 @@ class StatesWrapperGenerator(
         private val packageName: String,
         private val baseTypeName: ClassName,
         private val actionBaseType: ClassName,
-        private val processingEnv: ProcessingEnvironment,
-        private val moduleBuildConfig: ClassName,
         private val dependencySource: TypeName,
-        private val states: List<StateDefinition>
+        private val moduleBuildConfig: ClassName,
+        private val states: List<StateDefinition>,
+        private val processingEnv: ProcessingEnvironment
 ) {
 
     val stateNames = states.map { state -> state.name to ClassName.bestGuess(state.name) }.toMap()
@@ -65,10 +63,10 @@ class StatesWrapperGenerator(
             val thisStateViewSetType = processingEnv.elementUtils.getTypeElement(state.name).extractViewSetType()
 
             val currentStateWrapperName = state.wrapperClassName
-            val currentStateName = stateNames[state.name] ?: error("Internal error")
+            val currentStateName = state.stateClassName
 
             val wrappedField = FieldSpec.builder(currentStateName, "wrappedObj").addModifiers(Modifier.PRIVATE, Modifier.FINAL).build()
-            val parameterList = state.parameters.orEmpty()
+            val parameterList = state.parameters
 
             val stateWrapperTypeSpecBuilder = TypeSpec
                     .classBuilder(currentStateWrapperName)

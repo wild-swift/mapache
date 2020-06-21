@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator.parsers.groovydsl
+package name.wildswift.mapache.generator.parsers.groovy
 
 data class Action(
         /**

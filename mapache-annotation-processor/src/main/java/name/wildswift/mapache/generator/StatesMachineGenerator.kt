@@ -77,27 +77,11 @@ class StatesMachineGenerator : AbstractProcessor() {
                     }
                 }
 
-        val model = parser.getModel(configFile)
+        val generationModel = parser.getModel(configFile, prefix, modulePackageName, processingEnv)
 
-        val generationModel = model.let { parseModel ->
-            val events = model.actions.map { EventDefinition(it.name, ClassName.get(parseModel.eventsPackage, it.name), it.params.map { ParameterDefinition(it.name, it.type.toType()) }) }
-            GenerateModel(
-                    eventsBasePackage = parseModel.eventsPackage,
-                    baseEventClass = ClassName.get(parseModel.eventsPackage, "${prefix}Event"),
-                    events = events,
-                    baseStateWrappersClass = ClassName.get(parseModel.statesPackage, "${prefix}MState"),
-                    states = parseModel.states(parseModel.statesPackage, events)
-            )
-        }
-
-
-        ActionsGenerator(generationModel.eventsBasePackage, generationModel.baseEventClass, generationModel.events, processingEnv).generateAll()
-
-        val stateNames = StatesWrapperGenerator(model.statesPackage, generationModel.baseStateWrappersClass, generationModel.baseEventClass, processingEnv, ClassName.get(modulePackageName, "BuildConfig"), model.diClass.toType(), generationModel.states).let {
-            it.generateAll()
-            it.stateNames
-        }
-        TransitionsWrapperGenerator(prefix, model.transitionsPackage, processingEnv, generationModel.baseEventClass, generationModel.baseStateWrappersClass, model.diClass.toType(), model.transitions(), stateNames, generationModel.states.map { it.name to it.wrapperClassName }.toMap()).generateAll()
+        ActionsGenerator(generationModel.eventsBasePackage, generationModel.baseEventClass, generationModel.events, processingEnv.filer).generateAll()
+        StatesWrapperGenerator(generationModel.statesBasePackage, generationModel.baseStateWrappersClass, generationModel.baseEventClass, generationModel.dependencySource, generationModel.buildConfigClass, generationModel.states, processingEnv).generateAll()
+        TransitionsWrapperGenerator(generationModel.transitionsBasePackage, generationModel.baseTransitionClass, generationModel.baseEventClass, generationModel.baseStateWrappersClass, generationModel.dependencySource, generationModel.transitions, processingEnv).generateAll()
         // parser.getModel(file)
 
     }
