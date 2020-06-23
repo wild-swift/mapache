@@ -1,6 +1,7 @@
 package name.wildswift.mapache.generator.parsers.groovy
 
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import groovy.lang.Binding
 import groovy.lang.GroovyShell
 import groovy.util.DelegatingScript
@@ -32,7 +33,7 @@ class GroovyDslParser: ModelParser {
         script.run()
 
         return mapacheGroovyDslDelegate.stateMachine.let { parseModel ->
-            val events = parseModel.actions.map { EventDefinition(it.name, ClassName.get(parseModel.eventsPackage, it.name), it.params.map { ParameterDefinition(it.name, it.type.toType()) }) }
+            val events = parseModel.actions.map { EventDefinition(it.name, ClassName.get(parseModel.eventsPackage, it.name), it.params.map { ParameterDefinition(it.name, TypeName.get(it.type)) }) }
             GenerateModel(
                     eventsBasePackage = parseModel.eventsPackage,
                     baseEventClass = ClassName.get(parseModel.eventsPackage, "${prefix}Event"),
@@ -40,34 +41,35 @@ class GroovyDslParser: ModelParser {
 
                     statesBasePackage = parseModel.statesPackage,
                     baseStateWrappersClass = ClassName.get(parseModel.statesPackage, "${prefix}MState"),
-                    states = states(parseModel.layers, parseModel.statesPackage, events),
+                    states = states(parseModel.layers, parseModel.statesPackage, events, processingEnv),
                     dependencySource = parseModel.diClass.toType(),
                     buildConfigClass = ClassName.get(modulePackageName, "BuildConfig"),
 
                     transitionsBasePackage = parseModel.transitionsPackage,
                     baseTransitionClass = ClassName.get(parseModel.transitionsPackage, "${prefix}StateTransition"),
-                    transitions = transitions(parseModel.layers, parseModel.statesPackage, processingEnv)
+                    emptyTransitionClass = ClassName.get(parseModel.transitionsPackage, "EmptyTransitionWrapper"),
+                    transitions = transitions(parseModel.layers, parseModel.transitionsPackage, parseModel.statesPackage, processingEnv)
             )
         }
     }
 
-    fun states(layers: List<StateMachineLayer>, packageName: String, events: List<EventDefinition>): List<StateDefinition> {
+    fun states(layers: List<StateMachineLayer>, packageName: String, events: List<EventDefinition>, processingEnv: ProcessingEnvironment): List<StateDefinition> {
         val states = layers.flatMap {
             val states = mutableListOf<State>()
             addStates(it.initialState, states)
             states.toList()
         }
-        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.split(".").last()}Wrapper") }.toMap()
+        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.simpleName}Wrapper") }.toMap()
         return states.map {
             StateDefinition(
-                    name = it.name,
-                    stateClassName = ClassName.bestGuess(it.name),
+                    viewSetClassName = processingEnv.elementUtils.getTypeElement(it.name.canonicalName).extractViewSetType(),
+                    stateClassName = ClassName.get(it.name),
                     wrapperClassName = wrapperClassMapping[it.name] ?: error("Internal error"),
-                    parameters = it.parameters.orEmpty().map { ParameterDefinition(it.name, it.type.toType()) },
+                    parameters = it.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
                     moveDefenition = it.movements.map { movment ->
                         StateMoveDefinition(
                                 actionType = events.filter { it.name == movment.action.name }.first().typeName,
-                                moveParameters = movment.endState.parameters.orEmpty().map { ParameterDefinition(it.name, it.type.toType()) },
+                                moveParameters = movment.endState.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
                                 targetStateWrapperClass = wrapperClassMapping[movment.endState.name]
                                         ?: error("Internal error")
                         )
@@ -91,28 +93,27 @@ class GroovyDslParser: ModelParser {
                 }
     }
 
-    fun transitions(layers: List<StateMachineLayer>, packageName: String, processingEnv: ProcessingEnvironment): List<TransitionDefinition> {
+    fun transitions(layers: List<StateMachineLayer>, packageName: String, statesPackage: String, processingEnv: ProcessingEnvironment): List<TransitionDefinition> {
         val states = layers
                 .flatMap {
                     val states = mutableListOf<State>()
                     addStates(it.initialState, states)
                     states.toList()
                 }
-        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.split(".").last()}Wrapper") }.toMap()
-        val classMapping = states.map { it.name to ClassName.bestGuess(it.name) }.toMap()
+        val wrapperClassMapping = states.map { it.name to ClassName.get(statesPackage, "${it.name.simpleName}Wrapper") }.toMap()
+        val classMapping = states.map { it.name to ClassName.get(it.name) }.toMap()
         return states
                 .flatMap { state ->
                     state.movements.map { movement ->
-                        val fromName = state.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
-                        val toName = movement.endState.name.split(".").last().let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+                        val fromName = state.name.simpleName.let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+                        val toName = movement.endState.name.simpleName.let { if (it.endsWith("State")) it.dropLast("State".length) else it }
 
-                        val fromViewSetType = processingEnv.elementUtils.getTypeElement(state.name).extractViewSetType()
-                        val toViewSetType = processingEnv.elementUtils.getTypeElement(movement.endState.name).extractViewSetType()
+                        val fromViewSetType = processingEnv.elementUtils.getTypeElement(state.name.canonicalName).extractViewSetType()
+                        val toViewSetType = processingEnv.elementUtils.getTypeElement(movement.endState.name.canonicalName).extractViewSetType()
 
 
                         TransitionDefinition(
-                                name = movement.implClass,
-                                typeName = ClassName.bestGuess(movement.implClass),
+                                typeName = ClassName.get(movement.implClass),
                                 wrapperTypeName = ClassName.get(packageName, "${fromName}To${toName}TransitionWrapper"),
                                 beginViewSetClass = fromViewSetType,
                                 beginStateClass = classMapping[state.name]  ?: error("Internal error"),

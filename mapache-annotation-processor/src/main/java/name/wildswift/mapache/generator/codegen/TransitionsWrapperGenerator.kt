@@ -6,19 +6,19 @@ import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
 import name.wildswift.mapache.generator.codegen.GenerationConstants.initWrappedMethodName
 import name.wildswift.mapache.generator.generatemodel.TransitionDefinition
+import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
 
 class TransitionsWrapperGenerator(
-        private val packageName: String,
         private val baseTypeName: ClassName,
         private val emptyWrapperTypeName: ClassName,
         private val baseActionsType: ClassName,
         private val baseStatesType: ClassName,
         private val dependencySourceType: TypeName,
         private val transitions: List<TransitionDefinition>,
-        private val processingEnv: ProcessingEnvironment
+        private val filer: Filer
 ) {
 
 
@@ -77,13 +77,42 @@ class TransitionsWrapperGenerator(
                 .addType(internalCallbakWrapper)
                 .build()
 
-        processingEnv.filer.createSourceFile(baseTypeName.canonicalName())
+        filer.createSourceFile(baseTypeName.canonicalName())
                 .openWriter()
                 .use { fileWriter ->
-                    JavaFile.builder(packageName, baseClassTypeSpec)
+                    JavaFile.builder(baseTypeName.packageName(), baseClassTypeSpec)
                             .build()
                             .writeTo(fileWriter)
                 }
+
+        val emptyWrapperTypeSpec = TypeSpec.classBuilder(emptyWrapperTypeName)
+                .superclass(ParameterizedTypeName.get(baseTypeName, viewClass,
+                        viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType), ParameterizedTypeName.get(baseStatesType, viewClass, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType)),
+                        viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType), ParameterizedTypeName.get(baseStatesType, viewClass, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType))
+                ))
+                .addMethod(MethodSpec.constructorBuilder()
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "from").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "to").addAnnotation(NonNull::class.java).build())
+                        .addStatement("super((\$1T) from, (\$1T) to)", ParameterizedTypeName.get(baseStatesType, viewClass, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType)))
+                        .build()
+                )
+                .addMethod(MethodSpec.methodBuilder(initWrappedMethodName)
+                        .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, viewClass, dependencySourceType))
+                        .addAnnotation(Override::class.java)
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType), "from").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType), "to").addAnnotation(NonNull::class.java).build())
+                        .addStatement("return new \$T<>(from, to)", emptyTransitionTypeName)
+                        .build())
+                .build()
+
+        filer.createSourceFile(emptyWrapperTypeName.canonicalName())
+                .openWriter()
+                .use { fileWriter ->
+                    JavaFile.builder(emptyWrapperTypeName.packageName(), emptyWrapperTypeSpec)
+                            .build()
+                            .writeTo(fileWriter)
+                }
+
 
         transitions.forEach { transitionDesc ->
             if (emptyTransitionTypeName == transitionDesc.typeName) return@forEach
@@ -113,10 +142,10 @@ class TransitionsWrapperGenerator(
                             .addStatement("return new \$T(from, to)", transitionImplClassName)
                             .build())
 
-            processingEnv.filer.createSourceFile(transitionWrapperTypeName.canonicalName())
+            filer.createSourceFile(transitionWrapperTypeName.canonicalName())
                     .openWriter()
                     .use { fileWriter ->
-                        JavaFile.builder(packageName, transitionWrapperTypeSpecBuilder.build())
+                        JavaFile.builder(transitionWrapperTypeName.packageName(), transitionWrapperTypeSpecBuilder.build())
                                 .build()
                                 .writeTo(fileWriter)
                     }
