@@ -12,5 +12,5 @@ data class Movement(
         /**
          * Class name of transition (code reference)
          */
-        val implClass: String
+        val implClass: Class<*>
 )

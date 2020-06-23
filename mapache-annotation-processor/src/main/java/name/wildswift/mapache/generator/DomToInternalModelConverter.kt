@@ -37,8 +37,9 @@ object DomToInternalModelConverter {
                                 Parameter(
                                         name = it.attributes.find(prefix = nsPrefix, name = "name").singleOrNull()?.nodeValue
                                                 ?: throw IllegalArgumentException("Mapache.xml file not valid"),
-                                        type = it.attributes.find(prefix = nsPrefix, name = "type").singleOrNull()?.nodeValue
-                                                ?: throw IllegalArgumentException("Mapache.xml file not valid")
+                                        type = Int::class.java
+//                                        type = it.attributes.find(prefix = nsPrefix, name = "type").singleOrNull()?.nodeValue
+//                                                ?: throw IllegalArgumentException("Mapache.xml file not valid")
                                 )
                             }
                     )
@@ -65,7 +66,8 @@ object DomToInternalModelConverter {
 
                     StateMachineLayer(
                             contentIdResName,
-                            getState(initialStateName, states, statesTag, nsPrefix, actions),
+                            State(Int::class.java, listOf(), null),
+//                            getState(initialStateName, states, statesTag, nsPrefix, actions),
                             true
                     )
                 }
@@ -80,39 +82,39 @@ object DomToInternalModelConverter {
         return machine
     }
 
-    fun getState(name: String, states: ArrayList<State>, statesTag: Node, nsPrefix: String?, actions: List<Action>): State {
-        val result = states.firstOrNull { it.name == name }
-        if (result != null) return result
-
-        val stateTag = statesTag
-                .childNodes
-                .find(prefix = nsPrefix, name = "state")
-                .first {
-                        it.attributes.find(prefix = nsPrefix, name = "name").singleOrNull()?.nodeValue == name
-                }
-        val stateObj = State(
-                name = name,
-                parameters = listOf(),
-                child = null
-        )
-        states.add(stateObj)
-        stateObj.movements = stateTag
-                .childNodes
-                .find(prefix = nsPrefix, name = "do-on")
-                .map {
-                    val actionName = it.attributes.find(prefix = nsPrefix, name = "action").singleOrNull()?.nodeValue
-                            ?: throw IllegalArgumentException("Mapache.xml file not valid")
-                    val targetState = it.attributes.find(prefix = nsPrefix, name = "go-to").singleOrNull()?.nodeValue
-                            ?: throw IllegalArgumentException("Mapache.xml file not valid")
-                    val transition = it.attributes.find(prefix = nsPrefix, name = "go-to").singleOrNull()?.nodeValue
-                            ?: TODO("Implement as empty transition")
-
-                    Movement(
-                            action = actions.first { it.name == actionName },
-                            endState = getState(targetState, states, statesTag, nsPrefix, actions),
-                            implClass = transition
-                    )
-                }
-        return stateObj
-    }
+//    fun getState(name: String, states: ArrayList<State>, statesTag: Node, nsPrefix: String?, actions: List<Action>): State {
+//        val result = states.firstOrNull { it.name == name }
+//        if (result != null) return result
+//
+//        val stateTag = statesTag
+//                .childNodes
+//                .find(prefix = nsPrefix, name = "state")
+//                .first {
+//                        it.attributes.find(prefix = nsPrefix, name = "name").singleOrNull()?.nodeValue == name
+//                }
+//        val stateObj = State(
+//                name = name,
+//                parameters = listOf(),
+//                child = null
+//        )
+//        states.add(stateObj)
+//        stateObj.movements = stateTag
+//                .childNodes
+//                .find(prefix = nsPrefix, name = "do-on")
+//                .map {
+//                    val actionName = it.attributes.find(prefix = nsPrefix, name = "action").singleOrNull()?.nodeValue
+//                            ?: throw IllegalArgumentException("Mapache.xml file not valid")
+//                    val targetState = it.attributes.find(prefix = nsPrefix, name = "go-to").singleOrNull()?.nodeValue
+//                            ?: throw IllegalArgumentException("Mapache.xml file not valid")
+//                    val transition = it.attributes.find(prefix = nsPrefix, name = "go-to").singleOrNull()?.nodeValue
+//                            ?: TODO("Implement as empty transition")
+//
+//                    Movement(
+//                            action = actions.first { it.name == actionName },
+//                            endState = getState(targetState, states, statesTag, nsPrefix, actions),
+//                            implClass = transition
+//                    )
+//                }
+//        return stateObj
+//    }
 }

@@ -4,7 +4,6 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 
 data class TransitionDefinition(
-        val name: String,
         val typeName: ClassName,
         val wrapperTypeName: ClassName,
         val beginViewSetClass: TypeName,

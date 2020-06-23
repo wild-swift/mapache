@@ -6,7 +6,7 @@ import name.wildswift.mapache.generator.parsers.groovy.model.State
 import name.wildswift.mapache.generator.parsers.groovy.model.StateSubGraph
 
 class StateDelegate(private val state: State): GraphBaseDelegate() {
-    var movementRules: List<Triple<String, String, String>> = listOf()
+    var movementRules: List<Triple<String, Class<*>, Class<*>>> = listOf()
 
     private var sceneViewClass = ""
     private var sceneViewIndex = -1
@@ -49,7 +49,7 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
         }
     }
 
-    override fun name(): String = state.name
+    override fun name(): String = state.name.simpleName
 
     fun doFinal(actions: List<Action>, states: List<State>, parentName: String) {
         state.movements = movementRules.filter { it.first.isNotBlank() }.map { (actionName, targetStateName, transitionName) ->

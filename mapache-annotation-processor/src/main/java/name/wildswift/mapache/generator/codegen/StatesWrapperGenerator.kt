@@ -21,9 +21,6 @@ class StatesWrapperGenerator(
         private val processingEnv: ProcessingEnvironment
 ) {
 
-    val stateNames = states.map { state -> state.name to ClassName.bestGuess(state.name) }.toMap()
-
-
     private val navigationContextType = ParameterizedTypeName.get(navigationContextTypeName, actionBaseType, dependencySource)
     private val navigationContextParameter = ParameterSpec.builder(navigationContextType, "context").addAnnotation(NonNull::class.java).build()
 
@@ -59,8 +56,7 @@ class StatesWrapperGenerator(
 
             val stateRootViewType = viewGroupClass
 
-            println(state.name)
-            val thisStateViewSetType = processingEnv.elementUtils.getTypeElement(state.name).extractViewSetType()
+            val thisStateViewSetType = state.viewSetClassName
 
             val currentStateWrapperName = state.wrapperClassName
             val currentStateName = state.stateClassName

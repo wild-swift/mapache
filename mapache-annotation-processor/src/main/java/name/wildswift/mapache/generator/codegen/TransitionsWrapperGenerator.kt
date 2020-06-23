@@ -13,6 +13,7 @@ import javax.lang.model.element.Modifier
 class TransitionsWrapperGenerator(
         private val packageName: String,
         private val baseTypeName: ClassName,
+        private val emptyWrapperTypeName: ClassName,
         private val baseActionsType: ClassName,
         private val baseStatesType: ClassName,
         private val dependencySourceType: TypeName,
@@ -85,7 +86,7 @@ class TransitionsWrapperGenerator(
                 }
 
         transitions.forEach { transitionDesc ->
-            if (emptyTransitionTypeName.canonicalName() == transitionDesc.name) return@forEach
+            if (emptyTransitionTypeName == transitionDesc.typeName) return@forEach
 
             val stateTransitionRootViewType = viewGroupClass
 

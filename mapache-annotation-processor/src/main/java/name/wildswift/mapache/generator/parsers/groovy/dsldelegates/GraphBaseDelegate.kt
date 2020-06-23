@@ -32,12 +32,12 @@ abstract class GraphBaseDelegate : GroovyObject {
     }
 
     fun `$`(stateClass: Class<*>, initializer: Closure<*>) {
-        elementsRaw += State(name = stateClass.name) to initializer
+        elementsRaw += State(name = stateClass) to initializer
     }
 
     fun from(stateClass: Class<*>, initializer: Closure<*>) {
         if (initialRaw != null) throw IllegalStateException()
-        initialRaw = (State(name = stateClass.name, parameters = listOf()) to initializer).also {
+        initialRaw = (State(name = stateClass, parameters = listOf()) to initializer).also {
             elementsRaw += it
         }
     }

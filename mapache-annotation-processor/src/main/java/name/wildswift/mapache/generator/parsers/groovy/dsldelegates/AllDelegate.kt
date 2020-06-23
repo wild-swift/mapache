@@ -11,7 +11,7 @@ class AllDelegate() : GroovyObject {
     private var movements: List<Movement>? = null
         private set
 
-    var movementRules: List<Triple<String, String, String>> = listOf()
+    var movementRules: List<Triple<String, Class<*>, Class<*>>> = listOf()
 
     override fun invokeMethod(name: String, inArgs: Any?): Any? {
         val args = inArgs as? Array<Any> ?: return null

@@ -5,7 +5,7 @@ data class State(
          * Class name of state implementation
          * Class must implements special interface
          */
-        val name: String,
+        val name: Class<*>,
         /**
          * List of constructor parameters
          */

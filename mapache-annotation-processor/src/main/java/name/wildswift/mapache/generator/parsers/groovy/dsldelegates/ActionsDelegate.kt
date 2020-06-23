@@ -25,10 +25,10 @@ class ActionsDelegate : GroovyObject {
                 name,
                 args.flatMap { pr ->
                     if (pr is Class<*>)
-                        listOf(Parameter("p${index++}", pr.name))
+                        listOf(Parameter("p${index++}", pr))
                     else if (pr is Map<*, *>)
                         pr.entries.map {
-                            Parameter(it.key as String, (it.value as Class<*>).name)
+                            Parameter(it.key as String, (it.value as Class<*>))
                         }
                     else
                         throw IllegalStateException("Unable to parse action $name defenition")

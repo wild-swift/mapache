@@ -8,5 +8,5 @@ data class Parameter(
         /**
          * class name
          */
-        val type: String
+        val type: Class<*>
 )
