@@ -85,22 +85,24 @@ class TransitionsWrapperGenerator(
                             .writeTo(fileWriter)
                 }
 
+        val emptyViewTypeParameter = TypeVariableName.get("V", viewClass)
         val emptyWrapperTypeSpec = TypeSpec.classBuilder(emptyWrapperTypeName)
-                .superclass(ParameterizedTypeName.get(baseTypeName, viewClass,
-                        viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType), ParameterizedTypeName.get(baseStatesType, viewClass, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType)),
-                        viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType), ParameterizedTypeName.get(baseStatesType, viewClass, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType))
+                .superclass(ParameterizedTypeName.get(baseTypeName, emptyViewTypeParameter,
+                        viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType)),
+                        viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType))
                 ))
+                .addTypeVariable(emptyViewTypeParameter)
                 .addMethod(MethodSpec.constructorBuilder()
                         .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "from").addAnnotation(NonNull::class.java).build())
                         .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "to").addAnnotation(NonNull::class.java).build())
-                        .addStatement("super((\$1T) from, (\$1T) to)", ParameterizedTypeName.get(baseStatesType, viewClass, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType)))
+                        .addStatement("super((\$1T) from, (\$1T) to)", ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType)))
                         .build()
                 )
                 .addMethod(MethodSpec.methodBuilder(initWrappedMethodName)
-                        .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, viewClass, dependencySourceType))
+                        .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, emptyViewTypeParameter, dependencySourceType))
                         .addAnnotation(Override::class.java)
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType), "from").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, viewClass, dependencySourceType), "to").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "from").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "to").addAnnotation(NonNull::class.java).build())
                         .addStatement("return new \$T<>(from, to)", emptyTransitionTypeName)
                         .build())
                 .build()
