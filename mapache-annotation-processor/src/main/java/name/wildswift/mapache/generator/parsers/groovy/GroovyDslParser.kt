@@ -66,13 +66,17 @@ class GroovyDslParser: ModelParser {
                     stateClassName = ClassName.get(it.name),
                     wrapperClassName = wrapperClassMapping[it.name] ?: error("Internal error"),
                     parameters = it.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
-                    moveDefenition = it.movements.map { movment ->
-                        StateMoveDefinition(
-                                actionType = events.filter { it.name == movment.action.name }.first().typeName,
-                                moveParameters = movment.endState.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
-                                targetStateWrapperClass = wrapperClassMapping[movment.endState.name]
-                                        ?: error("Internal error")
-                        )
+                    moveDefenition = it.movements.mapNotNull { movment ->
+                        if (movment.action != null) {
+                            StateMoveDefinition(
+                                    actionType = events.filter { it.name == movment.action.name }.first().typeName,
+                                    moveParameters = movment.endState.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
+                                    targetStateWrapperClass = wrapperClassMapping[movment.endState.name]
+                                            ?: error("Internal error")
+                            )
+                        } else {
+                            null
+                        }
                     }
             )
         }

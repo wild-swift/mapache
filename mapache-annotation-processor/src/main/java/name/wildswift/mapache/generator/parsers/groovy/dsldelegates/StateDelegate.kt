@@ -52,15 +52,16 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
     override fun name(): String = state.name.simpleName
 
     fun doFinal(actions: List<Action>, states: List<State>, parentName: String) {
-        state.movements = movementRules.filter { it.first.isNotBlank() }.map { (actionName, targetStateName, transitionName) ->
+        state.movements = movementRules.map { (actionName, targetStateName, transitionName) ->
             val targetState = states.find { it.name == targetStateName } ?: throw IllegalArgumentException("State $targetStateName not found in $parentName")
-            val action = actions.find { it.name == actionName } ?: throw IllegalArgumentException("Action $actionName not found")
-            if (targetState.parameters == null) {
-                targetState.parameters = action.params
+            val action = if (actionName.isBlank()) null else actions.find { it.name == actionName } ?: throw IllegalArgumentException("Action $actionName not found")
+            if (action != null) {
+                if (targetState.parameters == null) {
+                    targetState.parameters = action.params
+                }
+                if (targetState.parameters?.size != action.params.size ||
+                        action.params.filterIndexed { index, parameter -> targetState.parameters?.get(index)?.type != parameter.type }.any()) throw IllegalArgumentException("State $targetState cann't be run by action $actionName")
             }
-
-            if (targetState.parameters?.size != action.params.size ||
-                    action.params.filterIndexed { index, parameter -> targetState.parameters?.get(index)?.type != parameter.type }.any()) throw IllegalArgumentException("State $targetState cann't be run by action $actionName")
 
             Movement(action, targetState, transitionName)
         }

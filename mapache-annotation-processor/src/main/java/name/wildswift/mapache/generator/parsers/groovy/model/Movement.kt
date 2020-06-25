@@ -4,7 +4,7 @@ data class Movement(
         /**
          * Action that starts from
          */
-        val action: Action,
+        val action: Action?,
         /**
          * target sate
          */
