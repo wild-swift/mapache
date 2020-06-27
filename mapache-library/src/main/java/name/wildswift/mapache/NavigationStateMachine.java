@@ -22,7 +22,7 @@ import name.wildswift.mapache.viewsets.ViewSet;
 
 public final class NavigationStateMachine<E extends Event, VR extends View, DC, S extends MState<E, ?, VR, DC> & Navigatable<E, DC, S>> {
     private final S initialState;
-    private final TransitionFactory<E, DC, VR, S> transFactory;
+    private final TransitionFactory<E, DC, S> transFactory;
     private final ViewContentMetaSource metaSource;
 
     private final EventerInternal eventerInternal;
@@ -40,9 +40,9 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
     private CancelableDebouncer<Boolean> debouncer = new CancelableDebouncer<>(500);
 
 
-    public NavigationStateMachine(S initialState, TransitionFactory<E, DC, VR, S> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
+    public NavigationStateMachine(S initialState, TransitionFactory<E, DC, ?> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
         this.initialState = initialState;
-        this.transFactory = transFactory;
+        this.transFactory = (TransitionFactory<E, DC, S>) transFactory;
         this.metaSource = metaSource;
 
         this.callToActivityBridge = new CallToActivityBridge();

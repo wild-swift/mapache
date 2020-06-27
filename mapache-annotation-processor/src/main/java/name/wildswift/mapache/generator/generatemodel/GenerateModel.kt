@@ -15,6 +15,7 @@ data class GenerateModel(
 
         val transitionsBasePackage: String,
         val baseTransitionClass: ClassName,
+        val transitionsFactoryClass: ClassName,
         val emptyTransitionClass: ClassName,
         val transitions: List<TransitionDefinition>
 )

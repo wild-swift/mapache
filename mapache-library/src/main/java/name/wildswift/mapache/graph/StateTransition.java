@@ -13,11 +13,11 @@ import name.wildswift.mapache.states.MState;
 import name.wildswift.mapache.viewsets.ViewSet;
 
 public abstract class StateTransition<E extends Event, VS_IN extends ViewSet, VS_OUT extends ViewSet, RV extends View, DC> {
-    protected final MState<E, ?, RV, ?> from;
-    protected final MState<E, ?, RV, ?> to;
+    protected final MState<E, VS_IN, RV, ?> from;
+    protected final MState<E, VS_OUT, RV, ?> to;
 
     // TODO why not use VS_IN + WS_OUT
-    public StateTransition(MState<E, ?, RV, ?> from, MState<E, ?, RV, ?> to) {
+    public StateTransition(MState<E, VS_IN, RV, DC> from, MState<E, VS_OUT, RV, DC> to) {
         this.from = from;
         this.to = to;
     }

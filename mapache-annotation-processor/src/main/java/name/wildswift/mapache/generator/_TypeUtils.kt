@@ -9,6 +9,7 @@ import name.wildswift.mapache.dafaults.EmptyStateTransition
 import name.wildswift.mapache.graph.Navigatable
 import name.wildswift.mapache.graph.StateTransition
 import name.wildswift.mapache.graph.TransitionCallback
+import name.wildswift.mapache.graph.TransitionFactory
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewSet
 import javax.lang.model.element.TypeElement
@@ -43,12 +44,14 @@ val mStateTypeName = ClassName.get(MState::class.java)
 val stateTransitionTypeName = ClassName.get(StateTransition::class.java)
 val stateTransitionCallbackTypeName = ClassName.get(TransitionCallback::class.java)
 val emptyTransitionTypeName = ClassName.get(EmptyStateTransition::class.java)
+val transitionsFactoryTypeName = ClassName.get(TransitionFactory::class.java)
 val viewSetTypeName = ClassName.get(ViewSet::class.java)
 val navigatableTypeName = ClassName.get(Navigatable::class.java)
 val navigationContextTypeName = ClassName.get(NavigationContext::class.java)
 val runnableTypeName = ClassName.get(Runnable::class.java)
 
 val contextClass = ClassName.get("android.content", "Context")
+val logTypeName = ClassName.get("android.util", "Log")
 val viewClass = ClassName.get("android.view", "View")
 val viewGroupClass = ClassName.get("android.view", "ViewGroup")
 val parcelableClass = ClassName.get("android.os", "Parcelable")

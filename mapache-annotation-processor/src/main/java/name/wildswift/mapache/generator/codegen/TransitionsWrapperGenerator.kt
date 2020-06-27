@@ -7,16 +7,17 @@ import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMe
 import name.wildswift.mapache.generator.codegen.GenerationConstants.initWrappedMethodName
 import name.wildswift.mapache.generator.generatemodel.TransitionDefinition
 import javax.annotation.processing.Filer
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
 
 class TransitionsWrapperGenerator(
         private val baseTypeName: ClassName,
         private val emptyWrapperTypeName: ClassName,
+        private val transitionsFactoryImplTypeName: ClassName,
         private val baseActionsType: ClassName,
         private val baseStatesType: ClassName,
         private val dependencySourceType: TypeName,
+        private val moduleBuildConfig: ClassName,
         private val transitions: List<TransitionDefinition>,
         private val filer: Filer
 ) {
@@ -85,6 +86,8 @@ class TransitionsWrapperGenerator(
                             .writeTo(fileWriter)
                 }
 
+        // EMPTY STATE TRANSITIONS GENERATION
+
         val emptyViewTypeParameter = TypeVariableName.get("V", viewClass)
         val emptyWrapperTypeSpec = TypeSpec.classBuilder(emptyWrapperTypeName)
                 .superclass(ParameterizedTypeName.get(baseTypeName, emptyViewTypeParameter,
@@ -115,6 +118,8 @@ class TransitionsWrapperGenerator(
                             .writeTo(fileWriter)
                 }
 
+
+        // ALL TRANSITIONS GENERATIONS
 
         transitions.forEach { transitionDesc ->
             if (emptyTransitionTypeName == transitionDesc.typeName) return@forEach
@@ -152,6 +157,56 @@ class TransitionsWrapperGenerator(
                                 .writeTo(fileWriter)
                     }
         }
+
+        // TRANSITIONS FACTORY
+
+        val mStateType = ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard)
+        val transitionsFactoryTypeSpec = TypeSpec.classBuilder(transitionsFactoryImplTypeName)
+                .addModifiers(Modifier.PUBLIC)
+                .addSuperinterface(ParameterizedTypeName.get(transitionsFactoryTypeName, baseActionsType, dependencySourceType, mStateType))
+                .addMethod(MethodSpec.methodBuilder("getTransition")
+                        .addModifiers(Modifier.PUBLIC)
+                        .addAnnotation(NonNull::class.java)
+                        .addAnnotation(Override::class.java)
+                        .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, genericWildcard, genericWildcard, genericWildcard, dependencySourceType))
+                        .addParameter(ParameterSpec.builder(mStateType, "from").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(mStateType, "to").addAnnotation(NonNull::class.java).build())
+                        .apply {
+                            CodeBlock.builder()
+                                    .also { codeBlock ->
+                                        transitions.groupBy { it.beginStateWrapperClass }.forEach { (betinStateWrapper, transitions) ->
+                                            codeBlock.beginControlFlow("if (from instanceof \$T)", betinStateWrapper)
+                                            transitions.forEach {
+                                                codeBlock.beginControlFlow("if (to instanceof \$T)", it.endStateWrapperClass)
+                                                if (it.typeName == emptyTransitionTypeName) {
+                                                    codeBlock.addStatement("return new \$T<>((\$T) from, (\$T) to)", emptyWrapperTypeName, it.beginStateWrapperClass, it.endStateWrapperClass)
+                                                } else {
+                                                    codeBlock.addStatement("return new \$T((\$T) from, (\$T) to)", it.wrapperTypeName, it.beginStateWrapperClass, it.endStateWrapperClass)
+                                                }
+                                                codeBlock.endControlFlow()
+
+                                            }
+                                            codeBlock.endControlFlow()
+                                        }
+                                    }
+                                    .build()
+                                    .also {
+                                        addCode(it)
+                                    }
+                        }
+                        .addStatement("if (\$T.DEBUG) \$T.w(getClass().getSimpleName(), \"No movement set for \" + from.getWrapped().getClass().getSimpleName() + \" to \" + to.getWrapped().getClass().getSimpleName())", moduleBuildConfig, logTypeName)
+                        .addStatement("return new \$T<>(from, to)", emptyWrapperTypeName)
+                        .build())
+                .build()
+
+        filer.createSourceFile(transitionsFactoryImplTypeName.canonicalName())
+                .openWriter()
+                .use { fileWriter ->
+                    JavaFile.builder(transitionsFactoryImplTypeName.packageName(), transitionsFactoryTypeSpec)
+                            .build()
+                            .writeTo(fileWriter)
+                }
+
 
     }
 

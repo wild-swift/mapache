@@ -77,7 +77,7 @@ class StatesMachineGenerator : AbstractProcessor() {
 
         ActionsGenerator(generationModel.eventsBasePackage, generationModel.baseEventClass, generationModel.events, processingEnv.filer).generateAll()
         StatesWrapperGenerator(generationModel.statesBasePackage, generationModel.baseStateWrappersClass, generationModel.baseEventClass, generationModel.dependencySource, generationModel.buildConfigClass, generationModel.states, processingEnv).generateAll()
-        TransitionsWrapperGenerator(generationModel.baseTransitionClass, generationModel.emptyTransitionClass, generationModel.baseEventClass, generationModel.baseStateWrappersClass, generationModel.dependencySource, generationModel.transitions, processingEnv.filer).generateAll()
+        TransitionsWrapperGenerator(generationModel.baseTransitionClass, generationModel.emptyTransitionClass, generationModel.transitionsFactoryClass, generationModel.baseEventClass, generationModel.baseStateWrappersClass, generationModel.dependencySource, generationModel.buildConfigClass, generationModel.transitions, processingEnv.filer).generateAll()
         // parser.getModel(file)
 
     }

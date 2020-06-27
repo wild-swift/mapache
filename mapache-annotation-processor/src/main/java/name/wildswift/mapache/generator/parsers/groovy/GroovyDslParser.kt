@@ -47,6 +47,7 @@ class GroovyDslParser: ModelParser {
 
                     transitionsBasePackage = parseModel.transitionsPackage,
                     baseTransitionClass = ClassName.get(parseModel.transitionsPackage, "${prefix}StateTransition"),
+                    transitionsFactoryClass = ClassName.get(parseModel.transitionsPackage, "${prefix}TransitionsFactory"),
                     emptyTransitionClass = ClassName.get(parseModel.transitionsPackage, "EmptyTransitionWrapper"),
                     transitions = transitions(parseModel.layers, parseModel.transitionsPackage, parseModel.statesPackage, processingEnv)
             )

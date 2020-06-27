@@ -16,7 +16,7 @@ import name.wildswift.mapache.viewsets.ViewSet;
 
 public class EmptyStateTransition<E extends Event, VS extends ViewSet, RV extends View, DC> extends StateTransition<E, VS, VS, RV, DC> {
 
-    public EmptyStateTransition(MState<E, ?, RV, ?> from, MState<E, ?, RV, ?> to) {
+    public EmptyStateTransition(MState<E, VS, RV, DC> from, MState<E, VS, RV, DC> to) {
         super(from, to);
     }
 
