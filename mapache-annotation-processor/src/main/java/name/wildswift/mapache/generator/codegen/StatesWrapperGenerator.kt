@@ -26,7 +26,7 @@ class StatesWrapperGenerator(
 
     @SuppressWarnings("DefaultLocale")
     fun generateAll() {
-        val rootTypeVariable = TypeVariableName.get("VR", viewClass)
+        val rootTypeVariable = TypeVariableName.get("VR", viewTypeName)
         val wrappedTypeVarible = TypeVariableName.get("MS", ParameterizedTypeName.get(mStateTypeName, actionBaseType, genericWildcard, rootTypeVariable, dependencySource))
         val getWrappedMethod = MethodSpec.methodBuilder(getWrappedMethodName)
                 .addAnnotation(NonNull::class.java)
@@ -54,7 +54,7 @@ class StatesWrapperGenerator(
 
         states.forEach { state ->
 
-            val stateRootViewType = viewGroupClass
+            val stateRootViewType = viewGroupTypeName
 
             val thisStateViewSetType = state.viewSetClassName
 
@@ -120,7 +120,7 @@ class StatesWrapperGenerator(
                             .addAnnotation(Override::class.java)
                             .addAnnotation(NonNull::class.java)
                             .addModifiers(Modifier.PUBLIC)
-                            .addParameter(ParameterSpec.builder(viewGroupClass, "rootView").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(viewGroupTypeName, "rootView").addAnnotation(NonNull::class.java).build())
                             .addParameter(navigationContextParameter)
                             .returns(thisStateViewSetType)
                             .addStatement("return \$N.setup(rootView, context)", wrappedField)

@@ -5,6 +5,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import name.wildswift.mapache.NavigationContext
+import name.wildswift.mapache.NavigationStateMachine
 import name.wildswift.mapache.dafaults.EmptyStateTransition
 import name.wildswift.mapache.graph.Navigatable
 import name.wildswift.mapache.graph.StateTransition
@@ -40,6 +41,7 @@ fun String.toType(): TypeName {
 }
 
 val genericWildcard = WildcardTypeName.subtypeOf(Object::class.java)
+
 val mStateTypeName = ClassName.get(MState::class.java)
 val stateTransitionTypeName = ClassName.get(StateTransition::class.java)
 val stateTransitionCallbackTypeName = ClassName.get(TransitionCallback::class.java)
@@ -48,12 +50,16 @@ val transitionsFactoryTypeName = ClassName.get(TransitionFactory::class.java)
 val viewSetTypeName = ClassName.get(ViewSet::class.java)
 val navigatableTypeName = ClassName.get(Navigatable::class.java)
 val navigationContextTypeName = ClassName.get(NavigationContext::class.java)
-val runnableTypeName = ClassName.get(Runnable::class.java)
+val navigationStateMachineTypeName = ClassName.get(NavigationStateMachine::class.java)
 
-val contextClass = ClassName.get("android.content", "Context")
+val runnableTypeName = ClassName.get(Runnable::class.java)
+val stringTypeName = ClassName.get(String::class.java)
+
+val contextTypeName = ClassName.get("android.content", "Context")
 val logTypeName = ClassName.get("android.util", "Log")
-val viewClass = ClassName.get("android.view", "View")
-val viewGroupClass = ClassName.get("android.view", "ViewGroup")
+val suppressLintType = ClassName.get("android.annotation", "SuppressLint")
+val viewTypeName = ClassName.get("android.view", "View")
+val viewGroupTypeName = ClassName.get("android.view", "ViewGroup")
 val parcelableClass = ClassName.get("android.os", "Parcelable")
 val bundleClass = ClassName.get("android.os", "Bundle")
 val drawableClass = ClassName.get("android.graphics.drawable", "Drawable")

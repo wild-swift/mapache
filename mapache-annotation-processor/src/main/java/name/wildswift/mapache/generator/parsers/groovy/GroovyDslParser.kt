@@ -41,6 +41,7 @@ class GroovyDslParser: ModelParser {
 
                     statesBasePackage = parseModel.statesPackage,
                     baseStateWrappersClass = ClassName.get(parseModel.statesPackage, "${prefix}MState"),
+                    rootStateWrappersClass = ClassName.get(parseModel.statesPackage, parseModel.layers.first().initialState.let { "${it.name.simpleName}Wrapper" } ),
                     states = states(parseModel.layers, parseModel.statesPackage, events, processingEnv),
                     dependencySource = parseModel.diClass.toType(),
                     buildConfigClass = ClassName.get(modulePackageName, "BuildConfig"),
@@ -49,7 +50,10 @@ class GroovyDslParser: ModelParser {
                     baseTransitionClass = ClassName.get(parseModel.transitionsPackage, "${prefix}StateTransition"),
                     transitionsFactoryClass = ClassName.get(parseModel.transitionsPackage, "${prefix}TransitionsFactory"),
                     emptyTransitionClass = ClassName.get(parseModel.transitionsPackage, "EmptyTransitionWrapper"),
-                    transitions = transitions(parseModel.layers, parseModel.transitionsPackage, parseModel.statesPackage, processingEnv)
+                    transitions = transitions(parseModel.layers, parseModel.transitionsPackage, parseModel.statesPackage, processingEnv),
+
+                    smUtilityClass = ClassName.get(parseModel.basePackageName, "${prefix}NavigationStateMachine"),
+                    viewContentMetaSourceClass = ClassName.get(parseModel.basePackageName, "${prefix}ViewContentMetaSource")
             )
         }
     }

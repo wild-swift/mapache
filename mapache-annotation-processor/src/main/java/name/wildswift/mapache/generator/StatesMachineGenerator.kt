@@ -3,6 +3,7 @@ package name.wildswift.mapache.generator
 import name.wildswift.mapache.config.ConfigType
 import name.wildswift.mapache.config.GenerateNavigation
 import name.wildswift.mapache.generator.codegen.ActionsGenerator
+import name.wildswift.mapache.generator.codegen.BaseClassGenerator
 import name.wildswift.mapache.generator.codegen.StatesWrapperGenerator
 import name.wildswift.mapache.generator.codegen.TransitionsWrapperGenerator
 import name.wildswift.mapache.generator.parsers.ModelParser
@@ -78,6 +79,7 @@ class StatesMachineGenerator : AbstractProcessor() {
         ActionsGenerator(generationModel.eventsBasePackage, generationModel.baseEventClass, generationModel.events, processingEnv.filer).generateAll()
         StatesWrapperGenerator(generationModel.statesBasePackage, generationModel.baseStateWrappersClass, generationModel.baseEventClass, generationModel.dependencySource, generationModel.buildConfigClass, generationModel.states, processingEnv).generateAll()
         TransitionsWrapperGenerator(generationModel.baseTransitionClass, generationModel.emptyTransitionClass, generationModel.transitionsFactoryClass, generationModel.baseEventClass, generationModel.baseStateWrappersClass, generationModel.dependencySource, generationModel.buildConfigClass, generationModel.transitions, processingEnv.filer).generateAll()
+        BaseClassGenerator(generationModel.smUtilityClass, generationModel.baseEventClass, generationModel.rootStateWrappersClass, generationModel.baseStateWrappersClass, generationModel.transitionsFactoryClass, generationModel.viewContentMetaSourceClass, generationModel.dependencySource, processingEnv.filer).generateAll()
         // parser.getModel(file)
 
     }

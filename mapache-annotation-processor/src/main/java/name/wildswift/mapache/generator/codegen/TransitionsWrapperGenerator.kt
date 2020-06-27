@@ -28,7 +28,7 @@ class TransitionsWrapperGenerator(
     private val navigationContextParameter = ParameterSpec.builder(navigationContextType, "context").addAnnotation(NonNull::class.java).build()
 
     fun generateAll() {
-        val rootViewType = TypeVariableName.get("VR", viewClass)
+        val rootViewType = TypeVariableName.get("VR", viewTypeName)
 
         val inViewSetType = TypeVariableName.get("VS_IN", viewSetTypeName)
         val inStateType = TypeVariableName.get("S_IN", ParameterizedTypeName.get(mStateTypeName, baseActionsType, inViewSetType, rootViewType, dependencySourceType))
@@ -88,7 +88,7 @@ class TransitionsWrapperGenerator(
 
         // EMPTY STATE TRANSITIONS GENERATION
 
-        val emptyViewTypeParameter = TypeVariableName.get("V", viewClass)
+        val emptyViewTypeParameter = TypeVariableName.get("V", viewTypeName)
         val emptyWrapperTypeSpec = TypeSpec.classBuilder(emptyWrapperTypeName)
                 .superclass(ParameterizedTypeName.get(baseTypeName, emptyViewTypeParameter,
                         viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType)),
@@ -124,7 +124,7 @@ class TransitionsWrapperGenerator(
         transitions.forEach { transitionDesc ->
             if (emptyTransitionTypeName == transitionDesc.typeName) return@forEach
 
-            val stateTransitionRootViewType = viewGroupClass
+            val stateTransitionRootViewType = viewGroupTypeName
 
             val transitionWrapperTypeName = transitionDesc.wrapperTypeName
 
