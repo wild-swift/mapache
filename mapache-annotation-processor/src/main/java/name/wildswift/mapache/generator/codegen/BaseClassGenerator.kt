@@ -5,12 +5,6 @@ import name.wildswift.mapache.generator.*
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 
-
-/*
-    public static NavigationStateMachine<AlarmClockEvent, ViewGroup, ServicesRepository, AlarmClockMState<ViewGroup, ?>> getInstance(Context context) {
-        return (NavigationStateMachine<AlarmClockEvent, ViewGroup, ServicesRepository, AlarmClockMState<ViewGroup, ?>>) context.getSystemService(NAVIGATION_STATE_MACHINE);
-    }
-*/
 class BaseClassGenerator(
         private val smTypeName: ClassName,
         private val actionBaseType: ClassName,
