@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import name.wildswift.mapache.events.Eventer;
 import name.wildswift.mapache.osintegration.PermissionsCallback;
 import name.wildswift.mapache.osintegration.SystemCalls;
 
 public class CallToActivityBridge {
+    private final Eventer eventer;
     private final SystemCalls systemCaller = new SystemCallsInternal();
     private final ActivityEventsCallbackInternal activityEventsCallback = new ActivityEventsCallbackInternal();
     private final Object runTasksMutex = new Object();
@@ -24,6 +26,10 @@ public class CallToActivityBridge {
 
     private ActivityCaller activityCaller = null;
     private int requestActivityCounter = 1;
+
+    public CallToActivityBridge(Eventer eventer) {
+        this.eventer = eventer;
+    }
 
     @NonNull
     public SystemCalls getSystemCaller() {
@@ -67,12 +73,17 @@ public class CallToActivityBridge {
     private class ActivityEventsCallbackInternal implements ActivityEventsCallback {
         @Override
         public void onBackPressed() {
-
+            if (!eventer.onBack()) {
+                activityCaller.finish();
+            }
         }
 
         @Override
         public void onPermissionsResult(int code, Map<String, Integer> result) {
-
+            PermissionsCallback permissionsCallback = permissionsCallbacks.get(code);
+            if (permissionsCallback != null) {
+                permissionsCallback.onPermissionsResponse(result);
+            }
         }
 
         @Override

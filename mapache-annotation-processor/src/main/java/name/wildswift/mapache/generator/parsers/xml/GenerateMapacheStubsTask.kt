@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator
+package name.wildswift.mapache.generator.parsers.xml
 
 import org.w3c.dom.Document
 import javax.xml.parsers.DocumentBuilderFactory

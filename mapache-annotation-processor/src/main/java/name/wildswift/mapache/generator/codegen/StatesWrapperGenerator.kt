@@ -70,6 +70,30 @@ class StatesWrapperGenerator(
                     .superclass(ParameterizedTypeName.get(baseTypeName, stateRootViewType, currentStateName))
                     .addField(wrappedField)
                     /*
+                        Add constructor fields
+                     */
+                    .also { builder ->
+                        parameterList.forEach { parameter ->
+                            builder.addField(FieldSpec.builder(parameter.type, parameter.name).addModifiers(Modifier.PRIVATE, Modifier.FINAL).build())
+                        }
+                    }
+                    .addMethod(MethodSpec
+                            .constructorBuilder()
+                            .addModifiers(Modifier.PRIVATE)
+                            .addParameters(
+                                    parameterList.map {
+                                        ParameterSpec.builder(it.type, it.name).build()
+                                    }
+                            )
+                            .also { builder ->
+                                parameterList.forEach { parameter ->
+                                    builder.addStatement("this.${parameter.name} = ${parameter.name}")
+                                }
+                            }
+                            .addStatement("\$N = new \$T(${parameterList.joinToString { it.name }})", wrappedField, currentStateName)
+                            .build()
+                    )
+                    /*
                       @Override
                       @NonNull
                       public BuyStep1State getWrapped() {
@@ -161,6 +185,27 @@ class StatesWrapperGenerator(
                             .addStatement("return \$N.start(context)", wrappedField)
                             .build()
                     )
+                    /*
+                      @Nullable
+                      @Override
+                      public BackStackEntry<BuyStep1StateWrapper> getBackStackEntry() {
+                        return new BackStackEntry<>(BuyStep1StateWrapper.class, new Object[]{ tiker });
+                      }
+                     */
+                    .addMethod(MethodSpec.methodBuilder("getBackStackEntry")
+                            .addAnnotation(Nullable::class.java)
+                            .addAnnotation(Override::class.java)
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(ParameterizedTypeName.get(backStackEntryTypeName, currentStateWrapperName))
+                            .also {
+                                if(state.addToBackStack) {
+                                    it.addStatement("return new \$T<>(\$T.class, new \$T[]{ ${parameterList.joinToString { "this.${it.name}" }} })", backStackEntryTypeName, currentStateWrapperName, serializableTypeName)
+                                } else {
+                                    it.addStatement("return null")
+                                }
+                            }
+                            .build()
+                    )
 
             if (parameterList.isEmpty()) {
                 val instanceField = FieldSpec.builder(currentStateWrapperName, "instance", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL).initializer("new \$T()", currentStateWrapperName).build()
@@ -171,12 +216,6 @@ class StatesWrapperGenerator(
                                 .returns(currentStateWrapperName)
                                 .addStatement("return \$N", instanceField)
                                 .build())
-                        .addMethod(MethodSpec
-                                .constructorBuilder()
-                                .addModifiers(Modifier.PRIVATE)
-                                .addStatement("\$N = new \$T()", wrappedField, currentStateName)
-                                .build()
-                        )
             } else {
                 stateWrapperTypeSpecBuilder
                         .addMethod(MethodSpec.methodBuilder(createInstanceMethodName)
@@ -189,17 +228,6 @@ class StatesWrapperGenerator(
                                 .returns(currentStateWrapperName)
                                 .addStatement("return new \$T(${parameterList.joinToString { it.name }})", currentStateWrapperName)
                                 .build())
-                        .addMethod(MethodSpec
-                                .constructorBuilder()
-                                .addModifiers(Modifier.PRIVATE)
-                                .addParameters(
-                                        parameterList.map {
-                                            ParameterSpec.builder(it.type, it.name).build()
-                                        }
-                                )
-                                .addStatement("\$N = new \$T(${parameterList.joinToString { it.name }})", wrappedField, currentStateName)
-                                .build()
-                        )
             }
 
             processingEnv.filer.createSourceFile(currentStateWrapperName.canonicalName())

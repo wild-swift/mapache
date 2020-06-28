@@ -37,7 +37,7 @@ class ReviewBuyState(val tiker:String, val amount: Float, val paymentType: Int):
                 cryptoAmount = amount / meta.currencyRate
         )
         rootView.upClick = {
-
+            context.eventer.onBack()
         }
         return Runnable {
             rootView.upClick = null

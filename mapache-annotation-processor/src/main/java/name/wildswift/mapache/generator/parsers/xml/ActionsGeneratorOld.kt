@@ -1,8 +1,6 @@
-package name.wildswift.mapache.generator.codegen
+package name.wildswift.mapache.generator.parsers.xml
 
 import com.squareup.javapoet.*
-import name.wildswift.mapache.generator.find
-import name.wildswift.mapache.generator.resolveType
 import name.wildswift.mapache.generator.singletone
 import org.w3c.dom.Node
 import java.io.File

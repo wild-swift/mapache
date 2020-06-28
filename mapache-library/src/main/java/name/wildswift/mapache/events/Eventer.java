@@ -4,4 +4,5 @@ import name.wildswift.mapache.events.Event;
 
 public interface Eventer<E extends Event> {
     boolean onNewEvent(E event);
+    boolean onBack();
 }

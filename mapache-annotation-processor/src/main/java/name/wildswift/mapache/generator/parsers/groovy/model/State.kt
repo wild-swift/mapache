@@ -6,6 +6,8 @@ data class State(
          * Class must implements special interface
          */
         val name: Class<*>,
+
+        var addToBackStack: Boolean = true,
         /**
          * List of constructor parameters
          */

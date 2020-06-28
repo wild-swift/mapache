@@ -11,6 +11,7 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
     private var sceneViewClass = ""
     private var sceneViewIndex = -1
     var singleInBackStack = false
+    var addToBackStack = true
 
     fun `when`(actionClass: Class<*>): MovementRuleBuilder {
         return MovementRuleBuilder(actionClass.name) {
@@ -35,6 +36,10 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
 
     fun singleInBackStack(value: Boolean) {
         singleInBackStack = value
+    }
+
+    fun addToBackStack(value: Boolean) {
+        addToBackStack = value
     }
 
 
@@ -69,6 +74,7 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
         doFinal(actions)
 
         state.child = buildStateGraph()
+        state.addToBackStack = addToBackStack
     }
 
 }

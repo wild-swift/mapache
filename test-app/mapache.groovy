@@ -4,7 +4,7 @@ import name.wildswift.testapp.navigation.BuyToReviewTransition
 import name.wildswift.testapp.navigation.BuyToRootTransition
 import name.wildswift.testapp.navigation.PrimaryState
 import name.wildswift.testapp.navigation.ReviewBuyState
-import name.wildswift.testapp.navigation.ReviewToBuyTransition
+import name.wildswift.testapp.navigation.ReviewToPrimaryTransition
 import name.wildswift.testapp.navigation.RootToBuyTransition
 
 basePackageName "name.wildswift.testapp.generated"
@@ -27,11 +27,13 @@ layer {
     }
 
     $(BuyStep1State) {
+        addToBackStack false
+
         when ProceedBuy go ReviewBuyState with BuyToReviewTransition
         go PrimaryState with BuyToRootTransition
     }
 
     $(ReviewBuyState) {
-        go BuyStep1State with ReviewToBuyTransition
+        go PrimaryState with ReviewToPrimaryTransition
     }
 }

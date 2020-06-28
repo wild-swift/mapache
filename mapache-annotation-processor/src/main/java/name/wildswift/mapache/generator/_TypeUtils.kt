@@ -7,12 +7,10 @@ import com.squareup.javapoet.WildcardTypeName
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.NavigationStateMachine
 import name.wildswift.mapache.dafaults.EmptyStateTransition
-import name.wildswift.mapache.graph.Navigatable
-import name.wildswift.mapache.graph.StateTransition
-import name.wildswift.mapache.graph.TransitionCallback
-import name.wildswift.mapache.graph.TransitionFactory
+import name.wildswift.mapache.graph.*
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewSet
+import java.io.Serializable
 import javax.lang.model.element.TypeElement
 
 fun String.toType(): TypeName {
@@ -51,9 +49,11 @@ val viewSetTypeName = ClassName.get(ViewSet::class.java)
 val navigatableTypeName = ClassName.get(Navigatable::class.java)
 val navigationContextTypeName = ClassName.get(NavigationContext::class.java)
 val navigationStateMachineTypeName = ClassName.get(NavigationStateMachine::class.java)
+val backStackEntryTypeName = ClassName.get(BackStackEntry::class.java)
 
 val runnableTypeName = ClassName.get(Runnable::class.java)
 val stringTypeName = ClassName.get(String::class.java)
+val serializableTypeName = ClassName.get(Serializable::class.java)
 
 val contextTypeName = ClassName.get("android.content", "Context")
 val logTypeName = ClassName.get("android.util", "Log")

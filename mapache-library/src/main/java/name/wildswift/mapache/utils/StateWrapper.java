@@ -71,6 +71,11 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, VR exte
         return false;
     }
 
+    @Override
+    public boolean onBack() {
+        return false;
+    }
+
     private class StartStopCallable implements Callable<Runnable> {
         @Override
         public Runnable call() {

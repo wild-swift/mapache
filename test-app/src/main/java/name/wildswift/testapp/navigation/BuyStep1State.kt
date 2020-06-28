@@ -43,6 +43,7 @@ class BuyStep1State(val tiker:String): MState<TestAppEvent, ViewCouple<RootView,
             context.eventer.onNewEvent(ProceedBuy.newInstance(tiker, 50f, buyCurrencyStep1View.viewModel.paymentType))
         }
         rootView.upClick = {
+            context.eventer.onBack()
         }
         return Runnable {
             buyCurrencyStep1View.selectCredit = null

@@ -5,11 +5,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import name.wildswift.mapache.contextintegration.CallToActivityBridge;
 import name.wildswift.mapache.debouncers.CancelableDebouncer;
 import name.wildswift.mapache.debouncers.DebounceCallback;
 import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.events.Eventer;
+import name.wildswift.mapache.graph.BackStackEntry;
 import name.wildswift.mapache.graph.Navigatable;
 import name.wildswift.mapache.contextintegration.ActivityCaller;
 import name.wildswift.mapache.graph.StateTransition;
@@ -34,10 +38,11 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
 
     private StateWrapper<E, ?, DC, VR, S> currentState;
     private VR currentRoot;
+    private List<BackStackEntry<S>> backStack = new ArrayList<>();
 
     private boolean isPaused = false;
 
-    private CancelableDebouncer<Boolean> debouncer = new CancelableDebouncer<>(500);
+    private CancelableDebouncer<Boolean> startStopDebouncer = new CancelableDebouncer<>(500);
 
 
     public NavigationStateMachine(S initialState, TransitionFactory<E, DC, ?> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
@@ -45,8 +50,8 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         this.transFactory = (TransitionFactory<E, DC, S>) transFactory;
         this.metaSource = metaSource;
 
-        this.callToActivityBridge = new CallToActivityBridge();
         this.eventerInternal = new EventerInternal();
+        this.callToActivityBridge = new CallToActivityBridge(eventerInternal);
         viewsContents = new ViewContentHolderImpl<>(metaSource);
         this.navigationContext = new NavigationContext<>(diContext, eventerInternal, viewsContents, callToActivityBridge.getSystemCaller());
 
@@ -54,7 +59,7 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         viewsContents.onNewState(initialState);
         currentState.start();
 
-        debouncer.addCallback(new ChangePauseStateListener());
+        startStopDebouncer.addCallback(new ChangePauseStateListener());
     }
 
     public void attachToActivity(Activity activity, ActivityCaller caller) {
@@ -70,18 +75,18 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
     public void resume() {
         if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("resume should be run on main thread");
         if (isPaused) {
-            debouncer.onNewValue(false);
+            startStopDebouncer.onNewValue(false);
         } else {
-            debouncer.cancel();
+            startStopDebouncer.cancel();
         }
     }
 
     public void pause() {
         if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("pause should be run on main thread");
         if (!isPaused) {
-            debouncer.onNewValue(true);
+            startStopDebouncer.onNewValue(true);
         } else {
-            debouncer.cancel();
+            startStopDebouncer.cancel();
         }
     }
 
@@ -99,15 +104,36 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         S nextState = currentState.getWrapped().getNextState(event);
         if (nextState == null) return false;
 
+        moveToState(nextState);
+        return true;
+    }
+
+    private boolean onBack() {
+        if (currentState.onBack()) return true;
+
+        if (backStack.size() == 0) return false;
+
+        S nextState = backStack.get(backStack.size() - 1).createInstance();
+
+        moveToState(nextState);
+
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void moveToState(S nextState) {
         StateTransition<E, ViewSet, ViewSet, VR, DC> transition = (StateTransition<E, ViewSet, ViewSet, VR, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);
 
         currentState.stop();
+        BackStackEntry<S> backStackEntry = (BackStackEntry<S>) currentState.getWrapped().getBackStackEntry();
+        if (backStackEntry != null) {
+            backStack.add(backStackEntry);
+        }
         if (currentRoot == null) {
             mainThreadHandler.post(new SetNewStateCommand(nextState, null));
         } else {
             mainThreadHandler.post(new HandleStartTransition(transition, nextState));
         }
-        return true;
     }
 
     private void stopStateMachineExecution() {
@@ -122,6 +148,11 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         @Override
         public boolean onNewEvent(E event) {
             return NavigationStateMachine.this.onNewEvent(event);
+        }
+
+        @Override
+        public boolean onBack() {
+            return NavigationStateMachine.this.onBack();
         }
     }
 

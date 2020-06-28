@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator
+package name.wildswift.mapache.generator.parsers.xml
 
 import name.wildswift.mapache.generator.parsers.groovy.model.*
 import org.w3c.dom.Node
@@ -66,7 +66,7 @@ object DomToInternalModelConverter {
 
                     StateMachineLayer(
                             contentIdResName,
-                            State(Int::class.java, listOf(), null),
+                            State(Int::class.java, true, listOf(), null),
 //                            getState(initialStateName, states, statesTag, nsPrefix, actions),
                             true
                     )

@@ -5,7 +5,6 @@ import com.squareup.javapoet.TypeName
 import groovy.lang.Binding
 import groovy.lang.GroovyShell
 import groovy.util.DelegatingScript
-import name.wildswift.mapache.generator.EmptyClassesClassLoader
 import name.wildswift.mapache.generator.extractViewSetType
 import name.wildswift.mapache.generator.generatemodel.*
 import name.wildswift.mapache.generator.parsers.ModelParser
@@ -71,6 +70,7 @@ class GroovyDslParser: ModelParser {
                     stateClassName = ClassName.get(it.name),
                     wrapperClassName = wrapperClassMapping[it.name] ?: error("Internal error"),
                     parameters = it.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
+                    addToBackStack = it.addToBackStack,
                     moveDefenition = it.movements.mapNotNull { movment ->
                         if (movment.action != null) {
                             StateMoveDefinition(

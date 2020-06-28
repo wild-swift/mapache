@@ -3,6 +3,7 @@ package name.wildswift.mapache.generator
 import groovy.lang.Binding
 import groovy.lang.GroovyShell
 import groovy.util.DelegatingScript
+import name.wildswift.mapache.generator.parsers.groovy.EmptyClassesClassLoader
 import name.wildswift.mapache.generator.parsers.groovy.dsldelegates.MapacheGroovyDslDelegate
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.junit.Assert

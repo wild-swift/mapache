@@ -14,6 +14,8 @@ data class StateDefinition(
          */
         val parameters: List<ParameterDefinition>,
 
+        val addToBackStack: Boolean,
+
         val moveDefenition: List<StateMoveDefinition>
 ) {
 

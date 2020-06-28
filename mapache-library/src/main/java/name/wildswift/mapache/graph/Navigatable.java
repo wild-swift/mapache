@@ -13,4 +13,5 @@ import name.wildswift.mapache.viewsets.ViewSet;
 public interface Navigatable<E extends Event, DC, NS extends MState<E, ? extends ViewSet, ? extends View, DC> & Navigatable<E, DC, NS>> {
     // TODO think about specify view sets
     @Nullable NS getNextState(@NonNull E e);
+    @Nullable BackStackEntry<? extends NS> getBackStackEntry();
 }

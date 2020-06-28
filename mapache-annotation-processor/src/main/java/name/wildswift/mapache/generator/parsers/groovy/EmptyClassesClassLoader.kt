@@ -1,4 +1,4 @@
-package name.wildswift.mapache.generator
+package name.wildswift.mapache.generator.parsers.groovy
 
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
