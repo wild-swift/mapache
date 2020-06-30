@@ -104,7 +104,7 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         S nextState = currentState.getWrapped().getNextState(event);
         if (nextState == null) return false;
 
-        moveToState(nextState);
+        moveToState(nextState, true);
         return true;
     }
 
@@ -114,20 +114,23 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         if (backStack.size() == 0) return false;
 
         S nextState = backStack.get(backStack.size() - 1).createInstance();
+        backStack.remove(backStack.size() - 1);
 
-        moveToState(nextState);
+        moveToState(nextState, false);
 
         return true;
     }
 
     @SuppressWarnings("unchecked")
-    private void moveToState(S nextState) {
+    private void moveToState(S nextState,boolean addToBackStack) {
         StateTransition<E, ViewSet, ViewSet, VR, DC> transition = (StateTransition<E, ViewSet, ViewSet, VR, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);
 
         currentState.stop();
-        BackStackEntry<S> backStackEntry = (BackStackEntry<S>) currentState.getWrapped().getBackStackEntry();
-        if (backStackEntry != null) {
-            backStack.add(backStackEntry);
+        if (addToBackStack) {
+            BackStackEntry<S> backStackEntry = (BackStackEntry<S>) currentState.getWrapped().getBackStackEntry();
+            if (backStackEntry != null) {
+                backStack.add(backStackEntry);
+            }
         }
         if (currentRoot == null) {
             mainThreadHandler.post(new SetNewStateCommand(nextState, null));

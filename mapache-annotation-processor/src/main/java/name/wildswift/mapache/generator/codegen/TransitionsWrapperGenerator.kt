@@ -13,6 +13,7 @@ import javax.lang.model.element.Modifier
 class TransitionsWrapperGenerator(
         private val baseTypeName: ClassName,
         private val emptyWrapperTypeName: ClassName,
+        private val defaultWrapperTypeName: ClassName,
         private val transitionsFactoryImplTypeName: ClassName,
         private val baseActionsType: ClassName,
         private val baseStatesType: ClassName,
@@ -119,10 +120,44 @@ class TransitionsWrapperGenerator(
                 }
 
 
+        // DEFAULT STATE TRANSITIONS GENERATION
+
+        val defaultViewTypeParameter = TypeVariableName.get("V", viewTypeName)
+        val defaultWrapperTypeSpec = TypeSpec.classBuilder(defaultWrapperTypeName)
+                .superclass(ParameterizedTypeName.get(baseTypeName, defaultViewTypeParameter,
+                        viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType)),
+                        viewSetTypeName, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType))
+                ))
+                .addTypeVariable(emptyViewTypeParameter)
+                .addMethod(MethodSpec.constructorBuilder()
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "from").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "to").addAnnotation(NonNull::class.java).build())
+                        .addStatement("super((\$1T) from, (\$1T) to)", ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType)))
+                        .build()
+                )
+                .addMethod(MethodSpec.methodBuilder(initWrappedMethodName)
+                        .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, emptyViewTypeParameter, dependencySourceType))
+                        .addAnnotation(Override::class.java)
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "from").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "to").addAnnotation(NonNull::class.java).build())
+                        .addStatement("return new \$T<>(from, to)", defaultTransitionTypeName)
+                        .build())
+                .build()
+
+        filer.createSourceFile(defaultWrapperTypeName.canonicalName())
+                .openWriter()
+                .use { fileWriter ->
+                    JavaFile.builder(defaultWrapperTypeName.packageName(), defaultWrapperTypeSpec)
+                            .build()
+                            .writeTo(fileWriter)
+                }
+
+
         // ALL TRANSITIONS GENERATIONS
 
         transitions.forEach { transitionDesc ->
             if (emptyTransitionTypeName == transitionDesc.typeName) return@forEach
+            if (defaultTransitionTypeName == transitionDesc.typeName) return@forEach
 
             val stateTransitionRootViewType = viewGroupTypeName
 
@@ -195,7 +230,7 @@ class TransitionsWrapperGenerator(
                                     }
                         }
                         .addStatement("if (\$T.DEBUG) \$T.w(getClass().getSimpleName(), \"No movement set for \" + from.getWrapped().getClass().getSimpleName() + \" to \" + to.getWrapped().getClass().getSimpleName())", moduleBuildConfig, logTypeName)
-                        .addStatement("return new \$T<>(from, to)", emptyWrapperTypeName)
+                        .addStatement("return new \$T<>(from, to)", defaultWrapperTypeName)
                         .build())
                 .build()
 

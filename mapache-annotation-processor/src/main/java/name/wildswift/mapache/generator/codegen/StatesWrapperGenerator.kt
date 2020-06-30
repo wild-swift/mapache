@@ -222,7 +222,8 @@ class StatesWrapperGenerator(
                                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                 .addParameters(
                                         parameterList.map {
-                                            ParameterSpec.builder(it.type, it.name).build()
+                                            // use box types to simplify search this method by refltction
+                                            ParameterSpec.builder(it.type.let { if (it.isPrimitive) it.box() else it }, it.name).build()
                                         }
                                 )
                                 .returns(currentStateWrapperName)

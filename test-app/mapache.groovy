@@ -27,7 +27,7 @@ layer {
     }
 
     $(BuyStep1State) {
-        addToBackStack false
+        addToBackStack true
 
         when ProceedBuy go ReviewBuyState with BuyToReviewTransition
         go PrimaryState with BuyToRootTransition

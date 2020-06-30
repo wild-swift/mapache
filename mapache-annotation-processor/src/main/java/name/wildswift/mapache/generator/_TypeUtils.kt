@@ -6,6 +6,7 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.NavigationStateMachine
+import name.wildswift.mapache.dafaults.DefaultStateTransition
 import name.wildswift.mapache.dafaults.EmptyStateTransition
 import name.wildswift.mapache.graph.*
 import name.wildswift.mapache.states.MState
@@ -44,6 +45,7 @@ val mStateTypeName = ClassName.get(MState::class.java)
 val stateTransitionTypeName = ClassName.get(StateTransition::class.java)
 val stateTransitionCallbackTypeName = ClassName.get(TransitionCallback::class.java)
 val emptyTransitionTypeName = ClassName.get(EmptyStateTransition::class.java)
+val defaultTransitionTypeName = ClassName.get(DefaultStateTransition::class.java)
 val transitionsFactoryTypeName = ClassName.get(TransitionFactory::class.java)
 val viewSetTypeName = ClassName.get(ViewSet::class.java)
 val navigatableTypeName = ClassName.get(Navigatable::class.java)
