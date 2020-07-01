@@ -7,8 +7,11 @@ import androidx.annotation.Nullable;
 
 public interface ViewContentHolder {
     @Nullable
-    <VS extends ViewContent<?>> VS getByView(@NonNull Class<VS> clazz);
+    <V extends View, VS extends ViewContent<V>> VS getByView(@NonNull Class<V> clazz);
 
     @Nullable
-    <VS extends ViewContent<?>> VS getData(@NonNull Class<VS> clazz, String name);
+    <VS extends ViewContent<?>> VS getByClass(@NonNull Class<VS> clazz);
+
+    @Nullable
+    <VS extends ViewContent<?>> VS getByName(@NonNull Class<VS> clazz, String name);
 }
