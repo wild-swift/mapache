@@ -6,6 +6,7 @@ import groovy.lang.Binding
 import groovy.lang.GroovyShell
 import groovy.util.DelegatingScript
 import name.wildswift.mapache.generator.extractViewSetType
+import name.wildswift.mapache.generator.extractViewTypeFromViewContent
 import name.wildswift.mapache.generator.generatemodel.*
 import name.wildswift.mapache.generator.parsers.ModelParser
 import name.wildswift.mapache.generator.parsers.groovy.dsldelegates.MapacheGroovyDslDelegate
@@ -53,7 +54,8 @@ class GroovyDslParser: ModelParser {
                     transitions = transitions(parseModel.layers, parseModel.transitionsPackage, parseModel.statesPackage, processingEnv),
 
                     smUtilityClass = ClassName.get(parseModel.basePackageName, "${prefix}NavigationStateMachine"),
-                    viewContentMetaSourceClass = ClassName.get(parseModel.basePackageName, "${prefix}ViewContentMetaSource")
+                    viewContentMetaSourceClass = ClassName.get(parseModel.basePackageName, "${prefix}ViewContentMetaSource"),
+                    viewContents = viewContentHolders(parseModel.layers, parseModel.statesPackage, processingEnv)
             )
         }
     }
@@ -85,6 +87,26 @@ class GroovyDslParser: ModelParser {
                         }
                     }
             )
+        }
+    }
+
+    fun viewContentHolders(layers: List<StateMachineLayer>, packageName: String, processingEnv: ProcessingEnvironment): List<ViewContentDefinition> {
+        val states = layers.flatMap {
+            val states = mutableListOf<State>()
+            addStates(it.initialState, states)
+            states.toList()
+        }
+        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.simpleName}Wrapper") }.toMap()
+        return states.flatMap { state ->
+            state.viewModels.map { defentition ->
+                ViewContentDefinition(
+                        typeName = ClassName.get(defentition.type),
+                        viewType = processingEnv.elementUtils.getTypeElement(defentition.type.canonicalName).extractViewTypeFromViewContent(),
+                        name = defentition.name,
+                        default = defentition.default,
+                        targetState = wrapperClassMapping[state.name] ?: error("Internal error")
+                )
+            }
         }
     }
 

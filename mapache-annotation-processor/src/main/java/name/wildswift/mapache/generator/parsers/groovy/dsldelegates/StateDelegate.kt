@@ -1,14 +1,9 @@
 package name.wildswift.mapache.generator.parsers.groovy.dsldelegates
 
-import name.wildswift.mapache.generator.parsers.groovy.model.Action
-import name.wildswift.mapache.generator.parsers.groovy.model.Movement
-import name.wildswift.mapache.generator.parsers.groovy.model.State
-import name.wildswift.mapache.generator.parsers.groovy.model.StateSubGraph
+import name.wildswift.mapache.generator.parsers.groovy.model.*
 
 class StateDelegate(private val state: State): GraphBaseDelegate() {
     var movementRules: List<Triple<String, Class<*>, Class<*>>> = listOf()
-
-    var viewContentHolders = listOf<Class<*>>()
 
     private var sceneViewClass = ""
     private var sceneViewIndex = -1
@@ -44,8 +39,12 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
         addToBackStack = value
     }
 
-    fun content(clazz: Class<*>) {
-        viewContentHolders += clazz
+    fun content(vararg clazz: Class<*>) {
+        state.viewModels += clazz.map { ViewModelHolderDef(null, it, false) }
+    }
+
+    fun content(values: Map<String, Class<*>>) {
+        state.viewModels += values.map { ViewModelHolderDef(it.key, it.value, false) }
     }
 
 

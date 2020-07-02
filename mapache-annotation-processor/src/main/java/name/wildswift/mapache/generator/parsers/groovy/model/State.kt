@@ -15,7 +15,9 @@ data class State(
         /**
          * Child state machine
          */
-        var child: StateSubGraph? = null
+        var child: StateSubGraph? = null,
+
+        var viewModels: Set<ViewModelHolderDef> = setOf()
 ) {
         /**
          * List of acceptable actions with rules

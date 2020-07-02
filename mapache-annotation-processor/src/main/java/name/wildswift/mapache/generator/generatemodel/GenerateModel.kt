@@ -22,5 +22,6 @@ data class GenerateModel(
         val transitions: List<TransitionDefinition>,
 
         val smUtilityClass: ClassName,
-        val viewContentMetaSourceClass: ClassName
+        val viewContentMetaSourceClass: ClassName,
+        val viewContents: List<ViewContentDefinition>
 )

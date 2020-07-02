@@ -10,9 +10,16 @@ import name.wildswift.mapache.dafaults.DefaultStateTransition
 import name.wildswift.mapache.dafaults.EmptyStateTransition
 import name.wildswift.mapache.graph.*
 import name.wildswift.mapache.states.MState
+import name.wildswift.mapache.viewcontent.ViewContent
+import name.wildswift.mapache.viewcontent.ViewContentHolder
+import name.wildswift.mapache.viewcontent.ViewContentMeta
+import name.wildswift.mapache.viewcontent.ViewContentMetaSource
 import name.wildswift.mapache.viewsets.ViewSet
 import java.io.Serializable
+import java.util.*
 import javax.lang.model.element.TypeElement
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 fun String.toType(): TypeName {
     if (equals("void")) return TypeName.VOID
@@ -52,10 +59,19 @@ val navigatableTypeName = ClassName.get(Navigatable::class.java)
 val navigationContextTypeName = ClassName.get(NavigationContext::class.java)
 val navigationStateMachineTypeName = ClassName.get(NavigationStateMachine::class.java)
 val backStackEntryTypeName = ClassName.get(BackStackEntry::class.java)
+val viewContentTypeName = ClassName.get(ViewContent::class.java)
+val viewContentMetaSourceTypeName = ClassName.get(ViewContentMetaSource::class.java)
+val viewContentMetaTypeName = ClassName.get(ViewContentMeta::class.java)
 
 val runnableTypeName = ClassName.get(Runnable::class.java)
 val stringTypeName = ClassName.get(String::class.java)
 val serializableTypeName = ClassName.get(Serializable::class.java)
+val setTypeName = ClassName.get(Set::class.java)
+val hashSetTypeName = ClassName.get(HashSet::class.java)
+val mapTypeName = ClassName.get(Map::class.java)
+val hashMapTypeName = ClassName.get(HashMap::class.java)
+val classTypeName = ClassName.get(Class::class.java)
+val collectionsTypeName = ClassName.get(Collections::class.java)
 
 val contextTypeName = ClassName.get("android.content", "Context")
 val logTypeName = ClassName.get("android.util", "Log")
@@ -75,11 +91,22 @@ val recyclerDataObserverClass = ClassName.get("androidx.recyclerview.widget", "R
 
 fun TypeElement.extractViewSetType(): TypeName = interfaces
         ?.mapNotNull { TypeName.get(it) as? ParameterizedTypeName }
-        ?.firstOrNull { (it as? ParameterizedTypeName)?.rawType == mStateTypeName }
+        ?.firstOrNull { it.rawType == mStateTypeName }
         .let {
             it ?: error("Class ${qualifiedName} not implements ${mStateTypeName.canonicalName()}")
         }
         .typeArguments
         .apply { check(size == 4) }
         .get(1)
+        ?: error("Internal error")
+
+fun TypeElement.extractViewTypeFromViewContent(): TypeName = interfaces
+        ?.mapNotNull { TypeName.get(it) as? ParameterizedTypeName }
+        ?.firstOrNull { it.rawType == viewContentTypeName }
+        .let {
+            it ?: error("Class ${qualifiedName} not implements ${viewContentTypeName.canonicalName()}")
+        }
+        .typeArguments
+        .apply { check(size == 1) }
+        .get(0)
         ?: error("Internal error")
