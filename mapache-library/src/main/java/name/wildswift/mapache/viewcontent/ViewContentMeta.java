@@ -5,25 +5,25 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class ViewContentMeta {
-    private final Class<View> viewClass;
-    private final Class<ViewContent> clazz;
+public class ViewContentMeta<V extends View, VC extends ViewContent<V>> {
+    private final Class<V> viewClass;
+    private final Class<VC> clazz;
     private final String name;
     private final boolean isDefault;
 
 
-    public ViewContentMeta(@NonNull Class<View> viewClass, @NonNull Class<ViewContent> clazz, @Nullable String name, boolean isDefault) {
+    public ViewContentMeta(@NonNull Class<V> viewClass, @NonNull Class<VC> clazz, @Nullable String name, boolean isDefault) {
         this.viewClass = viewClass;
         this.clazz = clazz;
         this.name = name;
         this.isDefault = isDefault;
     }
 
-    public Class<View> getViewClass() {
+    public Class<V> getViewClass() {
         return viewClass;
     }
 
-    public Class<ViewContent> getClazz() {
+    public Class<VC> getClazz() {
         return clazz;
     }
 
@@ -35,20 +35,20 @@ public class ViewContentMeta {
         return isDefault;
     }
 
-    public ViewContentMeta viewClass(Class<View> viewClass) {
-        return new ViewContentMeta(viewClass, clazz, name, isDefault);
+    public ViewContentMeta viewClass(Class<V> viewClass) {
+        return new ViewContentMeta<>(viewClass, clazz, name, isDefault);
     }
 
-    public ViewContentMeta clazz(Class<ViewContent> clazz) {
-        return new ViewContentMeta(viewClass, clazz, name, isDefault);
+    public ViewContentMeta clazz(Class<VC> clazz) {
+        return new ViewContentMeta<>(viewClass, clazz, name, isDefault);
     }
 
     public ViewContentMeta name(String name) {
-        return new ViewContentMeta(viewClass, clazz, name, isDefault);
+        return new ViewContentMeta<>(viewClass, clazz, name, isDefault);
     }
 
     public ViewContentMeta isDefault(boolean isDefault) {
-        return new ViewContentMeta(viewClass, clazz, name, isDefault);
+        return new ViewContentMeta<>(viewClass, clazz, name, isDefault);
     }
 
     @Override

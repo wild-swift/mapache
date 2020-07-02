@@ -34,7 +34,7 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
     private final NavigationContext<E, DC> navigationContext;
 
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-    private final ViewContentHolderImpl<S> viewsContents;
+    private final ViewContentHolderImpl<DC, S> viewsContents;
 
     private StateWrapper<E, ?, DC, VR, S> currentState;
     private VR currentRoot;
@@ -52,7 +52,7 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
 
         this.eventerInternal = new EventerInternal();
         this.callToActivityBridge = new CallToActivityBridge(eventerInternal);
-        viewsContents = new ViewContentHolderImpl<>(metaSource);
+        viewsContents = new ViewContentHolderImpl<>(metaSource, diContext);
         this.navigationContext = new NavigationContext<>(diContext, eventerInternal, viewsContents, callToActivityBridge.getSystemCaller());
 
         currentState = new StateWrapper(initialState, navigationContext, null);
@@ -132,8 +132,12 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
                 backStack.add(backStackEntry);
             }
         }
+
+        // TODO May be need activate diferent states (current and new)?
+        viewsContents.onNewState(nextState);
+
         if (currentRoot == null) {
-            mainThreadHandler.post(new SetNewStateCommand(nextState, null));
+            mainThreadHandler.post(new StartNewStateCommand(nextState, null));
         } else {
             mainThreadHandler.post(new HandleStartTransition(transition, nextState));
         }
@@ -178,18 +182,17 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         }
     }
 
-    private class SetNewStateCommand implements Runnable {
+    private class StartNewStateCommand implements Runnable {
         private final S nextState;
         private final ViewSet currentSet;
 
-        private SetNewStateCommand(S nextState, ViewSet currentSet) {
+        private StartNewStateCommand(S nextState, ViewSet currentSet) {
             this.nextState = nextState;
             this.currentSet = currentSet;
         }
 
         @Override
         public void run() {
-            viewsContents.onNewState(nextState);
             currentState = new StateWrapper(nextState, navigationContext, currentSet);
             currentState.start();
             if (currentRoot != null && currentSet == null) {
@@ -207,7 +210,7 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
 
         @Override
         public void onTransitionEnded(ViewSet currentSet) {
-            mainThreadHandler.post(new SetNewStateCommand(nextState, currentSet));
+            mainThreadHandler.post(new StartNewStateCommand(nextState, currentSet));
         }
     }
 

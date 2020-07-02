@@ -1,13 +1,11 @@
-package name.wildswift.testapp.navigation
+package name.wildswift.testapp.navigation.states
 
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import name.wildswift.android.kannotations.interfaces.ObservableListAdapter
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewCouple
 import name.wildswift.mapache.viewsets.ViewSet
-import name.wildswift.testapp.R
 import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.generated.events.BuyCrypto
 import name.wildswift.testapp.generated.events.SellCrypto
@@ -21,31 +19,16 @@ class PrimaryState: MState<TestAppEvent, ViewCouple<RootView, WalletsView>, View
         rootView.addView(appRootView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         val walletsView = WalletsView(context.diContext.context)
         appRootView.getContentView().addView(walletsView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+        val viewContentHolder = context.viewsContents.getByView(WalletsView::class.java)
+        viewContentHolder?.fillCurrentData(walletsView)
+
         return ViewSet.from(appRootView).union(walletsView)
     }
 
     override fun dataBind(context: NavigationContext<TestAppEvent, DiContext>, views: ViewCouple<RootView, WalletsView>): Runnable {
         val (root, walletsView) = views
         root.viewModel = RootViewModel(" ", false)
-        val total = context.diContext.curencies.map { it.currencyAmount * it.currencyRate }.sum()
-        walletsView.viewModel = WalletsViewModel(
-                total,
-                ObservableListAdapter(
-                        context.diContext
-                                .curencies
-                                .map {
-                                    CryptoCardViewModel(
-                                            it.currencyAmount,
-                                            it.currencyAmount * it.currencyRate,
-                                            it.tiker,
-                                            it.name,
-                                            it.icon,
-                                            it.color,
-                                            false
-                                    )
-                                }
-                )
-        )
         walletsView.onItemBuyClick = {
             context.eventer.onNewEvent(BuyCrypto.newInstance(it.ticker))
         }

@@ -60,14 +60,14 @@ class ViewContentHolderImpl<D, S extends MState<?, ?, ?, D>> implements ViewCont
             } else {
                 ViewContent viewContent;
                 try {
-                    viewContent = meta.getClazz().newInstance();
+                    viewContent = (ViewContent) meta.getClazz().newInstance();
                 } catch (IllegalAccessException | InstantiationException e) {
                     throw new IllegalStateException(e);
                 }
                 if(viewContent instanceof Initializable) {
                     ((Initializable<D>) viewContent).init(diContext);
                 }
-                currentContentHolders.set(currentIndex, new ViewContentHolder(meta.getViewClass(), meta.getClazz(), meta.getName(), meta.isDefault(), viewContent));
+                currentContentHolders.add(new ViewContentHolder(meta.getViewClass(), meta.getClazz(), meta.getName(), meta.isDefault(), viewContent));
             }
         }
     }
@@ -99,7 +99,7 @@ class ViewContentHolderImpl<D, S extends MState<?, ?, ?, D>> implements ViewCont
     public <VS extends ViewContent<?>> VS getByClass(@NonNull Class<VS> clazz) {
         List<ViewContentHolder> candidates = new ArrayList<>();
         for (ViewContentHolder viewContentHolder : currentContentHolders) {
-            if (viewContentHolder.clazz == clazz) {
+            if (viewContentHolder.clazz == ((Class) clazz)) {
                 if (viewContentHolder.isDefault) {
                     return (VS) viewContentHolder.impl;
                 } else {
@@ -120,7 +120,7 @@ class ViewContentHolderImpl<D, S extends MState<?, ?, ?, D>> implements ViewCont
     public <VS extends ViewContent<?>> VS getByName(@NonNull Class<VS> clazz, @NonNull String name) {
         if (name == null) throw new NullPointerException();
         for (ViewContentHolder viewContentHolder : currentContentHolders) {
-            if (viewContentHolder.clazz == clazz && name.equals(viewContentHolder.name)) return (VS) viewContentHolder.impl;
+            if (viewContentHolder.clazz == (Class) clazz && name.equals(viewContentHolder.name)) return (VS) viewContentHolder.impl;
         }
         return null;
     }

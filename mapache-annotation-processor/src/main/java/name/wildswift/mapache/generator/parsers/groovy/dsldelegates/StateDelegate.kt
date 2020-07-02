@@ -8,6 +8,8 @@ import name.wildswift.mapache.generator.parsers.groovy.model.StateSubGraph
 class StateDelegate(private val state: State): GraphBaseDelegate() {
     var movementRules: List<Triple<String, Class<*>, Class<*>>> = listOf()
 
+    var viewContentHolders = listOf<Class<*>>()
+
     private var sceneViewClass = ""
     private var sceneViewIndex = -1
     var singleInBackStack = false
@@ -40,6 +42,10 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
 
     fun addToBackStack(value: Boolean) {
         addToBackStack = value
+    }
+
+    fun content(clazz: Class<*>) {
+        viewContentHolders += clazz
     }
 
 

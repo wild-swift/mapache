@@ -1,7 +1,6 @@
-package name.wildswift.testapp.navigation
+package name.wildswift.testapp.navigation.states
 
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewCouple

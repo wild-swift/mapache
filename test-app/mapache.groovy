@@ -1,14 +1,15 @@
+import name.wildswift.testapp.contents.WalletsViewViewContent
 import name.wildswift.testapp.di.DiContext
-import name.wildswift.testapp.navigation.BuyStep1State
-import name.wildswift.testapp.navigation.BuyToReviewTransition
-import name.wildswift.testapp.navigation.BuyToRootTransition
-import name.wildswift.testapp.navigation.PrimaryState
-import name.wildswift.testapp.navigation.ReviewBuyState
-import name.wildswift.testapp.navigation.ReviewToPrimaryTransition
-import name.wildswift.testapp.navigation.RootToBuyTransition
+import name.wildswift.testapp.navigation.states.BuyStep1State
+import name.wildswift.testapp.navigation.transitions.BuyToReviewTransition
+import name.wildswift.testapp.navigation.transitions.BuyToRootTransition
+import name.wildswift.testapp.navigation.states.PrimaryState
+import name.wildswift.testapp.navigation.states.ReviewBuyState
+import name.wildswift.testapp.navigation.transitions.ReviewToPrimaryTransition
+import name.wildswift.testapp.navigation.transitions.RootToBuyTransition
 
 basePackageName "name.wildswift.testapp.generated"
-statesPackageName ".gen"
+statesPackageName ".states"
 
 dependencySource = DiContext
 
@@ -24,6 +25,8 @@ actions {
 layer {
     from(PrimaryState) {
         when BuyCrypto go BuyStep1State with RootToBuyTransition
+
+        content WalletsViewViewContent
     }
 
     $(BuyStep1State) {

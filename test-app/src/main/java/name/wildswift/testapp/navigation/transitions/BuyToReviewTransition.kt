@@ -1,4 +1,4 @@
-package name.wildswift.testapp.navigation
+package name.wildswift.testapp.navigation.transitions
 
 import android.view.ViewGroup
 import name.wildswift.mapache.NavigationContext
@@ -8,6 +8,8 @@ import name.wildswift.mapache.viewsets.ViewCouple
 import name.wildswift.mapache.viewsets.ViewSet
 import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.generated.events.TestAppEvent
+import name.wildswift.testapp.navigation.states.BuyStep1State
+import name.wildswift.testapp.navigation.states.ReviewBuyState
 import name.wildswift.testapp.views.BuyCurrencyStep1View
 import name.wildswift.testapp.views.ReviewBuyView
 import name.wildswift.testapp.views.RootView
