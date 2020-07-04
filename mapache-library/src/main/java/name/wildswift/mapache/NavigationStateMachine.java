@@ -20,6 +20,7 @@ import name.wildswift.mapache.graph.StateTransition;
 import name.wildswift.mapache.graph.TransitionCallback;
 import name.wildswift.mapache.graph.TransitionFactory;
 import name.wildswift.mapache.states.MState;
+import name.wildswift.mapache.utils.AndroidHandlerExecutor;
 import name.wildswift.mapache.utils.StateWrapper;
 import name.wildswift.mapache.viewcontent.ViewContentMetaSource;
 import name.wildswift.mapache.viewsets.ViewSet;
@@ -27,9 +28,7 @@ import name.wildswift.mapache.viewsets.ViewSet;
 public final class NavigationStateMachine<E extends Event, VR extends View, DC, S extends MState<E, ?, VR, DC> & Navigatable<E, DC, S>> {
     private final S initialState;
     private final TransitionFactory<E, DC, S> transFactory;
-    private final ViewContentMetaSource metaSource;
 
-    private final EventerInternal eventerInternal;
     private final CallToActivityBridge callToActivityBridge;
     private final NavigationContext<E, DC> navigationContext;
 
@@ -42,15 +41,14 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
 
     private boolean isPaused = false;
 
-    private CancelableDebouncer<Boolean> startStopDebouncer = new CancelableDebouncer<>(500);
+    private CancelableDebouncer<Boolean> startStopDebouncer = new CancelableDebouncer<>(new AndroidHandlerExecutor(new Handler(Looper.getMainLooper())), 500);
 
 
     public NavigationStateMachine(S initialState, TransitionFactory<E, DC, ?> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
         this.initialState = initialState;
         this.transFactory = (TransitionFactory<E, DC, S>) transFactory;
-        this.metaSource = metaSource;
 
-        this.eventerInternal = new EventerInternal();
+        EventerInternal eventerInternal = new EventerInternal();
         this.callToActivityBridge = new CallToActivityBridge(eventerInternal);
         viewsContents = new ViewContentHolderImpl<>(metaSource, diContext);
         this.navigationContext = new NavigationContext<>(diContext, eventerInternal, viewsContents, callToActivityBridge.getSystemCaller());
@@ -122,7 +120,7 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
     }
 
     @SuppressWarnings("unchecked")
-    private void moveToState(S nextState,boolean addToBackStack) {
+    private void moveToState(S nextState, boolean addToBackStack) {
         StateTransition<E, ViewSet, ViewSet, VR, DC> transition = (StateTransition<E, ViewSet, ViewSet, VR, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);
 
         currentState.stop();
@@ -166,19 +164,13 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
     private class ChangePauseStateListener implements DebounceCallback<Boolean> {
         @Override
         public void newValue(final Boolean value) {
-            // TODO need set specific executor to debouncer, but there no way to do it now (write AndroidHandlerExecutor, that implements ScheduledExecutorService
-            mainThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if(isPaused == value) return;
-                    isPaused = value;
-                    if (isPaused) {
-                        stopStateMachineExecution();
-                    } else {
-                        resumeStateMachineExecution();
-                    }
-                }
-            });
+            if(isPaused == value) return;
+            isPaused = value;
+            if (isPaused) {
+                stopStateMachineExecution();
+            } else {
+                resumeStateMachineExecution();
+            }
         }
     }
 
