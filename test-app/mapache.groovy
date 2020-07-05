@@ -1,3 +1,4 @@
+import name.wildswift.testapp.R
 import name.wildswift.testapp.contents.WalletsViewViewContent
 import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.navigation.states.BuyStep1State

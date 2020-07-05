@@ -15,7 +15,9 @@ import name.wildswift.mapache.generator.parsers.groovy.model.StateMachineLayer
 import name.wildswift.mapache.generator.toType
 import org.codehaus.groovy.control.CompilerConfiguration
 import java.io.File
+import java.text.ParseException
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.VariableElement
 
 class GroovyDslParser: ModelParser {
     override fun getModel(file: File, prefix:String, modulePackageName: String, processingEnv: ProcessingEnvironment): GenerateModel {
@@ -41,7 +43,6 @@ class GroovyDslParser: ModelParser {
 
                     statesBasePackage = parseModel.statesPackage,
                     baseStateWrappersClass = ClassName.get(parseModel.statesPackage, "${prefix}MState"),
-                    rootStateWrappersClass = ClassName.get(parseModel.statesPackage, parseModel.layers.first().initialState.let { "${it.name.simpleName}Wrapper" } ),
                     states = states(parseModel.layers, parseModel.statesPackage, events, processingEnv),
                     dependencySource = parseModel.diClass.toType(),
                     buildConfigClass = ClassName.get(modulePackageName, "BuildConfig"),
@@ -55,7 +56,27 @@ class GroovyDslParser: ModelParser {
 
                     smUtilityClass = ClassName.get(parseModel.basePackageName, "${prefix}NavigationStateMachine"),
                     viewContentMetaSourceClass = ClassName.get(parseModel.basePackageName, "${prefix}ViewContentMetaSource"),
-                    viewContents = viewContentHolders(parseModel.layers, parseModel.statesPackage, processingEnv)
+                    viewContents = viewContentHolders(parseModel.layers, parseModel.statesPackage, processingEnv),
+                    layers = parseModel.layers.map {
+                        LayerDefinition(
+                                initialStateWrapperType = ClassName.get(parseModel.statesPackage, "${it.initialState.name.simpleName}Wrapper"),
+                                contentIdClass = if (it.contentId == 0) ClassName.get("android", "R") else ClassName.get(modulePackageName, "R"),
+                                contentId = if (it.contentId == 0)
+                                    "\$T.id.content"
+                                else
+                                    processingEnv.elementUtils
+                                            .getTypeElement(modulePackageName + ".R.id")
+                                            .enclosedElements
+                                            .find { (it as? VariableElement)?.constantValue == parseModel.layers[0].contentId }
+                                            .let { it ?: throw ParseException("", 0) }
+                                            .let { it as VariableElement }
+                                            .simpleName
+                                            .let {
+                                                "\$T.id.$it"
+                                            }
+                                            .toString()
+                        )
+                    }
             )
         }
     }

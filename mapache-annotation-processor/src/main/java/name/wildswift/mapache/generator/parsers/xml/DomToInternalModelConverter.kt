@@ -65,7 +65,7 @@ object DomToInternalModelConverter {
                             ?: throw IllegalArgumentException("Mapache.xml file not valid")
 
                     StateMachineLayer(
-                            contentIdResName,
+                            0,
                             State(Int::class.java, true, listOf(), null),
 //                            getState(initialStateName, states, statesTag, nsPrefix, actions),
                             true

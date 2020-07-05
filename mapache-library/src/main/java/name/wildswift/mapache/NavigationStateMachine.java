@@ -3,70 +3,58 @@ package name.wildswift.mapache;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import name.wildswift.mapache.contextintegration.CallToActivityBridge;
+import name.wildswift.mapache.utils.CallToActivityBridge;
 import name.wildswift.mapache.debouncers.CancelableDebouncer;
 import name.wildswift.mapache.debouncers.DebounceCallback;
 import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.events.Eventer;
-import name.wildswift.mapache.graph.BackStackEntry;
 import name.wildswift.mapache.graph.Navigatable;
 import name.wildswift.mapache.contextintegration.ActivityCaller;
-import name.wildswift.mapache.graph.StateTransition;
-import name.wildswift.mapache.graph.TransitionCallback;
 import name.wildswift.mapache.graph.TransitionFactory;
 import name.wildswift.mapache.states.MState;
 import name.wildswift.mapache.utils.AndroidHandlerExecutor;
-import name.wildswift.mapache.utils.StateWrapper;
+import name.wildswift.mapache.utils.LayerStateMachineProcessor;
+import name.wildswift.mapache.utils.ViewContentHolderImpl;
 import name.wildswift.mapache.viewcontent.ViewContentMetaSource;
-import name.wildswift.mapache.viewsets.ViewSet;
 
-public final class NavigationStateMachine<E extends Event, VR extends View, DC, S extends MState<E, ?, VR, DC> & Navigatable<E, DC, S>> {
-    private final S initialState;
-    private final TransitionFactory<E, DC, S> transFactory;
-
+public final class NavigationStateMachine<E extends Event, DC, S extends MState<E, ?, ?, DC> & Navigatable<E, DC, S>> {
+    private final List<LayerHolder> layerProcessors;
     private final CallToActivityBridge callToActivityBridge;
-    private final NavigationContext<E, DC> navigationContext;
-
-    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-    private final ViewContentHolderImpl<DC, S> viewsContents;
-
-    private StateWrapper<E, ?, DC, VR, S> currentState;
-    private VR currentRoot;
-    private List<BackStackEntry<S>> backStack = new ArrayList<>();
 
     private boolean isPaused = false;
 
     private CancelableDebouncer<Boolean> startStopDebouncer = new CancelableDebouncer<>(new AndroidHandlerExecutor(new Handler(Looper.getMainLooper())), 500);
 
 
-    public NavigationStateMachine(S initialState, TransitionFactory<E, DC, ?> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
-        this.initialState = initialState;
-        this.transFactory = (TransitionFactory<E, DC, S>) transFactory;
-
+    @SuppressWarnings("unchecked")
+    public NavigationStateMachine(List<LayerDefinition<E,DC,S>> layes, TransitionFactory<E, DC, ?> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
         EventerInternal eventerInternal = new EventerInternal();
         this.callToActivityBridge = new CallToActivityBridge(eventerInternal);
-        viewsContents = new ViewContentHolderImpl<>(metaSource, diContext);
-        this.navigationContext = new NavigationContext<>(diContext, eventerInternal, viewsContents, callToActivityBridge.getSystemCaller());
+        name.wildswift.mapache.utils.ViewContentHolderImpl<DC, S> viewsContents = new ViewContentHolderImpl<>(metaSource, diContext);
+        NavigationContext<E, DC> navigationContext = new NavigationContext<>(diContext, eventerInternal, viewsContents, callToActivityBridge.getSystemCaller());
 
-        currentState = new StateWrapper(initialState, navigationContext, null);
-        viewsContents.onNewState(initialState);
-        currentState.start();
+        this.layerProcessors = new ArrayList<>();
+
+        for (LayerDefinition<E, DC, S> layerDefinition : layes) {
+            layerProcessors.add(new LayerHolder(
+                    new LayerStateMachineProcessor(layerDefinition.getState(), transFactory, navigationContext, viewsContents),
+                    layerDefinition.getContentId()
+            ));
+        }
 
         startStopDebouncer.addCallback(new ChangePauseStateListener());
     }
 
+    @SuppressWarnings("unchecked")
     public void attachToActivity(Activity activity, ActivityCaller caller) {
         if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("attachToActivity should be run on main thread");
         callToActivityBridge.attachToActivity(caller);
-        currentRoot = activity.findViewById(android.R.id.content);
-
-        if (currentState != null) {
-            currentState.setRoot(currentRoot);
+        for (LayerHolder layerProcessor : layerProcessors) {
+            layerProcessor.processor.attachToRoot(activity.findViewById(layerProcessor.contentId));
         }
     }
 
@@ -90,55 +78,10 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
 
     public void detachFromActivity() {
         if (Looper.myLooper() != Looper.getMainLooper()) throw new IllegalArgumentException("detachFromActivity should be run on main thread");
-        currentState.setRoot(null);
-        currentRoot = null;
+        for (LayerHolder layerProcessor : layerProcessors) {
+            layerProcessor.processor.detachFromRoot();
+        }
         callToActivityBridge.detachFromActivity();
-    }
-
-    private boolean onNewEvent(E event) {
-        // TODO Add thread managment
-        if (currentState.onNewEvent(event)) return true;
-
-        S nextState = currentState.getWrapped().getNextState(event);
-        if (nextState == null) return false;
-
-        moveToState(nextState, true);
-        return true;
-    }
-
-    private boolean onBack() {
-        if (currentState.onBack()) return true;
-
-        if (backStack.size() == 0) return false;
-
-        S nextState = backStack.get(backStack.size() - 1).createInstance();
-        backStack.remove(backStack.size() - 1);
-
-        moveToState(nextState, false);
-
-        return true;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void moveToState(S nextState, boolean addToBackStack) {
-        StateTransition<E, ViewSet, ViewSet, VR, DC> transition = (StateTransition<E, ViewSet, ViewSet, VR, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);
-
-        currentState.stop();
-        if (addToBackStack) {
-            BackStackEntry<S> backStackEntry = (BackStackEntry<S>) currentState.getWrapped().getBackStackEntry();
-            if (backStackEntry != null) {
-                backStack.add(backStackEntry);
-            }
-        }
-
-        // TODO May be need activate diferent states (current and new)?
-        viewsContents.onNewState(nextState);
-
-        if (currentRoot == null) {
-            mainThreadHandler.post(new StartNewStateCommand(nextState, null));
-        } else {
-            mainThreadHandler.post(new HandleStartTransition(transition, nextState));
-        }
     }
 
     private void stopStateMachineExecution() {
@@ -161,6 +104,26 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         }
     }
 
+    private boolean onBack() {
+        for (int i = layerProcessors.size() - 1; i >= 0; i--) {
+            LayerStateMachineProcessor layerProcessor = layerProcessors.get(i).processor;
+            if (layerProcessor.onBack()) return true;
+        }
+        for (LayerHolder layerProcessor : layerProcessors) {
+            layerProcessor.processor.reset();
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean onNewEvent(E event) {
+        for (int i = layerProcessors.size() - 1; i >= 0; i--) {
+            LayerStateMachineProcessor layerProcessor = layerProcessors.get(i).processor;
+            if (layerProcessor.onNewEvent(event)) return true;
+        }
+        return false;
+    }
+
     private class ChangePauseStateListener implements DebounceCallback<Boolean> {
         @Override
         public void newValue(final Boolean value) {
@@ -174,50 +137,13 @@ public final class NavigationStateMachine<E extends Event, VR extends View, DC, 
         }
     }
 
-    private class StartNewStateCommand implements Runnable {
-        private final S nextState;
-        private final ViewSet currentSet;
+    private static class LayerHolder {
+        private final LayerStateMachineProcessor processor;
+        private final int contentId;
 
-        private StartNewStateCommand(S nextState, ViewSet currentSet) {
-            this.nextState = nextState;
-            this.currentSet = currentSet;
-        }
-
-        @Override
-        public void run() {
-            currentState = new StateWrapper(nextState, navigationContext, currentSet);
-            currentState.start();
-            if (currentRoot != null && currentSet == null) {
-                currentState.setRoot(currentRoot);
-            }
-        }
-    }
-
-    private class DefaultTransitionCallback implements TransitionCallback<ViewSet> {
-        private final S nextState;
-
-        private DefaultTransitionCallback(S nextState) {
-            this.nextState = nextState;
-        }
-
-        @Override
-        public void onTransitionEnded(ViewSet currentSet) {
-            mainThreadHandler.post(new StartNewStateCommand(nextState, currentSet));
-        }
-    }
-
-    private class HandleStartTransition implements Runnable {
-        private final StateTransition<E, ViewSet, ViewSet, VR, DC> transition;
-        private final S nextState;
-
-        public HandleStartTransition(StateTransition<E, ViewSet, ViewSet, VR, DC> transition, S nextState) {
-            this.transition = transition;
-            this.nextState = nextState;
-        }
-
-        @Override
-        public void run() {
-            transition.execute(navigationContext, currentRoot, currentState.getCurrentViewSet(), new DefaultTransitionCallback(nextState));
+        public LayerHolder(LayerStateMachineProcessor processor, int contentId) {
+            this.processor = processor;
+            this.contentId = contentId;
         }
     }
 }

@@ -1,4 +1,4 @@
-package name.wildswift.mapache.contextintegration;
+package name.wildswift.mapache.utils;
 
 import android.app.Service;
 import android.content.Intent;
@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import name.wildswift.mapache.contextintegration.ActivityCaller;
+import name.wildswift.mapache.contextintegration.ActivityEventsCallback;
 import name.wildswift.mapache.events.Eventer;
 import name.wildswift.mapache.osintegration.PermissionsCallback;
 import name.wildswift.mapache.osintegration.SystemCalls;

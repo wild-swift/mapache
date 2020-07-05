@@ -9,7 +9,6 @@ data class GenerateModel(
         val events: List<EventDefinition>,
         val statesBasePackage: String,
         val baseStateWrappersClass: ClassName,
-        val rootStateWrappersClass: ClassName,
         val states: List<StateDefinition>,
         val dependencySource: TypeName,
         val buildConfigClass: ClassName,
@@ -23,5 +22,6 @@ data class GenerateModel(
 
         val smUtilityClass: ClassName,
         val viewContentMetaSourceClass: ClassName,
-        val viewContents: List<ViewContentDefinition>
+        val viewContents: List<ViewContentDefinition>,
+        val layers: List<LayerDefinition>
 )

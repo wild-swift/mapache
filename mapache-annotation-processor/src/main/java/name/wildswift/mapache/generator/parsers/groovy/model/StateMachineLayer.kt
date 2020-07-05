@@ -4,7 +4,7 @@ data class StateMachineLayer(
         /**
          * Name of field in android R.id class
          */
-        val contentId: String,
+        val contentId: Int,
         /**
          * Link to start state
          */

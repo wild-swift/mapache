@@ -4,6 +4,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
+import name.wildswift.mapache.LayerDefinition
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.NavigationStateMachine
 import name.wildswift.mapache.dafaults.DefaultStateTransition
@@ -62,6 +63,7 @@ val backStackEntryTypeName = ClassName.get(BackStackEntry::class.java)
 val viewContentTypeName = ClassName.get(ViewContent::class.java)
 val viewContentMetaSourceTypeName = ClassName.get(ViewContentMetaSource::class.java)
 val viewContentMetaTypeName = ClassName.get(ViewContentMeta::class.java)
+val layerDefinitionTypeName = ClassName.get(LayerDefinition::class.java)
 
 val runnableTypeName = ClassName.get(Runnable::class.java)
 val stringTypeName = ClassName.get(String::class.java)
@@ -71,7 +73,9 @@ val hashSetTypeName = ClassName.get(HashSet::class.java)
 val mapTypeName = ClassName.get(Map::class.java)
 val hashMapTypeName = ClassName.get(HashMap::class.java)
 val classTypeName = ClassName.get(Class::class.java)
+val listTypeName = ClassName.get(List::class.java)
 val collectionsTypeName = ClassName.get(Collections::class.java)
+val arraysTypeName = ClassName.get(Arrays::class.java)
 
 val contextTypeName = ClassName.get("android.content", "Context")
 val logTypeName = ClassName.get("android.util", "Log")
