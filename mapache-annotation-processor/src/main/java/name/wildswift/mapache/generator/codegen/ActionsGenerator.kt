@@ -9,7 +9,6 @@ import javax.lang.model.element.Modifier
 
 
 class ActionsGenerator(
-        private val packageName: String,
         private val baseEventClass: ClassName,
         private val events: List<EventDefinition>,
         private val filer: Filer
@@ -24,7 +23,7 @@ class ActionsGenerator(
         filer.createSourceFile(baseEventClass.canonicalName())
                 .openWriter()
                 .use { fileWriter ->
-                    JavaFile.builder(packageName, baseInterfaceTypeSpec)
+                    JavaFile.builder(baseEventClass.packageName(), baseInterfaceTypeSpec)
                             .build()
                             .writeTo(fileWriter)
                 }
@@ -55,7 +54,7 @@ class ActionsGenerator(
             filer.createSourceFile(action.typeName.canonicalName())
                     .openWriter()
                     .use { fileWriter ->
-                        JavaFile.builder(packageName, actionTypeSpecBuilder.build())
+                        JavaFile.builder(action.typeName.packageName(), actionTypeSpecBuilder.build())
                                 .build()
                                 .writeTo(fileWriter)
                     }

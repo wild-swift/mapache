@@ -12,7 +12,6 @@ import javax.lang.model.element.Modifier
 
 
 class StatesWrapperGenerator(
-        private val packageName: String,
         private val baseTypeName: ClassName,
         private val actionBaseType: ClassName,
         private val dependencySource: TypeName,
@@ -47,7 +46,7 @@ class StatesWrapperGenerator(
         processingEnv.filer.createSourceFile(baseTypeName.canonicalName())
                 .openWriter()
                 .use { fileWriter ->
-                    JavaFile.builder(packageName, baseClassTypeSpec)
+                    JavaFile.builder(baseTypeName.packageName(), baseClassTypeSpec)
                             .build()
                             .writeTo(fileWriter)
                 }
@@ -234,7 +233,7 @@ class StatesWrapperGenerator(
             processingEnv.filer.createSourceFile(currentStateWrapperName.canonicalName())
                     .openWriter()
                     .use { fileWriter ->
-                        JavaFile.builder(packageName, stateWrapperTypeSpecBuilder.build())
+                        JavaFile.builder(currentStateWrapperName.packageName(), stateWrapperTypeSpecBuilder.build())
                                 .build()
                                 .writeTo(fileWriter)
                     }

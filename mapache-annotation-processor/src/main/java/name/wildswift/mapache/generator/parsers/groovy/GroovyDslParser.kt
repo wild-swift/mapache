@@ -36,79 +36,61 @@ class GroovyDslParser: ModelParser {
 
         return mapacheGroovyDslDelegate.stateMachine.let { parseModel ->
             val events = parseModel.actions.map { EventDefinition(it.name, ClassName.get(parseModel.eventsPackage, it.name), it.params.map { ParameterDefinition(it.name, TypeName.get(it.type)) }) }
+            val states = mutableListOf<StateDefinition>()
+            val transitions = mutableListOf<TransitionDefinition>()
+            val viewContent = mutableListOf<ViewContentDefinition>()
+            parseModel.layers.forEachIndexed { index, layer ->
+                addStates("L${index + 1}", parseModel.statesPackage, parseModel.transitionsPackage, layer.initialState, events, states, transitions, viewContent, processingEnv)
+            }
             GenerateModel(
-                    eventsBasePackage = parseModel.eventsPackage,
                     baseEventClass = ClassName.get(parseModel.eventsPackage, "${prefix}Event"),
                     events = events,
 
-                    statesBasePackage = parseModel.statesPackage,
                     baseStateWrappersClass = ClassName.get(parseModel.statesPackage, "${prefix}MState"),
-                    states = states(parseModel.layers, parseModel.statesPackage, events, processingEnv),
+                    states = states,
                     dependencySource = parseModel.diClass.toType(),
                     buildConfigClass = ClassName.get(modulePackageName, "BuildConfig"),
 
-                    transitionsBasePackage = parseModel.transitionsPackage,
                     baseTransitionClass = ClassName.get(parseModel.transitionsPackage, "${prefix}StateTransition"),
                     transitionsFactoryClass = ClassName.get(parseModel.transitionsPackage, "${prefix}TransitionsFactory"),
                     emptyTransitionClass = ClassName.get(parseModel.transitionsPackage, "${prefix}EmptyTransitionWrapper"),
                     defaultTransitionClass = ClassName.get(parseModel.transitionsPackage, "${prefix}DefaultTransitionWrapper"),
-                    transitions = transitions(parseModel.layers, parseModel.transitionsPackage, parseModel.statesPackage, processingEnv),
+                    transitions = transitions,
 
                     smUtilityClass = ClassName.get(parseModel.basePackageName, "${prefix}NavigationStateMachine"),
                     viewContentMetaSourceClass = ClassName.get(parseModel.basePackageName, "${prefix}ViewContentMetaSource"),
-                    viewContents = viewContentHolders(parseModel.layers, parseModel.statesPackage, processingEnv),
-                    layers = parseModel.layers.map {
-                        LayerDefinition(
-                                initialStateWrapperType = ClassName.get(parseModel.statesPackage, "${it.initialState.name.simpleName}Wrapper"),
-                                contentIdClass = if (it.contentId == 0) ClassName.get("android", "R") else ClassName.get(modulePackageName, "R"),
-                                contentId = if (it.contentId == 0)
-                                    "\$T.id.content"
-                                else
-                                    processingEnv.elementUtils
-                                            .getTypeElement(modulePackageName + ".R.id")
-                                            .enclosedElements
-                                            .find { (it as? VariableElement)?.constantValue == parseModel.layers[0].contentId }
-                                            .let { it ?: throw ParseException("", 0) }
-                                            .let { it as VariableElement }
-                                            .simpleName
-                                            .let {
-                                                "\$T.id.$it"
-                                            }
-                                            .toString()
-                        )
-                    }
+                    viewContents = viewContent,
+                    layers = layers(parseModel.layers, parseModel.statesPackage, modulePackageName, processingEnv)
             )
         }
     }
 
-    fun states(layers: List<StateMachineLayer>, packageName: String, events: List<EventDefinition>, processingEnv: ProcessingEnvironment): List<StateDefinition> {
-        val states = layers.flatMap {
-            val states = mutableListOf<State>()
-            addStates(it.initialState, states)
-            states.toList()
-        }
-        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.simpleName}Wrapper") }.toMap()
-        return states.map {
-            StateDefinition(
-                    viewSetClassName = processingEnv.elementUtils.getTypeElement(it.name.canonicalName).extractViewSetType(),
-                    stateClassName = ClassName.get(it.name),
-                    wrapperClassName = wrapperClassMapping[it.name] ?: error("Internal error"),
-                    parameters = it.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
-                    addToBackStack = it.addToBackStack,
-                    moveDefenition = it.movements.mapNotNull { movment ->
-                        if (movment.action != null) {
-                            StateMoveDefinition(
-                                    actionType = events.filter { it.name == movment.action.name }.first().typeName,
-                                    moveParameters = movment.endState.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
-                                    targetStateWrapperClass = wrapperClassMapping[movment.endState.name]
-                                            ?: error("Internal error")
-                            )
-                        } else {
-                            null
-                        }
-                    }
+    private fun layers(layers: List<StateMachineLayer>, statesPackage: String, modulePackageName: String, processingEnv: ProcessingEnvironment): List<LayerDefinition> {
+        return layers.mapIndexed { index, layer ->
+            LayerDefinition(
+                    initialStateWrapperType = generateStateWrapperName("L${index + 1}", statesPackage, layer.initialState),
+                    contentIdClass = if (layer.contentId == 0) ClassName.get("android", "R") else ClassName.get(modulePackageName, "R"),
+                    contentId = if (layer.contentId == 0)
+                        "\$T.id.content"
+                    else
+                        processingEnv.elementUtils
+                                .getTypeElement(modulePackageName + ".R.id")
+                                .enclosedElements
+                                .find { (it as? VariableElement)?.constantValue == layer.contentId }
+                                .let { it ?: throw ParseException("", 0) }
+                                .let { it as VariableElement }
+                                .simpleName
+                                .let {
+                                    "\$T.id.$it"
+                                }
+                                .toString()
             )
         }
+    }
+
+
+    private fun generateStateWrapperName(prefix: String, packageName: String, it: State): ClassName {
+        return ClassName.get(packageName, "$prefix${it.name.simpleName}Wrapper")
     }
 
     fun viewContentHolders(layers: List<StateMachineLayer>, packageName: String, processingEnv: ProcessingEnvironment): List<ViewContentDefinition> {
@@ -129,6 +111,71 @@ class GroovyDslParser: ModelParser {
                 )
             }
         }
+    }
+
+    private fun addStates(prefix: String, statesPackage: String, transitionsPackage: String, state: State, events: List<EventDefinition>, states: MutableList<StateDefinition>, transitions: MutableList<TransitionDefinition>, viewContent: MutableList<ViewContentDefinition>, processingEnv: ProcessingEnvironment) {
+        if (states.find { it.stateClassName.canonicalName() == state.name.canonicalName } != null) return
+        states.add(StateDefinition(
+                viewSetClassName = processingEnv.elementUtils.getTypeElement(state.name.canonicalName).extractViewSetType(),
+                stateClassName = ClassName.get(state.name),
+                wrapperClassName = generateStateWrapperName(prefix, statesPackage, state),
+                parameters = state.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
+                addToBackStack = state.addToBackStack,
+                moveDefenition = state.movements.mapNotNull { movment ->
+                    if (movment.action != null) {
+                        StateMoveDefinition(
+                                actionType = events.filter { it.name == movment.action.name }.first().typeName,
+                                moveParameters = movment.endState.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
+                                targetStateWrapperClass = generateStateWrapperName(prefix, statesPackage, movment.endState)
+                        )
+                    } else {
+                        null
+                    }
+                }
+        ))
+
+        state.movements.forEach { movement ->
+            val fromName = state.name.simpleName.let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+            val toName = movement.endState.name.simpleName.let { if (it.endsWith("State")) it.dropLast("State".length) else it }
+
+            val fromViewSetType = processingEnv.elementUtils.getTypeElement(state.name.canonicalName).extractViewSetType()
+            val toViewSetType = processingEnv.elementUtils.getTypeElement(movement.endState.name.canonicalName).extractViewSetType()
+
+            transitions.add(
+                    TransitionDefinition(
+                            typeName = ClassName.get(movement.implClass),
+                            wrapperTypeName = ClassName.get(transitionsPackage, "${prefix}${fromName}To${toName}TransitionWrapper"),
+                            beginViewSetClass = fromViewSetType,
+                            beginStateClass = ClassName.get(state.name),
+                            beginStateWrapperClass = generateStateWrapperName(prefix, statesPackage, state),
+                            endViewSetClass = toViewSetType,
+                            endStateClass = ClassName.get(movement.endState.name),
+                            endStateWrapperClass =generateStateWrapperName(prefix, statesPackage, movement.endState)
+                    )
+            )
+
+        }
+        state.viewModels.forEach { defentition ->
+            ViewContentDefinition(
+                    typeName = ClassName.get(defentition.type),
+                    viewType = processingEnv.elementUtils.getTypeElement(defentition.type.canonicalName).extractViewTypeFromViewContent(),
+                    name = defentition.name,
+                    default = defentition.default,
+                    targetState = generateStateWrapperName(prefix, statesPackage, state)
+            )
+        }
+
+        state.movements
+                .map { it.endState }
+                .forEach {
+                    addStates(prefix, statesPackage, transitionsPackage, it, events, states, transitions, viewContent, processingEnv)
+                }
+        state.child
+                ?.initialState
+                ?.also {
+                    val acronym = state.name.simpleName.filter { it.isUpperCase() }
+                    addStates("$prefix$acronym", statesPackage, transitionsPackage, it, events, states, transitions, viewContent, processingEnv)
+                }
     }
 
     private fun addStates(initialState: State, states: MutableList<State>) {

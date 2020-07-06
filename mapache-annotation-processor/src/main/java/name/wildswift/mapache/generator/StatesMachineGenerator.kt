@@ -76,8 +76,8 @@ class StatesMachineGenerator : AbstractProcessor() {
 
         val generationModel = parser.getModel(configFile, prefix, modulePackageName, processingEnv)
 
-        ActionsGenerator(generationModel.eventsBasePackage, generationModel.baseEventClass, generationModel.events, processingEnv.filer).generateAll()
-        StatesWrapperGenerator(generationModel.statesBasePackage, generationModel.baseStateWrappersClass, generationModel.baseEventClass, generationModel.dependencySource, generationModel.buildConfigClass, generationModel.states, processingEnv).generateAll()
+        ActionsGenerator(generationModel.baseEventClass, generationModel.events, processingEnv.filer).generateAll()
+        StatesWrapperGenerator(generationModel.baseStateWrappersClass, generationModel.baseEventClass, generationModel.dependencySource, generationModel.buildConfigClass, generationModel.states, processingEnv).generateAll()
         TransitionsWrapperGenerator(generationModel.baseTransitionClass, generationModel.emptyTransitionClass, generationModel.defaultTransitionClass, generationModel.transitionsFactoryClass, generationModel.baseEventClass, generationModel.baseStateWrappersClass, generationModel.dependencySource, generationModel.buildConfigClass, generationModel.transitions, processingEnv.filer).generateAll()
         BaseClassGenerator(generationModel.smUtilityClass, generationModel.baseEventClass, generationModel.baseStateWrappersClass, generationModel.transitionsFactoryClass, generationModel.viewContentMetaSourceClass, generationModel.dependencySource, generationModel.viewContentMetaSourceClass, generationModel.layers, generationModel.viewContents, processingEnv.filer).generateAll()
         // parser.getModel(file)
