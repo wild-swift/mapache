@@ -1,6 +1,7 @@
 package name.wildswift.testapp.navigation.states
 
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import name.wildswift.android.kannotations.interfaces.ObservableListAdapter
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.states.MState
@@ -12,9 +13,9 @@ import name.wildswift.testapp.generated.events.SellCrypto
 import name.wildswift.testapp.generated.events.TestAppEvent
 import name.wildswift.testapp.views.*
 
-class PrimaryState: MState<TestAppEvent, ViewCouple<RootView, WalletsView>, ViewGroup, DiContext> {
+class PrimaryState: MState<TestAppEvent, ViewCouple<RootView, WalletsView>, FrameLayout, DiContext> {
 
-    override fun setup(rootView: ViewGroup, context: NavigationContext<TestAppEvent, DiContext>): ViewCouple<RootView, WalletsView> {
+    override fun setup(rootView: FrameLayout, context: NavigationContext<TestAppEvent, DiContext>): ViewCouple<RootView, WalletsView> {
         val appRootView = RootView(context.diContext.context)
         rootView.addView(appRootView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         val walletsView = WalletsView(context.diContext.context)

@@ -1,6 +1,7 @@
 package name.wildswift.testapp.navigation.transitions
 
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.graph.StateTransition
 import name.wildswift.mapache.graph.TransitionCallback
@@ -15,8 +16,8 @@ import name.wildswift.testapp.views.ReviewBuyView
 import name.wildswift.testapp.views.RootView
 
 class BuyToReviewTransition(from: BuyStep1State, to: ReviewBuyState) :
-        StateTransition<TestAppEvent, ViewCouple<RootView, BuyCurrencyStep1View>, ViewCouple<RootView, ReviewBuyView>, ViewGroup, DiContext>(from, to) {
-    override fun execute(context: NavigationContext<TestAppEvent, DiContext>, rootView: ViewGroup, inViews: ViewCouple<RootView, BuyCurrencyStep1View>, callback: TransitionCallback<ViewCouple<RootView, ReviewBuyView>>) {
+        StateTransition<TestAppEvent, ViewCouple<RootView, BuyCurrencyStep1View>, ViewCouple<RootView, ReviewBuyView>, FrameLayout, DiContext>(from, to) {
+    override fun execute(context: NavigationContext<TestAppEvent, DiContext>, rootView: FrameLayout, inViews: ViewCouple<RootView, BuyCurrencyStep1View>, callback: TransitionCallback<ViewCouple<RootView, ReviewBuyView>>) {
         val (root, _) = inViews;
         root.getContentView().removeAllViews()
         val buyCurrencyStep1View = ReviewBuyView(root.context)

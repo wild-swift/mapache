@@ -2,6 +2,7 @@ package name.wildswift.mapache.generator.generatemodel
 
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
+import name.wildswift.mapache.generator.parsers.groovy.model.StateSubGraph
 
 data class StateDefinition(
         val viewSetClassName: TypeName,
@@ -16,7 +17,15 @@ data class StateDefinition(
 
         val addToBackStack: Boolean,
 
-        val moveDefenition: List<StateMoveDefinition>
+        val moveDefinition: List<StateMoveDefinition>,
+
+        val viewRootType: TypeName,
+
+        val hasSubGraph: Boolean,
+
+        val subGraphRootIndex: Int?,
+
+        val subGraphInitialStateName: ClassName?
 ) {
 
 }

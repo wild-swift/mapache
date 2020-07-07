@@ -4,7 +4,7 @@ data class StateSubGraph(
         /**
          * Scene root view class
          */
-        val sceneViewClass: String,
+        val sceneViewClass: Class<*>?,
         /**
          * Index of view object in current scene
          */

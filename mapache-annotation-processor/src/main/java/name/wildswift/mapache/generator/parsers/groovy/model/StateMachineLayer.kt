@@ -6,6 +6,10 @@ data class StateMachineLayer(
          */
         val contentId: Int,
         /**
+         * Name of field in android R.id class
+         */
+        val contentClass: Class<*>?,
+        /**
          * Link to start state
          */
         override val initialState: State,

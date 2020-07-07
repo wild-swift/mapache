@@ -11,5 +11,6 @@ data class TransitionDefinition(
         val beginStateWrapperClass: ClassName,
         val endViewSetClass: TypeName,
         val endStateClass: ClassName,
-        val endStateWrapperClass: ClassName
+        val endStateWrapperClass: ClassName,
+        val viewRootType: TypeName
 )

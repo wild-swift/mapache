@@ -159,7 +159,7 @@ class TransitionsWrapperGenerator(
             if (emptyTransitionTypeName == transitionDesc.typeName) return@forEach
             if (defaultTransitionTypeName == transitionDesc.typeName) return@forEach
 
-            val stateTransitionRootViewType = viewGroupTypeName
+            val stateTransitionRootViewType = transitionDesc.viewRootType
 
             val transitionWrapperTypeName = transitionDesc.wrapperTypeName
 

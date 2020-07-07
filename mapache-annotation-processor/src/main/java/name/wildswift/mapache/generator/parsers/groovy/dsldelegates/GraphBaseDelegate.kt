@@ -17,6 +17,10 @@ abstract class GraphBaseDelegate : GroovyObject {
     private var elementsRaw = listOf<Pair<State, Closure<*>>>()
     private var allClosure: Closure<*>? = null
 
+    protected var rootViewClass: Class<*> = Any::class.java
+    protected var rootView = -1
+
+
 
     override fun invokeMethod(name: String, inArgs: Any?): Any? {
         val args = inArgs as? Array<Any?> ?: return null
@@ -44,6 +48,19 @@ abstract class GraphBaseDelegate : GroovyObject {
 
     fun hasBackStack(value: Boolean) {
         hasBackStack = value
+    }
+
+    fun rootView(definition: Map<Int, Class<*>>) {
+        val entries = definition.entries.takeIf { it.size == 1 } ?: throw IllegalArgumentException("Incorrect definition of rootView in ${name()}")
+        if (rootView >= 0) throw IllegalArgumentException("Multiple definition of rootView in ${name()}")
+        val (sceneViewIndex, sceneViewClass) = entries.single()
+        if (sceneViewIndex < 0) throw ArrayIndexOutOfBoundsException()
+        this.rootView = sceneViewIndex
+        this.rootViewClass = sceneViewClass
+    }
+
+    fun rootView(index: Int) {
+        rootView = index
     }
 
     override fun setProperty(propertyName: String, newValue: Any?) {

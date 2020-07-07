@@ -5,8 +5,6 @@ import name.wildswift.mapache.generator.parsers.groovy.model.*
 class StateDelegate(private val state: State): GraphBaseDelegate() {
     var movementRules: List<Triple<String, Class<*>, Class<*>>> = listOf()
 
-    private var sceneViewClass = ""
-    private var sceneViewIndex = -1
     var singleInBackStack = false
     var addToBackStack = true
 
@@ -22,14 +20,7 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
         }.go(targetStateClass)
     }
 
-    fun rootView(definition: Map<Int, Class<*>>) {
-        val entries = definition.entries.takeIf { it.size == 1 } ?: throw IllegalArgumentException("Incorrect definition of rootView in ${name()}")
-        if (sceneViewIndex >= 0) throw IllegalArgumentException("Multiple definition of rootView in ${name()}")
-        val (sceneViewIndex, sceneViewClass) = entries.single()
-        if (sceneViewIndex < 0) throw ArrayIndexOutOfBoundsException()
-        this.sceneViewIndex = sceneViewIndex
-        this.sceneViewClass = sceneViewClass.name
-    }
+
 
     fun singleInBackStack(value: Boolean) {
         singleInBackStack = value
@@ -51,8 +42,8 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
     override fun buildStateGraph(): StateSubGraph? {
         return initialRaw?.let { (initialState, _) ->
             StateSubGraph(
-                    sceneViewClass = sceneViewClass,
-                    sceneViewIndex = sceneViewIndex,
+                    sceneViewClass = rootViewClass.takeIf { rootView > 0 },
+                    sceneViewIndex = rootView.takeIf { it > 0 } ?: 0,
                     initialState = initialState,
                     hasBackStack = hasBackStack
             )

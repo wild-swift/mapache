@@ -1,6 +1,7 @@
 package name.wildswift.testapp.navigation.states
 
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewsets.ViewCouple
@@ -10,9 +11,9 @@ import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.generated.events.TestAppEvent
 import name.wildswift.testapp.views.*
 
-class ReviewBuyState(val tiker:String, val amount: Float, val paymentType: Int): MState<TestAppEvent, ViewCouple<RootView, ReviewBuyView>, ViewGroup, DiContext> {
+class ReviewBuyState(val tiker:String, val amount: Float, val paymentType: Int): MState<TestAppEvent, ViewCouple<RootView, ReviewBuyView>, FrameLayout, DiContext> {
 
-    override fun setup(rootView: ViewGroup, context: NavigationContext<TestAppEvent, DiContext>): ViewCouple<RootView, ReviewBuyView> {
+    override fun setup(rootView: FrameLayout, context: NavigationContext<TestAppEvent, DiContext>): ViewCouple<RootView, ReviewBuyView> {
         val appRootView = RootView(context.diContext.context)
         rootView.addView(appRootView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         val buyCurrencyStep1View = ReviewBuyView(context.diContext.context)

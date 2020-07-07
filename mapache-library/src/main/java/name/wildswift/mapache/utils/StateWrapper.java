@@ -14,7 +14,7 @@ import name.wildswift.mapache.events.Eventer;
 import name.wildswift.mapache.states.MState;
 import name.wildswift.mapache.viewsets.ViewSet;
 
-public final class StateWrapper<E extends Event, VS extends ViewSet, DC, VR extends View, S extends MState<E, VS, VR, DC>> implements Eventer<E> {
+final class StateWrapper<E extends Event, VS extends ViewSet, DC, VR extends View, S extends MState<E, VS, VR, DC>> implements Eventer<E> {
     private final S state;
     private final NavigationContext<E, DC> context;
 
@@ -23,7 +23,7 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, VR exte
     private SingleTimeInitDeinitCaller bindUnbindCaller;
     private VS viewSet;
 
-    public StateWrapper(@NonNull S state, @NonNull NavigationContext<E, DC> context, @Nullable VS viewSet) {
+    StateWrapper(@NonNull S state, @NonNull NavigationContext<E, DC> context, @Nullable VS viewSet) {
         this.state = state;
         this.context = context;
         this.viewSet = viewSet;
@@ -33,7 +33,7 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, VR exte
         }
     }
 
-    public void setRoot(@Nullable VR root) {
+    void setRoot(@Nullable VR root) {
         if (root != null) {
             if (viewSet == null) {
                 viewSet = state.setup(root, context);
@@ -48,21 +48,21 @@ public final class StateWrapper<E extends Event, VS extends ViewSet, DC, VR exte
 
     }
 
-    public void start() {
+    void start() {
         startStopCaller.init();
         if (bindUnbindCaller != null) bindUnbindCaller.init();
     }
 
-    public void stop() {
+    void stop() {
         startStopCaller.deinit();
         if (bindUnbindCaller != null) bindUnbindCaller.deinit();
     }
 
-    public S getWrapped() {
+    S getWrapped() {
         return state;
     }
 
-    public VS getCurrentViewSet() {
+    VS getCurrentViewSet() {
         return viewSet;
     }
 

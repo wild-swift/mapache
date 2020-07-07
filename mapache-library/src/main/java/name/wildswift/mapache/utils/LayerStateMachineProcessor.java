@@ -12,6 +12,7 @@ import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.graph.BackStackEntry;
 import name.wildswift.mapache.graph.Navigatable;
 import name.wildswift.mapache.graph.StateTransition;
+import name.wildswift.mapache.graph.SubGraph;
 import name.wildswift.mapache.graph.TransitionCallback;
 import name.wildswift.mapache.graph.TransitionFactory;
 import name.wildswift.mapache.states.MState;
@@ -30,6 +31,7 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
     private VR currentRoot;
     private List<BackStackEntry<S>> backStack = new ArrayList<>();
 
+    private LayerStateMachineProcessor subMachine = null;
 
     public LayerStateMachineProcessor(S initialState, TransitionFactory<E, DC, S> transFactory, NavigationContext<E, DC> navigationContext, ViewContentHolderImpl<DC, S> viewsContents) {
         this.initialState = initialState;
@@ -47,18 +49,27 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
             currentState = new StateWrapper(initialState, navigationContext, null);
             viewsContents.enterState(initialState);
             currentState.start();
+            if (initialState instanceof SubGraph) {
+                subMachine = new LayerStateMachineProcessor(((SubGraph) initialState).getInitialState(), transFactory, navigationContext, viewsContents);
+            }
         }
         currentState.setRoot(currentRoot);
+        S wrapped = currentState.getWrapped();
+        if (wrapped instanceof SubGraph) {
+            subMachine.attachToRoot(((SubGraph) wrapped).extractRoot(currentRoot, currentState.getCurrentViewSet()));
+        }
     }
 
     public void detachFromRoot() {
+        if (subMachine != null) subMachine.detachFromRoot();
         currentState.setRoot(null);
         currentRoot = null;
     }
 
+    @SuppressWarnings("unchecked")
     public boolean onNewEvent(E event) {
         // TODO Add thread managment
-        if (currentState.onNewEvent(event)) return true;
+        if (subMachine != null && subMachine.onNewEvent(event)) return true;
 
         S nextState = currentState.getWrapped().getNextState(event);
         if (nextState == null) return false;
@@ -68,7 +79,7 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
     }
 
     public boolean onBack() {
-        if (currentState.onBack()) return true;
+        if (subMachine != null && subMachine.onBack()) return true;
 
         if (backStack.size() == 0) return false;
 
@@ -84,6 +95,10 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
     private void moveToState(S nextState, boolean addToBackStack) {
         StateTransition<E, ViewSet, ViewSet, VR, DC> transition = (StateTransition<E, ViewSet, ViewSet, VR, DC>) transFactory.getTransition(currentState.getWrapped(), nextState);
 
+        if (subMachine != null) {
+            subMachine.reset();
+            subMachine = null;
+        }
         currentState.stop();
         if (addToBackStack) {
             BackStackEntry<S> backStackEntry = (BackStackEntry<S>) currentState.getWrapped().getBackStackEntry();
@@ -117,13 +132,22 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
             this.currentSet = currentSet;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public void run() {
             viewsContents.exitState(currentState.getWrapped());
             currentState = new StateWrapper(nextState, navigationContext, currentSet);
             currentState.start();
+            if (nextState instanceof SubGraph) {
+                subMachine = new LayerStateMachineProcessor(((SubGraph) nextState).getInitialState(), transFactory, navigationContext, viewsContents);
+            }
+
             if (currentRoot != null && currentSet == null) {
                 currentState.setRoot(currentRoot);
+            }
+
+            if (nextState instanceof SubGraph && currentState.getCurrentViewSet() != null) {
+                subMachine.attachToRoot(((SubGraph) nextState).extractRoot(currentRoot, currentState.getCurrentViewSet()));
             }
         }
     }
@@ -145,7 +169,7 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
         private final StateTransition<E, ViewSet, ViewSet, VR, DC> transition;
         private final S nextState;
 
-        public HandleStartTransition(StateTransition<E, ViewSet, ViewSet, VR, DC> transition, S nextState) {
+        private HandleStartTransition(StateTransition<E, ViewSet, ViewSet, VR, DC> transition, S nextState) {
             this.transition = transition;
             this.nextState = nextState;
         }

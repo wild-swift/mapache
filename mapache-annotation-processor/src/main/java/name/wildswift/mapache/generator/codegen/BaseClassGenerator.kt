@@ -21,7 +21,7 @@ class BaseClassGenerator(
         private val filer: Filer
 ) {
     fun generateAll() {
-        val mStateParameterizedBaseClass = ParameterizedTypeName.get(baseStatesType, viewGroupTypeName, genericWildcard)
+        val mStateParameterizedBaseClass = ParameterizedTypeName.get(baseStatesType, viewTypeName, genericWildcard)
 
         val navigationStateMachineType = ParameterizedTypeName.get(navigationStateMachineTypeName, actionBaseType, dependencySource, mStateParameterizedBaseClass)
         val layerDefinitionType = ParameterizedTypeName.get(layerDefinitionTypeName, actionBaseType, dependencySource, mStateParameterizedBaseClass)
@@ -47,10 +47,10 @@ class BaseClassGenerator(
                                 .indent()
                                 .apply {
                                     layers.dropLast(1).forEach {
-                                        add("new \$T(\$T.newInstance(), ${it.contentId}),\n", layerDefinitionType, it.initialStateWrapperType, it.contentIdClass)
+                                        add("new \$T((\$T)\$T.newInstance(), ${it.contentId}),\n", layerDefinitionType, baseStatesType, it.initialStateWrapperType, it.contentIdClass)
                                     }
                                     layers.lastOrNull()?.also {
-                                        add("new \$T(\$T.newInstance(), ${it.contentId})\n", layerDefinitionType, it.initialStateWrapperType, it.contentIdClass)
+                                        add("new \$T((\$T)\$T.newInstance(), ${it.contentId})\n", layerDefinitionType, baseStatesType, it.initialStateWrapperType, it.contentIdClass)
                                     }
                                 }
                                 .unindent()

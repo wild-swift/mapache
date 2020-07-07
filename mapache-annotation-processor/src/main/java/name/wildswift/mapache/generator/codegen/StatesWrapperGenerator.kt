@@ -53,7 +53,7 @@ class StatesWrapperGenerator(
 
         states.forEach { state ->
 
-            val stateRootViewType = viewGroupTypeName
+            val stateRootViewType = state.viewRootType
 
             val thisStateViewSetType = state.viewSetClassName
 
@@ -123,7 +123,7 @@ class StatesWrapperGenerator(
                             .addParameter(ParameterSpec.builder(actionBaseType, "e").addAnnotation(NonNull::class.java).build())
                             .returns(baseTypeName)
                             .apply {
-                                state.moveDefenition.forEach { moveDefenition ->
+                                state.moveDefinition.forEach { moveDefenition ->
                                     val parametersSting = moveDefenition.moveParameters.joinToString { "((\$1T)e).get${it.name.capitalize()}()" }
                                     addStatement("if (e instanceof \$1T) return \$2T.${createInstanceMethodName}($parametersSting)", moveDefenition.actionType, moveDefenition.targetStateWrapperClass)
                                 }
@@ -143,7 +143,7 @@ class StatesWrapperGenerator(
                             .addAnnotation(Override::class.java)
                             .addAnnotation(NonNull::class.java)
                             .addModifiers(Modifier.PUBLIC)
-                            .addParameter(ParameterSpec.builder(viewGroupTypeName, "rootView").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(stateRootViewType, "rootView").addAnnotation(NonNull::class.java).build())
                             .addParameter(navigationContextParameter)
                             .returns(thisStateViewSetType)
                             .addStatement("return \$N.setup(rootView, context)", wrappedField)

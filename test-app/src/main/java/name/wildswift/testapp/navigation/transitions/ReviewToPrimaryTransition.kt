@@ -1,6 +1,7 @@
 package name.wildswift.testapp.navigation.transitions
 
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import name.wildswift.mapache.NavigationContext
 import name.wildswift.mapache.graph.StateTransition
 import name.wildswift.mapache.graph.TransitionCallback
@@ -15,9 +16,9 @@ import name.wildswift.testapp.views.RootView
 import name.wildswift.testapp.views.WalletsView
 
 class ReviewToPrimaryTransition(from: ReviewBuyState, to: PrimaryState) :
-        StateTransition<TestAppEvent, ViewCouple<RootView, ReviewBuyView>, ViewCouple<RootView, WalletsView>, ViewGroup, DiContext>(from, to) {
+        StateTransition<TestAppEvent, ViewCouple<RootView, ReviewBuyView>, ViewCouple<RootView, WalletsView>, FrameLayout, DiContext>(from, to) {
 
-    override fun execute(context: NavigationContext<TestAppEvent, DiContext>, rootView: ViewGroup, inViews: ViewCouple<RootView, ReviewBuyView>, callback: TransitionCallback<ViewCouple<RootView, WalletsView>>) {
+    override fun execute(context: NavigationContext<TestAppEvent, DiContext>, rootView: FrameLayout, inViews: ViewCouple<RootView, ReviewBuyView>, callback: TransitionCallback<ViewCouple<RootView, WalletsView>>) {
         val (root, _) = inViews;
         root.getContentView().removeAllViews()
         val walletsView = WalletsView(root.context)

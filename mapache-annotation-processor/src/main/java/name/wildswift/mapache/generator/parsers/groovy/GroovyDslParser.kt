@@ -5,14 +5,12 @@ import com.squareup.javapoet.TypeName
 import groovy.lang.Binding
 import groovy.lang.GroovyShell
 import groovy.util.DelegatingScript
-import name.wildswift.mapache.generator.extractViewSetType
-import name.wildswift.mapache.generator.extractViewTypeFromViewContent
+import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.generatemodel.*
 import name.wildswift.mapache.generator.parsers.ModelParser
 import name.wildswift.mapache.generator.parsers.groovy.dsldelegates.MapacheGroovyDslDelegate
 import name.wildswift.mapache.generator.parsers.groovy.model.State
 import name.wildswift.mapache.generator.parsers.groovy.model.StateMachineLayer
-import name.wildswift.mapache.generator.toType
 import org.codehaus.groovy.control.CompilerConfiguration
 import java.io.File
 import java.text.ParseException
@@ -40,7 +38,8 @@ class GroovyDslParser: ModelParser {
             val transitions = mutableListOf<TransitionDefinition>()
             val viewContent = mutableListOf<ViewContentDefinition>()
             parseModel.layers.forEachIndexed { index, layer ->
-                addStates("L${index + 1}", parseModel.statesPackage, parseModel.transitionsPackage, layer.initialState, events, states, transitions, viewContent, processingEnv)
+                val rootType = layer.contentClass?.let { ClassName.get(it) } ?: frameLayoutTypeName
+                addStates("L${index + 1}", parseModel.statesPackage, parseModel.transitionsPackage, layer.initialState, rootType, events, states, transitions, viewContent, processingEnv)
             }
             GenerateModel(
                     baseEventClass = ClassName.get(parseModel.eventsPackage, "${prefix}Event"),
@@ -93,35 +92,19 @@ class GroovyDslParser: ModelParser {
         return ClassName.get(packageName, "$prefix${it.name.simpleName}Wrapper")
     }
 
-    fun viewContentHolders(layers: List<StateMachineLayer>, packageName: String, processingEnv: ProcessingEnvironment): List<ViewContentDefinition> {
-        val states = layers.flatMap {
-            val states = mutableListOf<State>()
-            addStates(it.initialState, states)
-            states.toList()
-        }
-        val wrapperClassMapping = states.map { it.name to ClassName.get(packageName, "${it.name.simpleName}Wrapper") }.toMap()
-        return states.flatMap { state ->
-            state.viewModels.map { defentition ->
-                ViewContentDefinition(
-                        typeName = ClassName.get(defentition.type),
-                        viewType = processingEnv.elementUtils.getTypeElement(defentition.type.canonicalName).extractViewTypeFromViewContent(),
-                        name = defentition.name,
-                        default = defentition.default,
-                        targetState = wrapperClassMapping[state.name] ?: error("Internal error")
-                )
-            }
-        }
-    }
-
-    private fun addStates(prefix: String, statesPackage: String, transitionsPackage: String, state: State, events: List<EventDefinition>, states: MutableList<StateDefinition>, transitions: MutableList<TransitionDefinition>, viewContent: MutableList<ViewContentDefinition>, processingEnv: ProcessingEnvironment) {
+    private fun addStates(prefix: String, statesPackage: String, transitionsPackage: String, state: State, rootType: TypeName, events: List<EventDefinition>, states: MutableList<StateDefinition>, transitions: MutableList<TransitionDefinition>, viewContent: MutableList<ViewContentDefinition>, processingEnv: ProcessingEnvironment) {
         if (states.find { it.stateClassName.canonicalName() == state.name.canonicalName } != null) return
+
+        val acronym = state.name.simpleName.filter { it.isUpperCase() }
+        val subGraphPrefix = "$prefix$acronym"
+
         states.add(StateDefinition(
                 viewSetClassName = processingEnv.elementUtils.getTypeElement(state.name.canonicalName).extractViewSetType(),
                 stateClassName = ClassName.get(state.name),
                 wrapperClassName = generateStateWrapperName(prefix, statesPackage, state),
                 parameters = state.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
                 addToBackStack = state.addToBackStack,
-                moveDefenition = state.movements.mapNotNull { movment ->
+                moveDefinition = state.movements.mapNotNull { movment ->
                     if (movment.action != null) {
                         StateMoveDefinition(
                                 actionType = events.filter { it.name == movment.action.name }.first().typeName,
@@ -131,7 +114,11 @@ class GroovyDslParser: ModelParser {
                     } else {
                         null
                     }
-                }
+                },
+                viewRootType = rootType,
+                hasSubGraph = state.child != null,
+                subGraphInitialStateName = state.child?.let { generateStateWrapperName(subGraphPrefix, statesPackage, it.initialState) },
+                subGraphRootIndex = state.child?.sceneViewIndex
         ))
 
         state.movements.forEach { movement ->
@@ -150,7 +137,8 @@ class GroovyDslParser: ModelParser {
                             beginStateWrapperClass = generateStateWrapperName(prefix, statesPackage, state),
                             endViewSetClass = toViewSetType,
                             endStateClass = ClassName.get(movement.endState.name),
-                            endStateWrapperClass =generateStateWrapperName(prefix, statesPackage, movement.endState)
+                            endStateWrapperClass =generateStateWrapperName(prefix, statesPackage, movement.endState),
+                            viewRootType = rootType
                     )
             )
 
@@ -168,61 +156,12 @@ class GroovyDslParser: ModelParser {
         state.movements
                 .map { it.endState }
                 .forEach {
-                    addStates(prefix, statesPackage, transitionsPackage, it, events, states, transitions, viewContent, processingEnv)
+                    addStates(prefix, statesPackage, transitionsPackage, it, rootType, events, states, transitions, viewContent, processingEnv)
                 }
         state.child
-                ?.initialState
-                ?.also {
-                    val acronym = state.name.simpleName.filter { it.isUpperCase() }
-                    addStates("$prefix$acronym", statesPackage, transitionsPackage, it, events, states, transitions, viewContent, processingEnv)
-                }
-    }
-
-    private fun addStates(initialState: State, states: MutableList<State>) {
-        if (states.contains(initialState)) return
-        states.add(initialState)
-        initialState.movements
-                .map { it.endState }
-                .forEach {
-                    addStates(it, states)
-                }
-        initialState.child
-                ?.initialState
-                ?.also {
-                    addStates(it, states)
-                }
-    }
-
-    fun transitions(layers: List<StateMachineLayer>, packageName: String, statesPackage: String, processingEnv: ProcessingEnvironment): List<TransitionDefinition> {
-        val states = layers
-                .flatMap {
-                    val states = mutableListOf<State>()
-                    addStates(it.initialState, states)
-                    states.toList()
-                }
-        val wrapperClassMapping = states.map { it.name to ClassName.get(statesPackage, "${it.name.simpleName}Wrapper") }.toMap()
-        val classMapping = states.map { it.name to ClassName.get(it.name) }.toMap()
-        return states
-                .flatMap { state ->
-                    state.movements.map { movement ->
-                        val fromName = state.name.simpleName.let { if (it.endsWith("State")) it.dropLast("State".length) else it }
-                        val toName = movement.endState.name.simpleName.let { if (it.endsWith("State")) it.dropLast("State".length) else it }
-
-                        val fromViewSetType = processingEnv.elementUtils.getTypeElement(state.name.canonicalName).extractViewSetType()
-                        val toViewSetType = processingEnv.elementUtils.getTypeElement(movement.endState.name.canonicalName).extractViewSetType()
-
-
-                        TransitionDefinition(
-                                typeName = ClassName.get(movement.implClass),
-                                wrapperTypeName = ClassName.get(packageName, "${fromName}To${toName}TransitionWrapper"),
-                                beginViewSetClass = fromViewSetType,
-                                beginStateClass = classMapping[state.name]  ?: error("Internal error"),
-                                beginStateWrapperClass = wrapperClassMapping[state.name]  ?: error("Internal error"),
-                                endViewSetClass = toViewSetType,
-                                endStateClass = classMapping[movement.endState.name]  ?: error("Internal error"),
-                                endStateWrapperClass = wrapperClassMapping[movement.endState.name]  ?: error("Internal error")
-                        )
-                    }
+                ?.also { subGraph ->
+                    val childRootType = subGraph.sceneViewClass?.let { ClassName.get(it) } ?: rootType
+                    addStates(subGraphPrefix, statesPackage, transitionsPackage, subGraph.initialState, childRootType, events, states, transitions, viewContent, processingEnv)
                 }
     }
 }

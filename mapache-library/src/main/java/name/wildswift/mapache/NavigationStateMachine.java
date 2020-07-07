@@ -31,7 +31,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
 
 
     @SuppressWarnings("unchecked")
-    public NavigationStateMachine(List<LayerDefinition<E,DC,S>> layes, TransitionFactory<E, DC, ?> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
+    public NavigationStateMachine(List<LayerDefinition<E,DC,S>> layers, TransitionFactory<E, DC, ?> transFactory, ViewContentMetaSource<S> metaSource, DC diContext) {
         EventerInternal eventerInternal = new EventerInternal();
         this.callToActivityBridge = new CallToActivityBridge(eventerInternal);
         name.wildswift.mapache.utils.ViewContentHolderImpl<DC, S> viewsContents = new ViewContentHolderImpl<>(metaSource, diContext);
@@ -39,7 +39,7 @@ public final class NavigationStateMachine<E extends Event, DC, S extends MState<
 
         this.layerProcessors = new ArrayList<>();
 
-        for (LayerDefinition<E, DC, S> layerDefinition : layes) {
+        for (LayerDefinition<E, DC, S> layerDefinition : layers) {
             layerProcessors.add(new LayerHolder(
                     new LayerStateMachineProcessor(layerDefinition.getState(), transFactory, navigationContext, viewsContents),
                     layerDefinition.getContentId()
