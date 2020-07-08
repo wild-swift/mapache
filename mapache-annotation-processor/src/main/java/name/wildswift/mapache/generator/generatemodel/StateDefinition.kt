@@ -25,6 +25,8 @@ data class StateDefinition(
 
         val subGraphRootIndex: Int?,
 
+        val subGraphRootType: TypeName?,
+
         val subGraphInitialStateName: ClassName?
 ) {
 

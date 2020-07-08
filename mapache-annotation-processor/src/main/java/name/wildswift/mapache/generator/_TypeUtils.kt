@@ -64,6 +64,7 @@ val viewContentTypeName = ClassName.get(ViewContent::class.java)
 val viewContentMetaSourceTypeName = ClassName.get(ViewContentMetaSource::class.java)
 val viewContentMetaTypeName = ClassName.get(ViewContentMeta::class.java)
 val layerDefinitionTypeName = ClassName.get(LayerDefinition::class.java)
+val subGraphTypeName = ClassName.get(SubGraph::class.java)
 
 val runnableTypeName = ClassName.get(Runnable::class.java)
 val stringTypeName = ClassName.get(String::class.java)

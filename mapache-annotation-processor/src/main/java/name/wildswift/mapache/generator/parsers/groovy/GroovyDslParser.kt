@@ -93,7 +93,7 @@ class GroovyDslParser: ModelParser {
     }
 
     private fun addStates(prefix: String, statesPackage: String, transitionsPackage: String, state: State, rootType: TypeName, events: List<EventDefinition>, states: MutableList<StateDefinition>, transitions: MutableList<TransitionDefinition>, viewContent: MutableList<ViewContentDefinition>, processingEnv: ProcessingEnvironment) {
-        if (states.find { it.stateClassName.canonicalName() == state.name.canonicalName } != null) return
+        if (states.find { it.wrapperClassName == generateStateWrapperName(prefix, statesPackage, state) } != null) return
 
         val acronym = state.name.simpleName.filter { it.isUpperCase() }
         val subGraphPrefix = "$prefix$acronym"
@@ -118,7 +118,8 @@ class GroovyDslParser: ModelParser {
                 viewRootType = rootType,
                 hasSubGraph = state.child != null,
                 subGraphInitialStateName = state.child?.let { generateStateWrapperName(subGraphPrefix, statesPackage, it.initialState) },
-                subGraphRootIndex = state.child?.sceneViewIndex
+                subGraphRootIndex = state.child?.sceneViewIndex,
+                subGraphRootType = state.child?.run { sceneViewClass?.let { ClassName.get(it) } ?: rootType }
         ))
 
         state.movements.forEach { movement ->

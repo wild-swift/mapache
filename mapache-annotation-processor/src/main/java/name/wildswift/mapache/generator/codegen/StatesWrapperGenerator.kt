@@ -7,6 +7,7 @@ import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.codegen.GenerationConstants.createInstanceMethodName
 import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
 import name.wildswift.mapache.generator.generatemodel.StateDefinition
+import name.wildswift.mapache.graph.SubGraph
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
@@ -228,6 +229,49 @@ class StatesWrapperGenerator(
                                 .returns(currentStateWrapperName)
                                 .addStatement("return new \$T(${parameterList.joinToString { it.name }})", currentStateWrapperName)
                                 .build())
+            }
+
+            if (state.hasSubGraph) {
+                stateWrapperTypeSpecBuilder
+                        .addSuperinterface(ParameterizedTypeName.get(subGraphTypeName, actionBaseType, state.subGraphRootType, dependencySource, ParameterizedTypeName.get(baseTypeName, state.subGraphRootType, genericWildcard)))
+                        /*
+                          @Override
+                          public TestAppMState<FrameLayout, ?> getInitialState() {
+                            return L1BSSPrimaryStateWrapper.newInstance();
+                          }
+                         */
+                        .addMethod(MethodSpec.methodBuilder("getInitialState")
+                                .addAnnotation(Override::class.java)
+                                .addAnnotation(NonNull::class.java)
+                                .addModifiers(Modifier.PUBLIC)
+                                .returns(ParameterizedTypeName.get(baseTypeName, state.subGraphRootType, genericWildcard))
+                                .addStatement("return \$T.newInstance()", state.subGraphInitialStateName)
+                                .build()
+                        )
+                        /*
+                          @Override
+                          public FrameLayout extractRoot(View currentRoot, ViewSet currentViewSet) {
+                            return null;
+                          }
+                         */
+                        .addMethod(MethodSpec.methodBuilder("extractRoot")
+                                .addAnnotation(Override::class.java)
+                                .addAnnotation(NonNull::class.java)
+                                .addModifiers(Modifier.PUBLIC)
+                                .returns(state.subGraphRootType)
+                                .addParameter(ParameterSpec.builder(viewTypeName, "currentRoot").build())
+                                .addParameter(ParameterSpec.builder(viewSetTypeName, "currentViewSet").build())
+                                .also {
+                                    if (state.subGraphRootIndex == 0) {
+                                        it.addStatement("return (\$T) currentRoot", state.subGraphRootType)
+                                    } else {
+                                        it.addStatement("return ((\$T) currentViewSet).component${state.subGraphRootIndex}()", thisStateViewSetType)
+                                    }
+                                }
+
+                                .build()
+                        )
+
             }
 
             processingEnv.filer.createSourceFile(currentStateWrapperName.canonicalName())

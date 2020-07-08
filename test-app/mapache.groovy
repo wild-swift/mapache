@@ -1,4 +1,4 @@
-import name.wildswift.testapp.R
+import android.view.ViewGroup
 import name.wildswift.testapp.contents.WalletsViewViewContent
 import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.navigation.states.BuyStep1State
@@ -13,7 +13,6 @@ basePackageName "name.wildswift.testapp.generated"
 statesPackageName ".states"
 
 dependencySource = DiContext
-
 
 actions {
     Test()
@@ -35,6 +34,12 @@ layer {
 
         when ProceedBuy go ReviewBuyState with BuyToReviewTransition
         go PrimaryState with BuyToRootTransition
+
+//        rootView 0
+//
+//        from(PrimaryState) {
+//            content WalletsViewViewContent
+//        }
     }
 
     $(ReviewBuyState) {
