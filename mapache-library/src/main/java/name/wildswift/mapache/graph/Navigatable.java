@@ -14,4 +14,5 @@ public interface Navigatable<E extends Event, DC, NS extends MState<E, ? extends
     // TODO think about specify view sets
     @Nullable NS getNextState(@NonNull E e);
     @Nullable BackStackEntry<? extends NS> getBackStackEntry();
+    boolean singleInBackStack();
 }

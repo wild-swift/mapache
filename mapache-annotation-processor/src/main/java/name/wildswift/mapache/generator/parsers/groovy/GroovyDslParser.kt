@@ -104,6 +104,7 @@ class GroovyDslParser: ModelParser {
                 wrapperClassName = generateStateWrapperName(prefix, statesPackage, state),
                 parameters = state.parameters.orEmpty().map { ParameterDefinition(it.name, TypeName.get(it.type)) },
                 addToBackStack = state.addToBackStack,
+                singleInBackStack = state.singleInBackStack,
                 moveDefinition = state.movements.mapNotNull { movment ->
                     if (movment.action != null) {
                         StateMoveDefinition(

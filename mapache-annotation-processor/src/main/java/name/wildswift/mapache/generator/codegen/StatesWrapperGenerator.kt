@@ -206,6 +206,20 @@ class StatesWrapperGenerator(
                             }
                             .build()
                     )
+                    /*
+                      @Nullable
+                      @Override
+                      public BackStackEntry<BuyStep1StateWrapper> getBackStackEntry() {
+                        return new BackStackEntry<>(BuyStep1StateWrapper.class, new Object[]{ tiker });
+                      }
+                     */
+                    .addMethod(MethodSpec.methodBuilder("singleInBackStack")
+                            .addAnnotation(Override::class.java)
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(TypeName.BOOLEAN)
+                            .addStatement("return \$L", state.singleInBackStack)
+                            .build()
+                    )
 
             if (parameterList.isEmpty()) {
                 val instanceField = FieldSpec.builder(currentStateWrapperName, "instance", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL).initializer("new \$T()", currentStateWrapperName).build()

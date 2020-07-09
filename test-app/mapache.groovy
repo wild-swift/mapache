@@ -1,7 +1,9 @@
 import android.view.ViewGroup
+import name.wildswift.mapache.dafaults.EmptyStateTransition
 import name.wildswift.testapp.contents.WalletsViewViewContent
 import name.wildswift.testapp.di.DiContext
 import name.wildswift.testapp.navigation.states.BuyStep1State
+import name.wildswift.testapp.navigation.states.Primary2State
 import name.wildswift.testapp.navigation.transitions.BuyToReviewTransition
 import name.wildswift.testapp.navigation.transitions.BuyToRootTransition
 import name.wildswift.testapp.navigation.states.PrimaryState
@@ -43,6 +45,12 @@ layer {
     }
 
     $(ReviewBuyState) {
+        when Test go Primary2State with EmptyStateTransition
+
         go PrimaryState with ReviewToPrimaryTransition
+    }
+
+    $(Primary2State) {
+
     }
 }

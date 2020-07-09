@@ -71,6 +71,7 @@ class StateDelegate(private val state: State): GraphBaseDelegate() {
 
         state.child = buildStateGraph()
         state.addToBackStack = addToBackStack
+        state.singleInBackStack = singleInBackStack
     }
 
 }

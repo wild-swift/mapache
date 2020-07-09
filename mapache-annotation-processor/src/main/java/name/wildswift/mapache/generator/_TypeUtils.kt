@@ -12,13 +12,14 @@ import name.wildswift.mapache.dafaults.EmptyStateTransition
 import name.wildswift.mapache.graph.*
 import name.wildswift.mapache.states.MState
 import name.wildswift.mapache.viewcontent.ViewContent
-import name.wildswift.mapache.viewcontent.ViewContentHolder
 import name.wildswift.mapache.viewcontent.ViewContentMeta
 import name.wildswift.mapache.viewcontent.ViewContentMetaSource
 import name.wildswift.mapache.viewsets.ViewSet
 import java.io.Serializable
 import java.util.*
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.TypeKind
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
@@ -95,9 +96,20 @@ val recyclerAdapterClass = ClassName.get("androidx.recyclerview.widget", "Recycl
 val recyclerHolderClass = ClassName.get("androidx.recyclerview.widget", "RecyclerView", "ViewHolder")
 val recyclerDataObserverClass = ClassName.get("androidx.recyclerview.widget", "RecyclerView", "AdapterDataObserver")
 
-fun TypeElement.extractViewSetType(): TypeName = interfaces
-        ?.mapNotNull { TypeName.get(it) as? ParameterizedTypeName }
-        ?.firstOrNull { it.rawType == mStateTypeName }
+fun TypeElement.extractViewSetType(): TypeName =
+        run {
+            var resultList = listOf(this)
+            var type: TypeElement? = this
+            while (type != null) {
+                resultList = resultList + type
+                type = (type.superclass as? DeclaredType)?.asElement() as? TypeElement
+            }
+            superclass.kind == TypeKind.DECLARED
+            resultList
+        }
+        .flatMap { it.interfaces.orEmpty() }
+        .mapNotNull { TypeName.get(it) as? ParameterizedTypeName }
+        .firstOrNull { it.rawType == mStateTypeName }
         .let {
             it ?: error("Class ${qualifiedName} not implements ${mStateTypeName.canonicalName()}")
         }
@@ -106,9 +118,20 @@ fun TypeElement.extractViewSetType(): TypeName = interfaces
         .get(1)
         ?: error("Internal error")
 
-fun TypeElement.extractViewTypeFromViewContent(): TypeName = interfaces
-        ?.mapNotNull { TypeName.get(it) as? ParameterizedTypeName }
-        ?.firstOrNull { it.rawType == viewContentTypeName }
+fun TypeElement.extractViewTypeFromViewContent(): TypeName =
+        run {
+            var resultList = listOf(this)
+            var type: TypeElement? = this
+            while (type != null) {
+                resultList = resultList + type
+                type = (type.superclass as? DeclaredType)?.asElement() as? TypeElement
+            }
+            superclass.kind == TypeKind.DECLARED
+            resultList
+        }
+        .flatMap { it.interfaces.orEmpty() }
+        .mapNotNull { TypeName.get(it) as? ParameterizedTypeName }
+        .firstOrNull { it.rawType == viewContentTypeName }
         .let {
             it ?: error("Class ${qualifiedName} not implements ${viewContentTypeName.canonicalName()}")
         }

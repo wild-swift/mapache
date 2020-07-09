@@ -8,6 +8,8 @@ data class State(
         val name: Class<*>,
 
         var addToBackStack: Boolean = true,
+
+        var singleInBackStack: Boolean = false,
         /**
          * List of constructor parameters
          */

@@ -67,7 +67,7 @@ object DomToInternalModelConverter {
                     StateMachineLayer(
                             0,
                             Int::class.java,
-                            State(Int::class.java, true, listOf(), null),
+                            State(Int::class.java, true, false, listOf(), null),
 //                            getState(initialStateName, states, statesTag, nsPrefix, actions),
                             true
                     )

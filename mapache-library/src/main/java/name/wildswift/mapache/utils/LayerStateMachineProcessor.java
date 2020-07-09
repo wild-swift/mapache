@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import name.wildswift.mapache.NavigationContext;
@@ -62,6 +63,7 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
 
     public void detachFromRoot() {
         if (subMachine != null) subMachine.detachFromRoot();
+        if (currentState == null) return;
         currentState.setRoot(null);
         currentRoot = null;
     }
@@ -103,7 +105,20 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
         if (addToBackStack) {
             BackStackEntry<S> backStackEntry = (BackStackEntry<S>) currentState.getWrapped().getBackStackEntry();
             if (backStackEntry != null) {
-                backStack.add(backStackEntry);
+                if (currentState.getWrapped().singleInBackStack()) {
+                    for (int i = 0; i < backStack.size(); i++) {
+                        BackStackEntry<S> stackEntry = backStack.get(i);
+                        if (stackEntry.getStateWrapperClass() == backStackEntry.getStateWrapperClass()) {
+                            while (i < backStack.size()) {
+                                backStack.remove(i);
+                            }
+                            break;
+                        }
+                    }
+                    backStack.add(backStackEntry);
+                } else {
+                    backStack.add(backStackEntry);
+                }
             }
         }
 

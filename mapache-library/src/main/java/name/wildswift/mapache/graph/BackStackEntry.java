@@ -15,6 +15,10 @@ public class BackStackEntry<NS extends MState<?, ?, ?, ?>> {
         this.parameters = parameters;
     }
 
+    public Class<NS> getStateWrapperClass() {
+        return stateWrapperClass;
+    }
+
     @SuppressWarnings("unchecked")
     public NS createInstance() {
         try {

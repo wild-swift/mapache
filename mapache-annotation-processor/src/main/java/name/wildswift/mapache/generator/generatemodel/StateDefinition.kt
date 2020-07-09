@@ -17,6 +17,8 @@ data class StateDefinition(
 
         val addToBackStack: Boolean,
 
+        val singleInBackStack: Boolean,
+
         val moveDefinition: List<StateMoveDefinition>,
 
         val viewRootType: TypeName,

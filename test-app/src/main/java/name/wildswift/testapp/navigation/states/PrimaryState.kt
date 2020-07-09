@@ -13,7 +13,7 @@ import name.wildswift.testapp.generated.events.SellCrypto
 import name.wildswift.testapp.generated.events.TestAppEvent
 import name.wildswift.testapp.views.*
 
-class PrimaryState: MState<TestAppEvent, ViewCouple<RootView, WalletsView>, FrameLayout, DiContext> {
+open class PrimaryState: MState<TestAppEvent, ViewCouple<RootView, WalletsView>, FrameLayout, DiContext> {
 
     override fun setup(rootView: FrameLayout, context: NavigationContext<TestAppEvent, DiContext>): ViewCouple<RootView, WalletsView> {
         val appRootView = RootView(context.diContext.context)
