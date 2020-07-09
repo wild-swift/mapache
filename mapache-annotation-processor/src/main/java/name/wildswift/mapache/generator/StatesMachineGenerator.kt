@@ -44,7 +44,6 @@ class StatesMachineGenerator : AbstractProcessor() {
             generateStateMachine(it.value, it.configName, it.type)
         }
 
-//        processingEnv.filer.createSourceFile()
         return true
     }
 

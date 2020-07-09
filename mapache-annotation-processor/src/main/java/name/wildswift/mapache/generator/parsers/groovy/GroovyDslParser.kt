@@ -145,13 +145,13 @@ class GroovyDslParser: ModelParser {
 
         }
         state.viewModels.forEach { defentition ->
-            ViewContentDefinition(
+            viewContent.add(ViewContentDefinition(
                     typeName = ClassName.get(defentition.type),
                     viewType = processingEnv.elementUtils.getTypeElement(defentition.type.canonicalName).extractViewTypeFromViewContent(),
                     name = defentition.name,
                     default = defentition.default,
                     targetState = generateStateWrapperName(prefix, statesPackage, state)
-            )
+            ))
         }
 
         state.movements
