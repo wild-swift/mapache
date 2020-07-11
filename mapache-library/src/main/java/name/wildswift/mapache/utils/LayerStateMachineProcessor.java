@@ -62,8 +62,8 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
     }
 
     public void detachFromRoot() {
+        if (currentRoot == null) return;
         if (subMachine != null) subMachine.detachFromRoot();
-        if (currentState == null) return;
         currentState.setRoot(null);
         currentRoot = null;
     }
@@ -102,23 +102,26 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
             subMachine = null;
         }
         currentState.stop();
-        if (addToBackStack) {
+
+        boolean backStackProcessed = false;
+
+        if (nextState.singleInBackStack()) {
+            for (int i = 0; i < backStack.size(); i++) {
+                BackStackEntry<S> stackEntry = backStack.get(i);
+                if (stackEntry.getStateWrapperClass() == nextState.getClass()) {
+                    while (i < backStack.size()) {
+                        backStack.remove(i);
+                    }
+                    backStackProcessed = true;
+                    break;
+                }
+            }
+        }
+
+        if (addToBackStack && !backStackProcessed) {
             BackStackEntry<S> backStackEntry = (BackStackEntry<S>) currentState.getWrapped().getBackStackEntry();
             if (backStackEntry != null) {
-                if (currentState.getWrapped().singleInBackStack()) {
-                    for (int i = 0; i < backStack.size(); i++) {
-                        BackStackEntry<S> stackEntry = backStack.get(i);
-                        if (stackEntry.getStateWrapperClass() == backStackEntry.getStateWrapperClass()) {
-                            while (i < backStack.size()) {
-                                backStack.remove(i);
-                            }
-                            break;
-                        }
-                    }
-                    backStack.add(backStackEntry);
-                } else {
-                    backStack.add(backStackEntry);
-                }
+                backStack.add(backStackEntry);
             }
         }
 
@@ -136,6 +139,7 @@ public class LayerStateMachineProcessor<E extends Event, VR extends View, DC, S 
         detachFromRoot();
         viewsContents.exitState(currentState.getWrapped());
         currentState = null;
+        subMachine = null;
     }
 
     private class StartNewStateCommand implements Runnable {
