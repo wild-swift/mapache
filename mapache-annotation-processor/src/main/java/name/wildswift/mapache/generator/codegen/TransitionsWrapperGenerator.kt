@@ -215,6 +215,8 @@ class TransitionsWrapperGenerator(
                                                 codeBlock.beginControlFlow("if (to instanceof \$T)", it.endStateWrapperClass)
                                                 if (it.typeName == emptyTransitionTypeName) {
                                                     codeBlock.addStatement("return new \$T<>((\$T) from, (\$T) to)", emptyWrapperTypeName, it.beginStateWrapperClass, it.endStateWrapperClass)
+                                                } else if (it.typeName == defaultTransitionTypeName) {
+                                                    codeBlock.addStatement("return new \$T<>((\$T) from, (\$T) to)", defaultWrapperTypeName, it.beginStateWrapperClass, it.endStateWrapperClass)
                                                 } else {
                                                     codeBlock.addStatement("return new \$T((\$T) from, (\$T) to)", it.wrapperTypeName, it.beginStateWrapperClass, it.endStateWrapperClass)
                                                 }
