@@ -2,7 +2,8 @@ package name.wildswift.mapache.dafaults;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.NotNull;
 
 import name.wildswift.mapache.NavigationContext;
 import name.wildswift.mapache.events.Event;
@@ -14,21 +15,21 @@ class EmptyState<E extends Event, RV extends View, DC> implements MState<E, View
 
     private EmptyRunnable emptyRunnable = new EmptyRunnable();
 
-    @NonNull
+    @NotNull
     @Override
-    public ViewVoid setup(@NonNull RV rootView, @NonNull NavigationContext<E, DC> context) {
+    public ViewVoid setup(@NotNull RV rootView, @NotNull NavigationContext<E, DC> context) {
         return ViewSet.from();
     }
 
-    @NonNull
+    @NotNull
     @Override
-    public Runnable dataBind(@NonNull NavigationContext<E, DC> context, @NonNull ViewVoid views) {
+    public Runnable dataBind(@NotNull NavigationContext<E, DC> context, @NotNull ViewVoid views) {
         return emptyRunnable;
     }
 
-    @NonNull
+    @NotNull
     @Override
-    public Runnable start(@NonNull NavigationContext<E, DC> context) {
+    public Runnable start(@NotNull NavigationContext<E, DC> context) {
         return emptyRunnable;
     }
 

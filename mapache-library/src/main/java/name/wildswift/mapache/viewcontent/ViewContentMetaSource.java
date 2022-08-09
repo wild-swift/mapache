@@ -1,6 +1,7 @@
 package name.wildswift.mapache.viewcontent;
 
-import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
@@ -9,6 +10,6 @@ import name.wildswift.mapache.states.MState;
 import name.wildswift.mapache.viewsets.ViewSet;
 
 public interface ViewContentMetaSource<NS extends MState> {
-    @NonNull
-    Set<ViewContentMeta> getObjectsForState(@NonNull Class<NS> stateClass);
+    @NotNull
+    Set<ViewContentMeta> getObjectsForState(@NotNull Class<NS> stateClass);
 }

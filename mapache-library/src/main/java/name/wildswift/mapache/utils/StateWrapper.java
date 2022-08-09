@@ -1,10 +1,9 @@
 package name.wildswift.mapache.utils;
 
 import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Callable;
 
@@ -23,7 +22,7 @@ final class StateWrapper<E extends Event, VS extends ViewSet, DC, VR extends Vie
     private SingleTimeInitDeinitCaller bindUnbindCaller;
     private VS viewSet;
 
-    StateWrapper(@NonNull S state, @NonNull NavigationContext<E, DC> context, @Nullable VS viewSet) {
+    StateWrapper(@NotNull S state, @NotNull NavigationContext<E, DC> context, @Nullable VS viewSet) {
         this.state = state;
         this.context = context;
         this.viewSet = viewSet;

@@ -1,13 +1,12 @@
 package name.wildswift.mapache.generator.codegen
 
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 import com.squareup.javapoet.*
 import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.codegen.GenerationConstants.createInstanceMethodName
 import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
 import name.wildswift.mapache.generator.generatemodel.StateDefinition
-import name.wildswift.mapache.graph.SubGraph
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
@@ -22,14 +21,14 @@ class StatesWrapperGenerator(
 ) {
 
     private val navigationContextType = ParameterizedTypeName.get(navigationContextTypeName, actionBaseType, dependencySource)
-    private val navigationContextParameter = ParameterSpec.builder(navigationContextType, "context").addAnnotation(NonNull::class.java).build()
+    private val navigationContextParameter = ParameterSpec.builder(navigationContextType, "context").addAnnotation(NotNull::class.java).build()
 
     @SuppressWarnings("DefaultLocale")
     fun generateAll() {
         val rootTypeVariable = TypeVariableName.get("VR", viewTypeName)
         val wrappedTypeVarible = TypeVariableName.get("MS", ParameterizedTypeName.get(mStateTypeName, actionBaseType, genericWildcard, rootTypeVariable, dependencySource))
         val getWrappedMethod = MethodSpec.methodBuilder(getWrappedMethodName)
-                .addAnnotation(NonNull::class.java)
+                .addAnnotation(NotNull::class.java)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                 .returns(wrappedTypeVarible)
                 .build()
@@ -95,7 +94,7 @@ class StatesWrapperGenerator(
                     )
                     /*
                       @Override
-                      @NonNull
+                      @NotNull
                       public BuyStep1State getWrapped() {
                         return wrappedObj;
                       }
@@ -103,7 +102,7 @@ class StatesWrapperGenerator(
                     .addMethod(MethodSpec.methodBuilder(getWrappedMethodName)
                             .addModifiers(Modifier.PUBLIC)
                             .addAnnotation(Override::class.java)
-                            .addAnnotation(NonNull::class.java)
+                            .addAnnotation(NotNull::class.java)
                             .returns(currentStateName)
                             .addStatement("return \$N", wrappedField)
                             .build()
@@ -111,7 +110,7 @@ class StatesWrapperGenerator(
                     /*
                       @Override
                       @Nullable
-                      public TestAppMState getNextState(@NonNull TestAppEvent e) {
+                      public TestAppMState getNextState(@NotNull TestAppEvent e) {
                         if (e instanceof ProceedBuy) return ReviewBuyStateWrapper.newInstance(((ProceedBuy)e).getTiker(), ((ProceedBuy)e).getAmount(), ((ProceedBuy)e).getPaymentType());
                         if (BuildConfig.DEBUG) throw new IllegalStateException("Unable to process event " + e.getClass().getSimpleName());
                         return null;
@@ -121,7 +120,7 @@ class StatesWrapperGenerator(
                             .addModifiers(Modifier.PUBLIC)
                             .addAnnotation(Override::class.java)
                             .addAnnotation(Nullable::class.java)
-                            .addParameter(ParameterSpec.builder(actionBaseType, "e").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(actionBaseType, "e").addAnnotation(NotNull::class.java).build())
                             .returns(baseTypeName)
                             .apply {
                                 state.moveDefinition.forEach { moveDefenition ->
@@ -135,16 +134,16 @@ class StatesWrapperGenerator(
                     )
                     /*
                       @Override
-                      @NonNull
-                      public ViewCouple<RootView, BuyCurrencyStep1View> setup(@NonNull ViewGroup rootView, @NonNull NavigationContext<TestAppEvent, DiContext> context) {
+                      @NotNull
+                      public ViewCouple<RootView, BuyCurrencyStep1View> setup(@NotNull ViewGroup rootView, @NotNull NavigationContext<TestAppEvent, DiContext> context) {
                         return wrappedObj.setup(rootView, context);
                       }
                      */
                     .addMethod(MethodSpec.methodBuilder("setup")
                             .addAnnotation(Override::class.java)
-                            .addAnnotation(NonNull::class.java)
+                            .addAnnotation(NotNull::class.java)
                             .addModifiers(Modifier.PUBLIC)
-                            .addParameter(ParameterSpec.builder(stateRootViewType, "rootView").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(stateRootViewType, "rootView").addAnnotation(NotNull::class.java).build())
                             .addParameter(navigationContextParameter)
                             .returns(thisStateViewSetType)
                             .addStatement("return \$N.setup(rootView, context)", wrappedField)
@@ -152,33 +151,33 @@ class StatesWrapperGenerator(
                     )
                     /*
                       @Override
-                      @NonNull
+                      @NotNull
                       @SuppressWarnings("unchecked")
-                      public Runnable dataBind(@NonNull NavigationContext<TestAppEvent, DiContext> context, @NonNull ViewSet views) {
+                      public Runnable dataBind(@NotNull NavigationContext<TestAppEvent, DiContext> context, @NotNull ViewSet views) {
                         return wrappedObj.dataBind(context, (ViewCouple<RootView, BuyCurrencyStep1View>) views);
                       }
                      */
                     .addMethod(MethodSpec.methodBuilder("dataBind")
                             .addAnnotation(Override::class.java)
-                            .addAnnotation(NonNull::class.java)
+                            .addAnnotation(NotNull::class.java)
                             .addAnnotation(AnnotationSpec.builder(SuppressWarnings::class.java).addMember("value", "\"unchecked\"").build())
                             .addModifiers(Modifier.PUBLIC)
                             .returns(runnableTypeName)
                             .addParameter(navigationContextParameter)
-                            .addParameter(ParameterSpec.builder(viewSetTypeName, "views").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(viewSetTypeName, "views").addAnnotation(NotNull::class.java).build())
                             .addStatement("return \$N.dataBind(context, (\$T) views)", wrappedField, thisStateViewSetType)
                             .build()
                     )
                     /*
                       @Override
-                      @NonNull
-                      public Runnable start(@NonNull NavigationContext<TestAppEvent, DiContext> context) {
+                      @NotNull
+                      public Runnable start(@NotNull NavigationContext<TestAppEvent, DiContext> context) {
                         return wrappedObj.start(context);
                       }
                      */
                     .addMethod(MethodSpec.methodBuilder("start")
                             .addAnnotation(Override::class.java)
-                            .addAnnotation(NonNull::class.java)
+                            .addAnnotation(NotNull::class.java)
                             .addModifiers(Modifier.PUBLIC)
                             .returns(runnableTypeName)
                             .addParameter(navigationContextParameter)
@@ -256,7 +255,7 @@ class StatesWrapperGenerator(
                          */
                         .addMethod(MethodSpec.methodBuilder("getInitialState")
                                 .addAnnotation(Override::class.java)
-                                .addAnnotation(NonNull::class.java)
+                                .addAnnotation(NotNull::class.java)
                                 .addModifiers(Modifier.PUBLIC)
                                 .returns(ParameterizedTypeName.get(baseTypeName, state.subGraphRootType, genericWildcard))
                                 .addStatement("return \$T.newInstance()", state.subGraphInitialStateName)
@@ -270,7 +269,7 @@ class StatesWrapperGenerator(
                          */
                         .addMethod(MethodSpec.methodBuilder("extractRoot")
                                 .addAnnotation(Override::class.java)
-                                .addAnnotation(NonNull::class.java)
+                                .addAnnotation(NotNull::class.java)
                                 .addModifiers(Modifier.PUBLIC)
                                 .returns(state.subGraphRootType)
                                 .addParameter(ParameterSpec.builder(viewTypeName, "currentRoot").build())

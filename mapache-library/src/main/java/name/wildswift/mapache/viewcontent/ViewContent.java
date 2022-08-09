@@ -2,10 +2,11 @@ package name.wildswift.mapache.viewcontent;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
+
 
 public interface ViewContent<T extends View> {
-    void fillCurrentData(@NonNull T view);
-    @NonNull
-    Runnable subscribeForUpdates(@NonNull T view);
+    void fillCurrentData(@NotNull T view);
+    @NotNull
+    Runnable subscribeForUpdates(@NotNull T view);
 }

@@ -1,11 +1,11 @@
 package name.wildswift.mapache.generator.codegen
 
-import androidx.annotation.NonNull
 import com.squareup.javapoet.*
 import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.codegen.GenerationConstants.getWrappedMethodName
 import name.wildswift.mapache.generator.codegen.GenerationConstants.initWrappedMethodName
 import name.wildswift.mapache.generator.generatemodel.TransitionDefinition
+import org.jetbrains.annotations.NotNull
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 
@@ -26,7 +26,7 @@ class TransitionsWrapperGenerator(
 
 
     private val navigationContextType = ParameterizedTypeName.get(navigationContextTypeName, baseActionsType, dependencySourceType)
-    private val navigationContextParameter = ParameterSpec.builder(navigationContextType, "context").addAnnotation(NonNull::class.java).build()
+    private val navigationContextParameter = ParameterSpec.builder(navigationContextType, "context").addAnnotation(NotNull::class.java).build()
 
     fun generateAll() {
         val rootViewType = TypeVariableName.get("VR", viewTypeName)
@@ -53,8 +53,8 @@ class TransitionsWrapperGenerator(
                 .superclass(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, rootViewType, dependencySourceType))
                 .addField(wrappedField)
                 .addMethod(MethodSpec.constructorBuilder()
-                        .addParameter(ParameterSpec.builder(inStateWrapperType, "from").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(outStateWrapperType, "to").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(inStateWrapperType, "from").addAnnotation(NotNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(outStateWrapperType, "to").addAnnotation(NotNull::class.java).build())
                         .addStatement("super(from, to)")
                         .addStatement("\$N = ${initWrappedMethodName}(from.${getWrappedMethodName}(), to.${getWrappedMethodName}())", wrappedField)
                         .build()
@@ -71,9 +71,9 @@ class TransitionsWrapperGenerator(
                         .addAnnotation(AnnotationSpec.builder(SuppressWarnings::class.java).addMember("value", "\"unchecked\"").build())
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(navigationContextParameter)
-                        .addParameter(ParameterSpec.builder(rootViewType, "rootView").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(viewSetTypeName, "inViews").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(stateTransitionCallbackTypeName, viewSetTypeName), "callback").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(rootViewType, "rootView").addAnnotation(NotNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(viewSetTypeName, "inViews").addAnnotation(NotNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(stateTransitionCallbackTypeName, viewSetTypeName), "callback").addAnnotation(NotNull::class.java).build())
                         .addStatement("\$N.execute(\$N, rootView, (\$T) inViews, new \$N(callback))", wrappedField, navigationContextParameter, inViewSetType, internalCallbakWrapper)
                         .build())
                 .addType(internalCallbakWrapper)
@@ -97,16 +97,16 @@ class TransitionsWrapperGenerator(
                 ))
                 .addTypeVariable(emptyViewTypeParameter)
                 .addMethod(MethodSpec.constructorBuilder()
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "from").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "to").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "from").addAnnotation(NotNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "to").addAnnotation(NotNull::class.java).build())
                         .addStatement("super((\$1T) from, (\$1T) to)", ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType)))
                         .build()
                 )
                 .addMethod(MethodSpec.methodBuilder(initWrappedMethodName)
                         .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, emptyViewTypeParameter, dependencySourceType))
                         .addAnnotation(Override::class.java)
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "from").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "to").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "from").addAnnotation(NotNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "to").addAnnotation(NotNull::class.java).build())
                         .addStatement("return new \$T<>(from, to)", emptyTransitionTypeName)
                         .build())
                 .build()
@@ -130,16 +130,16 @@ class TransitionsWrapperGenerator(
                 ))
                 .addTypeVariable(emptyViewTypeParameter)
                 .addMethod(MethodSpec.constructorBuilder()
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "from").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "to").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "from").addAnnotation(NotNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(baseStatesType, genericWildcard, genericWildcard), "to").addAnnotation(NotNull::class.java).build())
                         .addStatement("super((\$1T) from, (\$1T) to)", ParameterizedTypeName.get(baseStatesType, emptyViewTypeParameter, ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType)))
                         .build()
                 )
                 .addMethod(MethodSpec.methodBuilder(initWrappedMethodName)
                         .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, viewSetTypeName, viewSetTypeName, emptyViewTypeParameter, dependencySourceType))
                         .addAnnotation(Override::class.java)
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "from").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "to").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "from").addAnnotation(NotNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(mStateTypeName, baseActionsType, viewSetTypeName, emptyViewTypeParameter, dependencySourceType), "to").addAnnotation(NotNull::class.java).build())
                         .addStatement("return new \$T<>(from, to)", defaultTransitionTypeName)
                         .build())
                 .build()
@@ -172,14 +172,14 @@ class TransitionsWrapperGenerator(
                             transitionDesc.endViewSetClass, transitionDesc.endStateClass, transitionDesc.endStateWrapperClass
                     ))
                     .addMethod(MethodSpec.constructorBuilder()
-                            .addParameter(ParameterSpec.builder(transitionDesc.beginStateWrapperClass, "from").addAnnotation(NonNull::class.java).build())
-                            .addParameter(ParameterSpec.builder(transitionDesc.endStateWrapperClass, "to").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(transitionDesc.beginStateWrapperClass, "from").addAnnotation(NotNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(transitionDesc.endStateWrapperClass, "to").addAnnotation(NotNull::class.java).build())
                             .addStatement("super(from, to)")
                             .build()
                     )
                     .addMethod(MethodSpec.methodBuilder("buildWrapped")
-                            .addParameter(ParameterSpec.builder(transitionDesc.beginStateClass, "from").addAnnotation(NonNull::class.java).build())
-                            .addParameter(ParameterSpec.builder(transitionDesc.endStateClass, "to").addAnnotation(NonNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(transitionDesc.beginStateClass, "from").addAnnotation(NotNull::class.java).build())
+                            .addParameter(ParameterSpec.builder(transitionDesc.endStateClass, "to").addAnnotation(NotNull::class.java).build())
                             .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, transitionDesc.beginViewSetClass, transitionDesc.endViewSetClass, stateTransitionRootViewType, dependencySourceType))
                             .addStatement("return new \$T(from, to)", transitionImplClassName)
                             .build())
@@ -201,11 +201,11 @@ class TransitionsWrapperGenerator(
                 .addSuperinterface(ParameterizedTypeName.get(transitionsFactoryTypeName, baseActionsType, dependencySourceType, mStateType))
                 .addMethod(MethodSpec.methodBuilder("getTransition")
                         .addModifiers(Modifier.PUBLIC)
-                        .addAnnotation(NonNull::class.java)
+                        .addAnnotation(NotNull::class.java)
                         .addAnnotation(Override::class.java)
                         .returns(ParameterizedTypeName.get(stateTransitionTypeName, baseActionsType, genericWildcard, genericWildcard, genericWildcard, dependencySourceType))
-                        .addParameter(ParameterSpec.builder(mStateType, "from").addAnnotation(NonNull::class.java).build())
-                        .addParameter(ParameterSpec.builder(mStateType, "to").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(mStateType, "from").addAnnotation(NotNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(mStateType, "to").addAnnotation(NotNull::class.java).build())
                         .apply {
                             CodeBlock.builder()
                                     .also { codeBlock ->
@@ -248,10 +248,10 @@ class TransitionsWrapperGenerator(
     }
 
     private fun buildCallbackWrapperType(viewSetType: TypeVariableName?): TypeSpec? {
-        val wrappedField = FieldSpec.builder(ParameterizedTypeName.get(stateTransitionCallbackTypeName, viewSetTypeName), "callback").addModifiers(Modifier.PRIVATE, Modifier.FINAL).addAnnotation(NonNull::class.java).build()
-        val wrappedFieldConstructorParameter = ParameterSpec.builder(ParameterizedTypeName.get(stateTransitionCallbackTypeName, viewSetTypeName), "callback").addAnnotation(NonNull::class.java).build()
+        val wrappedField = FieldSpec.builder(ParameterizedTypeName.get(stateTransitionCallbackTypeName, viewSetTypeName), "callback").addModifiers(Modifier.PRIVATE, Modifier.FINAL).addAnnotation(NotNull::class.java).build()
+        val wrappedFieldConstructorParameter = ParameterSpec.builder(ParameterizedTypeName.get(stateTransitionCallbackTypeName, viewSetTypeName), "callback").addAnnotation(NotNull::class.java).build()
         val onTransitionEndedName = "onTransitionEnded"
-        val currentSetOnTransitionEndedName = ParameterSpec.builder(viewSetType, "currentSet").addAnnotation(NonNull::class.java).build()
+        val currentSetOnTransitionEndedName = ParameterSpec.builder(viewSetType, "currentSet").addAnnotation(NotNull::class.java).build()
 
         return TypeSpec.classBuilder("TransitionCallbackWrapper")
                 .addModifiers(Modifier.PRIVATE)

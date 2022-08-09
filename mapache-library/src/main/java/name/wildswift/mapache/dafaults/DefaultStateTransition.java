@@ -3,7 +3,7 @@ package name.wildswift.mapache.dafaults;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import name.wildswift.mapache.NavigationContext;
 import name.wildswift.mapache.events.Event;
@@ -19,7 +19,7 @@ public class DefaultStateTransition<E extends Event, VS_IN extends ViewSet, VS_O
     }
 
     @Override
-    public void execute(@NonNull NavigationContext<E, DC> context, @NonNull RV rootView, @NonNull VS_IN inViews, @NonNull TransitionCallback<VS_OUT> callback) {
+    public void execute(@NotNull NavigationContext<E, DC> context, @NotNull RV rootView, @NotNull VS_IN inViews, @NotNull TransitionCallback<VS_OUT> callback) {
         if (rootView instanceof ViewGroup) ((ViewGroup) rootView).removeAllViews();
         VS_OUT setup = to.setup(rootView, context);
         callback.onTransitionEnded(setup);

@@ -26,12 +26,6 @@ class MapachePlugin: Plugin<Project> {
         project.extensions.findByType(LibraryExtension::class.java)?.libraryVariants?.all {
             processVariant(project, it)
         }
-        project.extensions.findByType(FeatureExtension::class.java)?.libraryVariants?.all {
-            processVariant(project, it)
-        }
-        project.extensions.findByType(FeatureExtension::class.java)?.featureVariants?.all {
-            processVariant(project, it)
-        }
     }
 
     private fun processVariant(project: Project, variant: BaseVariant) {

@@ -4,7 +4,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.NotNull;
 
 import name.wildswift.mapache.NavigationContext;
 import name.wildswift.mapache.events.Event;
@@ -17,7 +18,7 @@ public interface MState<E extends Event, VS extends ViewSet, RV extends View, DC
      * @param rootView
      * @return
      */
-    @NonNull VS setup(@NonNull RV rootView, @NonNull NavigationContext<E, DC> context);
-    @NonNull Runnable dataBind(@NonNull NavigationContext<E, DC> context, @NonNull VS views);
-    @NonNull Runnable start(@NonNull NavigationContext<E, DC> context);
+    @NotNull VS setup(@NotNull RV rootView, @NotNull NavigationContext<E, DC> context);
+    @NotNull Runnable dataBind(@NotNull NavigationContext<E, DC> context, @NotNull VS views);
+    @NotNull Runnable start(@NotNull NavigationContext<E, DC> context);
 }

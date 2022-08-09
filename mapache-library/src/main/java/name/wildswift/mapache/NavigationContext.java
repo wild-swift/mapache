@@ -1,7 +1,7 @@
 package name.wildswift.mapache;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
 
 import name.wildswift.mapache.events.Event;
 import name.wildswift.mapache.events.Eventer;
@@ -9,38 +9,38 @@ import name.wildswift.mapache.osintegration.SystemCalls;
 import name.wildswift.mapache.viewcontent.ViewContentHolder;
 
 public class NavigationContext<E extends Event, DC> {
-    @NonNull
+    @NotNull
     private final DC diContext;
-    @NonNull
+    @NotNull
     private final Eventer<E> eventer;
-    @NonNull
+    @NotNull
     private final ViewContentHolder viewsContents;
-    @NonNull
+    @NotNull
     private final SystemCalls systemCalls;
 
-    NavigationContext(@NonNull DC diContext, @NonNull Eventer<E> eventer, @NonNull ViewContentHolder viewsContents, @NonNull SystemCalls systemCalls) {
+    NavigationContext(@NotNull DC diContext, @NotNull Eventer<E> eventer, @NotNull ViewContentHolder viewsContents, @NotNull SystemCalls systemCalls) {
         this.diContext = diContext;
         this.eventer = eventer;
         this.viewsContents = viewsContents;
         this.systemCalls = systemCalls;
     }
 
-    @NonNull
+    @NotNull
     public DC getDiContext() {
         return diContext;
     }
 
-    @NonNull
+    @NotNull
     public Eventer<E> getEventer() {
         return eventer;
     }
 
-    @NonNull
+    @NotNull
     public ViewContentHolder getViewsContents() {
         return viewsContents;
     }
 
-    @NonNull
+    @NotNull
     public SystemCalls getSystemCalls() {
         return systemCalls;
     }

@@ -2,15 +2,13 @@ package name.wildswift.mapache.utils;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import name.wildswift.mapache.NavigationStateMachine;
@@ -89,7 +87,7 @@ public class ViewContentHolderImpl<D, S extends MState<?, ?, ?, D>> implements V
     @Nullable
     @Override
     @SuppressWarnings("unchecked")
-    public <V extends View, VS extends ViewContent<V>> VS getByView(@NonNull Class<V> clazz) {
+    public <V extends View, VS extends ViewContent<V>> VS getByView(@NotNull Class<V> clazz) {
         List<ViewContentHolder> candidates = new ArrayList<>();
         for (ViewContentHolder viewContentHolder : currentContentHolders) {
             if (viewContentHolder.viewClass == clazz) {
@@ -107,7 +105,7 @@ public class ViewContentHolderImpl<D, S extends MState<?, ?, ?, D>> implements V
     @Nullable
     @Override
     @SuppressWarnings("unchecked")
-    public <VS extends ViewContent<?>> VS getByClass(@NonNull Class<VS> clazz) {
+    public <VS extends ViewContent<?>> VS getByClass(@NotNull Class<VS> clazz) {
         List<ViewContentHolder> candidates = new ArrayList<>();
         for (ViewContentHolder viewContentHolder : currentContentHolders) {
             if (viewContentHolder.clazz == ((Class) clazz)) {
@@ -125,7 +123,7 @@ public class ViewContentHolderImpl<D, S extends MState<?, ?, ?, D>> implements V
     @Nullable
     @Override
     @SuppressWarnings({"ConstantConditions", "unchecked"})
-    public <VS extends ViewContent<?>> VS getByName(@NonNull Class<VS> clazz, @NonNull String name) {
+    public <VS extends ViewContent<?>> VS getByName(@NotNull Class<VS> clazz, @NotNull String name) {
         if (name == null) throw new NullPointerException();
         for (ViewContentHolder viewContentHolder : currentContentHolders) {
             if (viewContentHolder.clazz == (Class) clazz && name.equals(viewContentHolder.name)) return (VS) viewContentHolder.impl;

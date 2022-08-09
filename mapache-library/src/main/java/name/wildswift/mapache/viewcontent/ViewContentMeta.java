@@ -2,8 +2,9 @@ package name.wildswift.mapache.viewcontent;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 
 public class ViewContentMeta<V extends View, VC extends ViewContent<V>> {
     private final Class<V> viewClass;
@@ -12,7 +13,7 @@ public class ViewContentMeta<V extends View, VC extends ViewContent<V>> {
     private final boolean isDefault;
 
 
-    public ViewContentMeta(@NonNull Class<V> viewClass, @NonNull Class<VC> clazz, @Nullable String name, boolean isDefault) {
+    public ViewContentMeta(@NotNull Class<V> viewClass, @NotNull Class<VC> clazz, @Nullable String name, boolean isDefault) {
         this.viewClass = viewClass;
         this.clazz = clazz;
         this.name = name;

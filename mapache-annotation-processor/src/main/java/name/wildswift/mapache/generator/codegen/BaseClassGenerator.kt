@@ -1,10 +1,10 @@
 package name.wildswift.mapache.generator.codegen
 
-import androidx.annotation.NonNull
 import com.squareup.javapoet.*
 import name.wildswift.mapache.generator.*
 import name.wildswift.mapache.generator.generatemodel.LayerDefinition
 import name.wildswift.mapache.generator.generatemodel.ViewContentDefinition
+import org.jetbrains.annotations.NotNull
 import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 
@@ -126,11 +126,11 @@ class BaseClassGenerator(
                     }
                 */
                 .addMethod(MethodSpec.methodBuilder("getObjectsForState")
-                        .addAnnotation(NonNull::class.java)
+                        .addAnnotation(NotNull::class.java)
                         .addAnnotation(Override::class.java)
                         .addModifiers(Modifier.PUBLIC)
                         .returns(ParameterizedTypeName.get(setTypeName, viewContentMetaTypeName))
-                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(classTypeName, mStateParameterizedBaseClass), "stateClass").addAnnotation(NonNull::class.java).build())
+                        .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(classTypeName, mStateParameterizedBaseClass), "stateClass").addAnnotation(NotNull::class.java).build())
                         .addStatement("\$T result = mapping.get(stateClass)", ParameterizedTypeName.get(setTypeName, viewContentMetaTypeName))
                         .beginControlFlow("if (result != null)")
                         .addStatement("return result")

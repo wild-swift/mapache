@@ -1,11 +1,9 @@
 package name.wildswift.mapache.graph;
 
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
 
 import name.wildswift.mapache.NavigationContext;
 import name.wildswift.mapache.events.Event;
@@ -22,5 +20,5 @@ public abstract class StateTransition<E extends Event, VS_IN extends ViewSet, VS
         this.to = to;
     }
 
-    public abstract void execute(@NonNull NavigationContext<E, DC> context, @NonNull RV rootView, @NonNull VS_IN inViews, @NonNull TransitionCallback<VS_OUT> callback);
+    public abstract void execute(@NotNull NavigationContext<E, DC> context, @NotNull RV rootView, @NotNull VS_IN inViews, @NotNull TransitionCallback<VS_OUT> callback);
 }

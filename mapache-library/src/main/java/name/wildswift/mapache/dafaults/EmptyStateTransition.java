@@ -4,8 +4,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
 
 import name.wildswift.mapache.NavigationContext;
 import name.wildswift.mapache.events.Event;
@@ -21,7 +21,7 @@ public class EmptyStateTransition<E extends Event, VS extends ViewSet, RV extend
     }
 
     @Override
-    public void execute(@NonNull NavigationContext<E, DC> context, @NonNull RV rootView, @NonNull VS inViews, @NonNull TransitionCallback<VS> callback) {
+    public void execute(@NotNull NavigationContext<E, DC> context, @NotNull RV rootView, @NotNull VS inViews, @NotNull TransitionCallback<VS> callback) {
         callback.onTransitionEnded(inViews);
     }
 

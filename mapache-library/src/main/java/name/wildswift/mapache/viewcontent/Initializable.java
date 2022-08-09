@@ -1,8 +1,9 @@
 package name.wildswift.mapache.viewcontent;
 
-import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.NotNull;
 
 public interface Initializable<T> {
-    void init(@NonNull T context);
+    void init(@NotNull T context);
     void close();
 }

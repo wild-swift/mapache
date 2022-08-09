@@ -5,7 +5,8 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class CallToActivityBridge {
         this.eventer = eventer;
     }
 
-    @NonNull
+    @NotNull
     public SystemCalls getSystemCaller() {
         return systemCaller;
     }
